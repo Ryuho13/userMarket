@@ -5,76 +5,81 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>채팅방 (테스트용)</title>
+<title>채팅창</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/chatRoom.css">
+
 <script>
 let ws;
 
-// WebSocket 연결
 function connect(roomId, userId) {
-    ws = new WebSocket("ws://localhost:8080/yourAppName/chatSocket/" + roomId + "/" + userId);
+  const wsUrl = "ws://" + window.location.host + "<%= request.getContextPath() %>/chatSocket/" + roomId + "/" + userId;
+  ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => {
-        console.log(" WebSocket 연결 성공");
-    };
+  ws.onopen = () => console.log("WebSocket 연결 성공");
 
-    ws.onmessage = (event) => {
-        const chatBox = document.getElementById("chatBox");
-        const msgDiv = document.createElement("div");
-        msgDiv.textContent = event.data;
-        chatBox.appendChild(msgDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    };
+  ws.onmessage = (event) => {
+    const chatBox = document.getElementById("chatBox");
+    const text = event.data;
 
-    ws.onclose = () => {
-        console.log(" WebSocket 연결 종료");
-    };
+    // 메시지 앞부분: [999] : 내용
+    const isMine = text.startsWith("[" + userId + "]");
 
-    ws.onerror = (err) => {
-        console.error(" WebSocket 오류:", err);
-    };
+    const msgDiv = document.createElement("div");
+    msgDiv.className = isMine ? "my-message" : "other-message";
+
+    const cleanText = text.replace("[" + userId + "] : ", ""); // 내 ID 제거
+    msgDiv.textContent = cleanText;
+
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
+
+  ws.onclose = () => console.log("WebSocket 연결 종료");
+  ws.onerror = (err) => console.error("WebSocket 오류", err);
 }
 
 function sendMessage(roomId, userId) {
-    const input = document.getElementById("msg");
-    const msg = input.value.trim();
-    if (msg === "") return;
-
-    ws.send(userId + ": " + msg);
-    input.value = "";
+  const input = document.getElementById("msg");
+  const msg = input.value.trim();
+  if (msg === "") return;
+  ws.send(msg);
+  input.value = "";
 }
 
 window.onload = function() {
-    const roomId = document.getElementById("roomId").value;
-    const userId = document.getElementById("userId").value;
-    connect(roomId, userId);
+  const roomId = document.getElementById("roomId").value;
+  const userId = document.getElementById("userId").value;
+  connect(roomId, userId);
+
+  // 엔터로 전송 / Shift+Enter 줄바꿈
+  const msgInput = document.getElementById("msg");
+  msgInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(roomId, userId);
+    }
+  });
 };
 </script>
 </head>
+
 <body>
-
 <%
-    ChatRoom room = (ChatRoom) request.getAttribute("room");
-
-    // 테스트용 사용자 ID 
-    long userId = 999L;
-
-    // 방 정보
-    long roomId = room.getId();
-    long productId = room.getProductsId();
+  ChatRoom room = (ChatRoom) request.getAttribute("room");
+  long roomId = room != null ? room.getId() : 1L;
+  long userId = 2L; // 로그인 미구현 테스트용 ID
 %>
 
-<h2>채팅방 (테스트용)</h2>
-<p>채팅방 번호: <%= roomId %></p>
-<p>상품 번호: <%= productId %></p>
-<p>현재 사용자 ID(테스트용): <%= userId %></p>
+<h2>USER ID: <%= roomId %></h2>
 
-<div id="chatBox" style="border:1px solid #aaa; width:400px; height:300px; overflow:auto; margin-bottom:10px;"></div>
-<input type="text" id="msg" style="width:300px;">
-<button onclick="sendMessage('<%= roomId %>', '<%= userId %>')">보내기</button>
+<div id="chatBox"></div>
 
-<!-- WebSocket 연결용 hidden input -->
+<div>
+  <textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
+  <button onclick="sendMessage('<%= roomId %>', '<%= userId %>')">보내기</button>
+</div>
+
 <input type="hidden" id="roomId" value="<%= roomId %>">
 <input type="hidden" id="userId" value="<%= userId %>">
-
 </body>
 </html>
