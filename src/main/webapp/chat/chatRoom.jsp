@@ -9,19 +9,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>실시간 채팅방</title>
-  <link rel="stylesheet" href="<%= request.getContextPath() %>/resources/chatRoom.css">
-  <script src="<%= request.getContextPath() %>/resources/chatRoom.js" defer></script>
+<meta charset="UTF-8">
+<title>실시간 채팅방</title>
+<link rel="stylesheet" href="<%= request.getContextPath() %>/resources/chatRoom.css">
+<script src="<%= request.getContextPath() %>/resources/chatRoom.js" defer></script>
 </head>
 <body>
 
   <h2>채팅방: <%= roomId %></h2>
   <div id="chatBox" data-room="<%= roomId %>" data-user="<%= userId %>"></div>
-  <div>
-    <textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
-    <button id="sendBtn">보내기</button>
-  </div>
+  <div class="chat-input-area">
+  	<textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
+  	<button id="sendBtn" onclick="sendMessage('<%= roomId %>', '<%= userId %>')">보내기</button>
+	</div>
+
 </body>
 </html>
     
