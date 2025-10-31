@@ -41,7 +41,7 @@
 		<div class="area ">
 			<div class="d-flex justify-content-between">
 				<h2 class="fs-6 fw-bold">위치</h2>
-				<a type="button">초기화</a>
+				<a href="./product_list.jsp" type="button" class="text-secondary-emphasis">초기화</a>
 			</div>
 			<div class="d-flex flex-column justify-content-center">
 				<%
@@ -161,6 +161,7 @@
 	    rs = pstmt.executeQuery();
 	
 	    while (rs.next()) {
+	    	String productId = rs.getString("product_id");
 	        String productName = rs.getString("product_name");
 	        int price = rs.getInt("sell_price");
 	        String siggName = rs.getString("sigg_name");
@@ -171,12 +172,14 @@
 	            imgSrc = imgName;
 	        }
 	%>    
-        <div class="product_item m-1 border rounded-4 shadow-sm p-3" style="width:250px; min-width:140px; height: 300px;">
-            <img alt="제품_이미지" src="<%= imgSrc %>" class="product_img rounded-4 w-100 h-75">
-            <p class="product_name fs-6 fw-bold mt-2 mb-0"><%= productName %></p>
-            <p class="product_price mt-1 mb-0 fw-bold" style="font-size:0.8rem;"><%= price %>원</p>
-            <p class="product_ text-secondary mt-1 mb-0" style="font-size:0.6rem;"><%= siggName %></p>
-        </div>
+		<a href="product.jsp?id=<%= productId %>" type="button" class="text-decoration-none text-secondary-emphasis">
+	        <div class="product_item m-1 border rounded-4 shadow-sm p-3" style="width:250px; min-width:140px; height: 300px;">
+	            <img alt="제품_이미지" src="<%= imgSrc %>" class="product_img rounded-4 w-100 h-75">
+	            <p class="product_name fs-6 fw-bold mt-2 mb-0"><%= productName %></p>
+	            <p class="product_price mt-1 mb-0 fw-bold" style="font-size:0.8rem;"><%= price %>원</p>
+	            <p class="product_ text-secondary mt-1 mb-0" style="font-size:0.6rem;"><%= siggName %></p>
+	        </div>
+        </a>
 	<%
 	    }
 	} catch (SQLException e) {
