@@ -33,7 +33,7 @@
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
         conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
-        conn.setAutoCommit(false); // 트랜잭션 시작
+        conn.setAutoCommit(false);
 
         String sqlUser = "INSERT INTO user (account_id, pw, name, phn, em, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
         psUser = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
@@ -58,8 +58,7 @@
         conn.commit();
 %>
         <script>
-            alert("회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.");
-            location.href = "login.jsp";
+            location.href = "welcome.jsp";
         </script>
 <%
     } catch (Exception e) {

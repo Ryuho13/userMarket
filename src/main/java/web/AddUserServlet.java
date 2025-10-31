@@ -38,7 +38,7 @@ public class AddUserServlet extends HttpServlet {
         String regionId  = req.getParameter("region_id");
         String addrDet   = req.getParameter("addr_detail");
 
-        // 1) 최소 유효성
+        // 회원가입 양식 한개라도 입력 안하면 실패
         if (accountId == null || accountId.isBlank()
                 || pw == null || pw.isBlank()
                 || name == null || name.isBlank()
@@ -49,7 +49,7 @@ public class AddUserServlet extends HttpServlet {
         }
 
         try {
-            // 2) 중복 체크
+            // 중복 체크
             if (userDAO.isAccountIdDuplicated(accountId)) {
                 req.setAttribute("error", "이미 사용 중인 아이디입니다.");
                 req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
@@ -61,7 +61,7 @@ public class AddUserServlet extends HttpServlet {
                 return;
             }
 
-            // 4) DTO 구성
+            // DTO
             User u = new User();
             u.setAccountId(accountId);
             u.setName(name);
@@ -80,7 +80,7 @@ public class AddUserServlet extends HttpServlet {
                 }
             }
 
-            // 5) 트랜잭션 INSERT
+            // 트랜잭션 INSERT
             int newUserId = userDAO.createUserWithInfo(u, ui);
 
             req.setAttribute("ok", "회원가입 완료! (user_id=" + newUserId + ")");

@@ -21,7 +21,7 @@ public class UserDAO {
             try {
                 conn.setAutoCommit(false);
 
-                // 1) user INSERT
+                // user INSERT
                 int newUserId;
                 try (PreparedStatement ps = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
                     ps.setString(1, user.getAccountId());
@@ -37,7 +37,7 @@ public class UserDAO {
                     }
                 }
 
-                // 2) user_info INSERT (옵션: regionId나 addrDetail이 없을 수도 있으니 null 허용)
+                // user_info INSERT
                 try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
                     ps.setInt(1, newUserId);
                     ps.setString(2, info.getNickname());
