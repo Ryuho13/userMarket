@@ -5,11 +5,32 @@
 <meta charset="UTF-8">
 <title>상품 목록</title>
 <link rel="stylesheet" href="../resources/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 </head>
 <body>
 <%@ include file="../resources/mysql/dbconn.jsp" %>
 
+<div class="select_container border p-2 d-flex justify-content-center align-items-center" style="width:1600px;">
+		<div class="area_select">
+			<button type="button" class="btn btn-light d-flex justify-content-center align-items-center gap-1">
+				  <span class="material-symbols-outlined">location_on</span>
+				  <span class="fs-6">지역 선택</span>
+			</button>
+		</div>
+		<div>
+			<div class="product_select d-flex border rounded-4 align-items-center">
+				<span class="material-symbols-outlined">search</span>
+				<span class="">aa</span>
+				<span class="material-symbols-outlined">arrow_circle_right</span>
+			</div>
+			<div class="popular_searches">	
+				
+			</div>
+		</div>
+</div>
 <div class="container py-4 d-flex" style="width:1600px;">
+	
 	<div class="product_filter border p-2" style="width: 250px; min-width:250px">
 		<h2 class="fs-3 fw-bold">필터</h2>
 		<div class="status d-flex align-items-center">
