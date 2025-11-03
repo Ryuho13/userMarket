@@ -1,0 +1,29 @@
+/* 이미지에서 참고한 굵은 폰트 스타일 */
+.welcome-title {
+	/* 텍스트가 컨테이너 너비에 맞게 유동적으로 축소되도록 font-size 조정 */
+	/* 8vw (뷰포트 너비의 8%)를 기본으로 하되 최대 3.5rem으로 제한 */
+	font-size: min(8vw, 3.5rem);
+	font-weight: 900; /* Extra bold */
+	line-height: 1.1; /* Tighter line height */
+	color: #2D3748; /* Dark gray for contrast */
+	/* 텍스트가 강제로 한 줄에 유지되도록 설정 */
+	white-space: nowrap;
+}
+
+.subtitle {
+	font-size: 1.5rem; /* Slightly smaller for subtitle */
+	font-weight: 700; /* Bold */
+	/* 초록 계열 색상으로 변경 */
+	color: #10B981; /* Emerald green */
+	margin-top: 0.5rem;
+}
+/* 이미지의 버튼 색상 (초록 계열) */
+.btn-custom-green {
+	background-color: #10B981; /* Emerald green */
+}
+
+.btn-custom-green:hover {
+	background-color: #059669; /* Darker emerald green */
+}
+/* 폰트 대체를 위해 Inter 폰트를 명시적으로 임포트 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');

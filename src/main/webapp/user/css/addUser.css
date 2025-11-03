@@ -1,0 +1,35 @@
+body { 
+    font-family: 'Inter', sans-serif; 
+    background-color: #f3f5f7; 
+}
+
+.primary-green { 
+    background-color: #1E9447; 
+    border-color: #1E9447; 
+}
+.primary-green:hover { 
+    background-color: #177a39; 
+    border-color: #177a39; 
+}
+.text-green-500 { 
+    color: #1E9447; 
+}
+
+.focus-ring { 
+    box-shadow: 0 0 0 4px rgba(30, 148, 71, 0.5);
+}
+
+.login-card {
+    max-width: 400px;
+    padding: 40px;
+    margin: auto;
+    margin-top: 80px;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+.form-signin-heading {
+    margin-bottom: 25px;
+    font-weight: 700;
+    color: #28a745;
+}

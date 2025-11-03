@@ -1,0 +1,41 @@
+body {
+	background-color: #ffffff;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.main-logo {
+	font-size: 36px;
+	font-weight: bold;
+}
+
+.main-logo a {
+	color: #218838;
+	text-decoration: none;
+}
+
+.login-card-container {
+	flex-grow: 1;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	width: 100%;
+}
+
+.login-card {
+	max-width: 400px;
+	width: 100%;
+	padding: 40px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background-color: #ffffff; 
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.login-card h3 {
+	color: #218838;
+	font-weight: bold;
+}
