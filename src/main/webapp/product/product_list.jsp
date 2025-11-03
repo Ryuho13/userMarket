@@ -137,10 +137,10 @@ body {
 </head>
 <body>
 
-<%-- <c:if test="${empty products}">
+<c:if test="${empty products}">
   <c:redirect url="/product/list" />
 </c:if>
- --%>
+
 <!-- 🔍 검색 영역 -->
 <div class="select_container">
   <form action="${ctx}/product/search" method="get" class="d-flex align-items-center flex-grow-1 gap-3">
