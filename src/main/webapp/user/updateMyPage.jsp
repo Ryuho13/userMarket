@@ -12,27 +12,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/updateMyPage.css">
 
-<style type="text/css">
-body {
-	font-family: 'Inter', sans-serif;
-	background-color: #f3f5f7;
-}
-
-.primary-green {
-	background-color: #1E9447;
-	border-color: #1E9447;
-}
-
-.primary-green:hover {
-	background-color: #177a39;
-	border-color: #177a39;
-}
-
-.text-green-500 {
-	color: #1E9447;
-}
-</style>
-
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 	<div class="max-w-xl mx-auto bg-white p-6 sm:p-8 shadow-xl rounded-2xl">
