@@ -111,7 +111,7 @@
       </c:when>
       <c:otherwise>
         <c:forEach var="p" items="${products}">
-          <a href="${ctx}/product/detail?id=${p.id}" type="button">
+          <a href="${ctx}/product/detail?id=${p.id}" type="button" class="text-decoration-none">
             <div class="product_item card p-2">
               <c:choose>
                 <c:when test="${not empty p.displayImg}">
