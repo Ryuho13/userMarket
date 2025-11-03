@@ -22,27 +22,34 @@
 
 <!-- 🔍 검색 영역 -->
 <div class="select_container">
-  <div class="d-flex align-items-center gap-2">
-    <button type="button" class="btn btn-light d-flex align-items-center gap-1 px-3 py-2">
-      <span class="material-symbols-outlined">location_on</span>
-      <span class="fs-6">지역 선택</span>
-    </button>
-  </div>
-  <div class="d-flex flex-column flex-grow-1 ms-3">
-    <div class="input-group">
+  <form action="${ctx}/product/search" method="get" class="d-flex align-items-center flex-grow-1 gap-3">
+    <!-- 지역 선택 -->
+    <div class="d-flex align-items-center gap-2">
+      <select name="sigg_area" class="form-select">
+        <option value="">지역 선택</option>
+        <c:forEach var="sigg" items="${userSiggs}">
+          <option value="${sigg.name}">${sigg.name}</option>
+        </c:forEach>
+      </select>
+    </div>
+
+    <!-- 검색창 -->
+    <div class="input-group flex-grow-1">
       <span class="input-group-text bg-white border-end-0">
         <span class="material-symbols-outlined">search</span>
       </span>
-      <input type="text" class="form-control border-start-0" placeholder="상품명 또는 카테고리 검색">
-      <button class="btn btn-primary">
+      <input type="text" name="q" class="form-control border-start-0" placeholder="상품명 또는 카테고리 검색">
+      <button class="btn btn-primary" type="submit">
         <span class="material-symbols-outlined">arrow_circle_right</span>
       </button>
     </div>
-    <div class="mt-2 text-secondary popular-searches-text">
-      인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
-    </div>
+  </form>
+
+  <div class="mt-2 text-secondary popular-searches-text">
+    인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
   </div>
 </div>
+
 
 <!-- 🧭 본문 영역 -->
 <div class="main_container">
