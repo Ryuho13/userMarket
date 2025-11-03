@@ -1,22 +1,22 @@
 body { 
     font-family: 'Inter', sans-serif; 
-    background-color: #f3f5f7; 
+    background-color: #f3f5f7 !important; 
 }
 
 .primary-green { 
     background-color: #1E9447; 
-    border-color: #1E9447; 
+    border-color: #1E9447 !important; 
 }
 .primary-green:hover { 
-    background-color: #177a39; 
-    border-color: #177a39; 
+    background-color: #177a39 !important; 
+    border-color: #177a39 !important; 
 }
 .text-green-500 { 
-    color: #1E9447; 
+    color: #1E9447 !important; 
 }
 
 .focus-ring { 
-    box-shadow: 0 0 0 4px rgba(30, 148, 71, 0.5);
+    box-shadow: 0 0 0 4px rgba(30, 148, 71, 0.5) !important;
 }
 
 .login-card {
@@ -31,5 +31,5 @@ body {
 .form-signin-heading {
     margin-bottom: 25px;
     font-weight: 700;
-    color: #28a745;
+    color: #28a745 !important;
 }

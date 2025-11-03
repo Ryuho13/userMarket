@@ -8,7 +8,9 @@
 <title>회원 가입</title>
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
+
 <link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/addUser.css">
+
 </head>
 <body class="min-h-screen flex items-start justify-center p-4">
 

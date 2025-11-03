@@ -41,7 +41,7 @@ function byName(form, name) {
   return el;
 }
 
-/* 회원가입 폼 유효성 검사 */
+ 회원가입 폼 유효성 검사 
 function checkAddForm(e) {
 	e.preventDefault();
 
@@ -105,7 +105,7 @@ function checkAddForm(e) {
 	}
 }
 
-/* 회원수정 폼 유효성 검사 */
+ 회원수정 폼 유효성 검사 
 function checkUpdateForm(e) {
 	const form = e?.target || document.forms['updateUser'];
 	if (!form) { displayError('폼을 찾을 수 없습니다.'); e.preventDefault(); return false; }
@@ -133,7 +133,7 @@ function checkUpdateForm(e) {
 	}
 }
 
-/* 바인딩 (inline 없어도 동작) */
+ 바인딩 (inline 없어도 동작) 
 document.addEventListener('DOMContentLoaded', () => {
 	const addForm = document.forms['newUser'];
 	if (addForm) addForm.addEventListener('submit', checkAddForm);
