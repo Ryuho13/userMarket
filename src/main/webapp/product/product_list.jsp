@@ -9,17 +9,17 @@
 <!-- Context Path 변수 설정 -->
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<!-- 정적 리소스 경로 -->
-<link rel="stylesheet" href="${ctx}/resources/css/bootstrap.min.css">
+<link rel="stylesheet" href="/resources/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link rel="stylesheet" href="${ctx}/resources/css/product_list.css">
+<link rel="stylesheet" href="/resources/css/product_list.css">
+
 </head>
 <body>
 
-<c:if test="${empty products}">
+<%-- <c:if test="${empty products}">
   <c:redirect url="/product/list" />
 </c:if>
-
+ --%>
 <!-- 🔍 검색 영역 -->
 <div class="select_container">
   <form action="${ctx}/product/search" method="get" class="d-flex align-items-center flex-grow-1 gap-3">

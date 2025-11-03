@@ -17,7 +17,7 @@
 <body>
 
 	<h1 class="main-logo">
-		<a href="${pageContext.request.contextPath}/index.jsp">
+		<a href="${pageContext.request.contextPath}/product_list.jsp">
 			<img alt="단감나라" src="<%=request.getContextPath()%>/user/img/real단감나라.png" style="width: 300px">
 		</a>
 	</h1>
@@ -29,7 +29,7 @@
 
 			<div class="alert alert-danger" role="alert">아이디와 비밀번호를 확인해주세요.</div>
 
-			<form class="form-signin" action="<%=request.getContextPath()%>/index.jsp" method="post">
+			<form class="form-signin" action="<%=request.getContextPath()%>/product/product_list.jsp" method="post">
 				<div class="form-floating mb-3">
 					<input type="text" class="form-control" name="id" id="floatingInput" placeholder="ID" required autofocus>
 					<label for="floatingInput">아이디 (ID)</label>
