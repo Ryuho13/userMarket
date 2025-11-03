@@ -1,0 +1,18 @@
+body {
+	font-family: 'Inter', sans-serif;
+	background-color: #f3f5f7;
+}
+
+.primary-green {
+	background-color: #1E9447;
+	border-color: #1E9447;
+}
+
+.primary-green:hover {
+	background-color: #177a39;
+	border-color: #177a39;
+}
+
+.text-green-500 {
+	color: #1E9447;
+}
