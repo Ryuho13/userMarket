@@ -9,17 +9,7 @@ public class Message {
     private String message;
     private Timestamp createdAt;
 
-    public Message() {}
-
-    public Message(long id, long chatRoomId, long senderId, String message, Timestamp createdAt) {
-        this.id = id;
-        this.chatRoomId = chatRoomId;
-        this.senderId = senderId;
-        this.message = message;
-        this.createdAt = createdAt;
-    }
-
-    // Getter/Setter
+    // Getters & Setters
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 
@@ -35,4 +25,3 @@ public class Message {
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 }
-
