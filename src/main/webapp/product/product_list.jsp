@@ -1,19 +1,23 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>상품 목록</title>
-<link rel="stylesheet" href="../resources/css/bootstrap.min.css">
+
+<!-- Context Path 변수 설정 -->
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+
+<!-- 정적 리소스 경로 -->
+<link rel="stylesheet" href="${ctx}/resources/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link rel="stylesheet" href="../resources/css/product_list.css">
+<link rel="stylesheet" href="${ctx}/resources/css/product_list.css">
 </head>
 <body>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<!-- If this JSP is opened directly (no 'products' attribute), redirect to the servlet that provides data -->
 <c:if test="${empty products}">
-  <c:redirect url="${pageContext.request.contextPath}/product/list" />
+  <c:redirect url="/product/list" />
 </c:if>
 
 <!-- 🔍 검색 영역 -->
@@ -34,7 +38,9 @@
         <span class="material-symbols-outlined">arrow_circle_right</span>
       </button>
     </div>
-  <div class="mt-2 text-secondary popular-searches-text">인기 검색어: 노트북, 자전거, 의자, 아이폰 ...</div>
+    <div class="mt-2 text-secondary popular-searches-text">
+      인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
+    </div>
   </div>
 </div>
 
@@ -54,7 +60,7 @@
     <div class="mb-4">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="fw-bold mb-0">위치</h6>
-        <a href="./product_list.jsp" class="text-decoration-none text-primary small">초기화</a>
+        <a href="${ctx}/product/product_list.jsp" class="text-decoration-none text-primary small">초기화</a>
       </div>
       <div class="d-flex flex-column">
         <c:if test="${not empty userSidos}">
@@ -98,15 +104,15 @@
       </c:when>
       <c:otherwise>
         <c:forEach var="p" items="${products}">
-          <a href="${pageContext.request.contextPath}/product/detail?id=${p.id}" type="button">
+          <a href="${ctx}/product/detail?id=${p.id}" type="button">
             <div class="product_item card p-2">
               <c:choose>
-                  <c:when test="${not empty p.displayImg}">
-                    <img src="${p.displayImg}" class="card-img-top rounded-4 product_img" alt="상품 이미지">
-                  </c:when>
-                  <c:otherwise>
-                    <img src="${pageContext.request.contextPath}/resources/images/noimage.jpg" class="card-img-top rounded-4 product_img" alt="이미지없음">
-                  </c:otherwise>
+                <c:when test="${not empty p.displayImg}">
+                  <img src="${p.displayImg}" class="card-img-top rounded-4 product_img" alt="상품 이미지">
+                </c:when>
+                <c:otherwise>
+                  <img src="${ctx}/resources/images/noimage.jpg" class="card-img-top rounded-4 product_img" alt="이미지없음">
+                </c:otherwise>
               </c:choose>
               <div class="card-body p-2">
                 <h6 class="card-title text-truncate mb-1 fw-bold">${p.title}</h6>
