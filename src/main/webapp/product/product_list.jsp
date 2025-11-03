@@ -9,9 +9,130 @@
 <!-- Context Path 변수 설정 -->
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
-<link rel="stylesheet" href="/resources/css/bootstrap.min.css">
+<link rel="stylesheet" href="${ctx}/product/resources/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link rel="stylesheet" href="/resources/css/product_list.css">
+<link rel="stylesheet" href="${ctx}/product/resources/css/product_list.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous">
+
+<style type="text/css">
+	/* Styles extracted from product_list.jsp for product list page */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* 상단 검색 영역 */
+.select_container {
+  background: #fff;
+  border-radius: 16px;
+  margin: 20px auto 10px;
+  width: 90%;
+  max-width: 1500px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-light {
+  border-radius: 30px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 메인 영역 레이아웃 */
+.main_container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 필터 영역 (왼쪽) */
+.product_filter {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  width: 400px;
+  padding: 20px;
+  position: sticky;
+  top: 100px;
+  align-self: flex-start;
+}
+
+/* 상품 리스트 (오른쪽) */
+.product_items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  gap: 1.5rem;
+  flex-grow: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+}
+
+/* 상품 카드 */
+.product_item {
+  border: none;
+  width: 250px;
+  min-width: 230px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.product_item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.product_img {
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.form-check-input:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.pagination {
+  margin-top: 30px;
+  justify-content: center;
+}
+
+@media (max-width: 992px) {
+  .main_container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .product_filter {
+    position: static;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Small helpers moved from inline styles */
+.popular-searches-text {
+  font-size: 0.85rem;
+}
+
+.price-small {
+  font-size: 0.9rem;
+}
+	
+</style>
 
 </head>
 <body>
