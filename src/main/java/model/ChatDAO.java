@@ -5,81 +5,83 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatDAO {
-    private Connection conn;
+    private final Connection conn;
 
     public ChatDAO(Connection conn) {
         this.conn = conn;
     }
 
-    // 채팅방 존재 여부 확인 및 생성
+    // 방 찾거나 생성
     public ChatRoom findOrCreateRoom(long productId, long buyerId) {
-        ChatRoom room = null;
+        String sel = "SELECT id, products_id, buyer_id, created_at " +
+                     "FROM chat_room WHERE products_id = ? AND buyer_id = ? LIMIT 1";
+        try (PreparedStatement ps = conn.prepareStatement(sel)) {
+            ps.setLong(1, productId);
+            ps.setLong(2, buyerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new ChatRoom(
+                        rs.getLong("id"),
+                        rs.getLong("products_id"),
+                        rs.getLong("buyer_id"),
+                        rs.getTimestamp("created_at")
+                    );
+                }
+            }
 
-        String selectSql = "SELECT * FROM chat_room WHERE products_id=? AND buyer_id=?";
-        String insertSql = "INSERT INTO chat_room (products_id, buyer_id, created_at) VALUES (?, ?, NOW())";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(selectSql)) {
-            pstmt.setLong(1, productId);
-            pstmt.setLong(2, buyerId);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                room = new ChatRoom(
-                    rs.getLong("id"),
-                    rs.getLong("products_id"),
-                    rs.getLong("buyer_id"),
-                    rs.getTimestamp("created_at")
-                );
-            } else {
-                try (PreparedStatement insertPstmt = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
-                    insertPstmt.setLong(1, productId);
-                    insertPstmt.setLong(2, buyerId);
-                    insertPstmt.executeUpdate();
-
-                    ResultSet keys = insertPstmt.getGeneratedKeys();
+            // 없으면 생성
+            String ins = "INSERT INTO chat_room(products_id, buyer_id, created_at) VALUES(?, ?, NOW())";
+            try (PreparedStatement ps2 = conn.prepareStatement(ins, Statement.RETURN_GENERATED_KEYS)) {
+                ps2.setLong(1, productId);
+                ps2.setLong(2, buyerId);
+                ps2.executeUpdate();
+                try (ResultSet keys = ps2.getGeneratedKeys()) {
                     if (keys.next()) {
-                        room = new ChatRoom(keys.getLong(1), productId, buyerId, new Timestamp(System.currentTimeMillis()));
+                        long id = keys.getLong(1);
+                        return new ChatRoom(id, productId, buyerId, new Timestamp(System.currentTimeMillis()));
                     }
                 }
             }
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return room;
+        return null;
     }
 
     // 메시지 저장
-    public void saveMessage(long roomId, long senderId, String message) {
-        String sql = "INSERT INTO chat_messages (chat_room_id, sender_id, message, created_at) VALUES (?, ?, ?, NOW())";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
-            pstmt.setLong(2, senderId);
-            pstmt.setString(3, message);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
+    public void saveMessage(long roomId, long senderId, String content) {
+        String sql = "INSERT INTO chat_messages(chat_room_id, sender_id, message, created_at) " +
+                     "VALUES (?, ?, ?, NOW())";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, roomId);
+            ps.setLong(2, senderId);
+            ps.setString(3, content);
+            ps.executeUpdate();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // 메시지 목록 불러오기
+    // 메시지 목록
     public List<Message> getMessages(long roomId) {
         List<Message> list = new ArrayList<>();
-        String sql = "SELECT * FROM chat_messages WHERE chat_room_id=? ORDER BY created_at ASC";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Message msg = new Message();
-                msg.setId(rs.getLong("id"));
-                msg.setChatRoomId(rs.getLong("chat_room_id"));
-                msg.setSenderId(rs.getLong("sender_id"));
-                msg.setMessage(rs.getString("message"));
-                msg.setCreatedAt(rs.getTimestamp("created_at"));
-                list.add(msg);
+        String sql = "SELECT id, chat_room_id, sender_id, message, created_at " +
+                     "FROM chat_messages WHERE chat_room_id = ? ORDER BY id ASC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, roomId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Message(
+                        rs.getLong("id"),
+                        rs.getLong("chat_room_id"),
+                        rs.getLong("sender_id"),
+                        rs.getString("message"),
+                        rs.getTimestamp("created_at")
+                    ));
+                }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
