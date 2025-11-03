@@ -20,7 +20,7 @@
 		try {
 			String url = "jdbc:mysql://127.0.0.1:3306/bookmarketdb";
 			String user = "root";
-			String password = "a010203";
+			String password = "test1234";
 			
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			
