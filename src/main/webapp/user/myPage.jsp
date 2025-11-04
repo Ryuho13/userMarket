@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="text/html; charset=UTF-UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -14,13 +14,19 @@
 	rel="stylesheet"
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
+<!-- [수정]: 파일 구조(/webapp/user/css/)에 맞춰 경로를 /user/css/header.css로 지정합니다. -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css"> 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css"> 
+	
 </head>
 <body class="min-h-screen p-4 sm:p-8">
+<!-- 헤더의 HTML 구조 (header.jsp) 포함 -->
+<jsp:include page="/header/header.jsp"></jsp:include>
 	<%-- <jsp:include page="/header/header.jsp" /> --%>
 
 	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
-		<!-- 헤더 및 제목 -->
+		<!-- 페이지 제목 섹션 -->
 		<header class="p-6 border-b border-gray-100">
 			<h1 class="text-3xl font-bold text-gray-800 text-center">나의 마켓활동</h1>
 		</header>
@@ -107,5 +113,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
+	<jsp:include page="/footer/footer.jsp"></jsp:include>
 </body>
 </html>
