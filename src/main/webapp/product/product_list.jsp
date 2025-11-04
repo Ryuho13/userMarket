@@ -60,28 +60,66 @@
     </div>
     <hr>
 
-    <div class="mb-4">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="fw-bold mb-0">위치</h6>
-        <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
-      </div>
-      <div class="d-flex flex-column">
-        <c:if test="${not empty userSidos}">
-          <c:forEach var="sido" items="${userSidos}">
-            <p class="mb-1 text-secondary">${sido.name}</p>
-          </c:forEach>
-        </c:if>
+    <!-- 위치 필터 -->
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="fw-bold mb-0">위치</h6>
+    <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
+  </div>
 
-        <c:if test="${not empty userSiggs}">
-          <c:forEach var="sigg" items="${userSiggs}">
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="radio" name="sigg_area" id="sigg_${sigg.id}" value="${sigg.name}">
-              <label class="form-check-label" for="sigg_${sigg.id}">${sigg.name}</label>
-            </div>
-          </c:forEach>
-        </c:if>
-      </div>
-    </div>
+  <!-- 🔹 시/도 선택 -->
+  <select id="sidoSelect" class="form-select mb-3">
+    <option value="">시/도 선택</option>
+    <c:forEach var="sido" items="${userSidos}">
+      <option value="${sido.id}">${sido.name}</option>
+    </c:forEach>
+  </select>
+
+  <!-- 🔹 시군구 표시 영역 -->
+  <div id="siggContainer" class="border rounded p-2 bg-light" style="max-height: 220px; overflow-y: auto;">
+    <p class="text-muted small mb-0 text-center">시/도를 먼저 선택하세요.</p>
+  </div>
+</div>
+
+<!-- ✅ 안전한 JS 구성 -->
+<script>
+  const siggData = {};
+
+  // 🔹 JSP로 전달된 모든 시군구를 JS 객체에 추가
+  <c:forEach var="sigg" items="${userSiggs}">
+    if (!siggData["${sigg.sidoAreaId}"]) {
+      siggData["${sigg.sidoAreaId}"] = [];
+    }
+    siggData["${sigg.sidoAreaId}"].push({
+      id: "${sigg.id}",
+      name: "${sigg.name}"
+    });
+  </c:forEach>
+
+  const sidoSelect = document.getElementById('sidoSelect');
+  const siggContainer = document.getElementById('siggContainer');
+
+  sidoSelect.addEventListener('change', () => {
+    const sidoId = sidoSelect.value;
+    siggContainer.innerHTML = '';
+
+    if (!sidoId || !siggData[sidoId]) {
+      siggContainer.innerHTML = '<p class="text-muted small mb-0 text-center">시/도를 먼저 선택하세요.</p>';
+      return;
+    }
+
+    siggData[sidoId].forEach(sigg => {
+      const div = document.createElement('div');
+      div.className = 'form-check mb-1';
+      div.innerHTML = `
+        <input class="form-check-input" type="radio" name="sigg_area" id="sigg_${sigg.id}" value="${sigg.name}">
+        <label class="form-check-label" for="sigg_${sigg.id}">${sigg.name}</label>
+      `;
+      siggContainer.appendChild(div);
+    });
+  });
+</script>
+
 
     <div class="categories">
       <h6 class="fw-bold mb-2">카테고리</h6>
