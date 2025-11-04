@@ -69,3 +69,13 @@
 #sendBtn:hover {
   background-color: #008C73;
 }
+.message-text {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.message-time {
+  font-size: 11px;
+  color: #777;
+  vertical-align: bottom;
+}

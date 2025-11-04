@@ -33,7 +33,7 @@ function connect(roomId, userId) {
   ws.onclose = () => console.log("🔻 WebSocket 연결 종료");
 }
 
-// ✅ 메시지 전송
+// 메시지 전송
 function sendMessage(roomId, userId) {
   const input = document.getElementById("msg");
   const msg = input.value.trim();
