@@ -71,7 +71,7 @@ body {
 		</div>
 
 		<!-- 본문 영역 -->
-		<form name="updateMember" action="processUpdateMember.jsp"
+		<form name="updateMyPage" action="processUpdateMyPage.jsp"
 			method="post" onsubmit="return checkForm(event)" class="space-y-4">
 
 			<!-- 아이디 (수정 불가 필드 - 순서 변경 없음) -->
@@ -81,7 +81,7 @@ body {
 				<!-- DB에서 로드할 사용자 ID. 수정 불가 (readonly) -->
 				<input name="id" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-					value="user_id_123" readonly>
+					value="<%= (String)session.getAttribute("loginId") %>" readonly>
 			</div>
 
 			<!-- 1. 성명 (Name) - 순서 변경됨 -->
