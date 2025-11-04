@@ -23,7 +23,7 @@
 
     String dbURL = "jdbc:mysql://localhost:3306/usermarketdb";
     String dbUser = "root";
-    String dbPass = "a010203";
+    String dbPass = "test1234";
 
     Connection conn = null;
     PreparedStatement psUser = null;

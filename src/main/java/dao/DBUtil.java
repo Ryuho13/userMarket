@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class DBUtil {
     private static final String URL  = "jdbc:mysql://localhost:3306/usermarketdb";
     private static final String USER = "root";
-    private static final String PASS = "a010203";
+    private static final String PASS = "test1234";
 
     static {
         try {
