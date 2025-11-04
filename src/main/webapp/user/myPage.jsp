@@ -17,6 +17,9 @@
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 	<%-- <jsp:include page="/header/header.jsp" /> --%>
+	<c:if test="${empty user}">
+		<c:redirect url="${pageContext.request.contextPath}/user/myPage" />
+	</c:if>
 
 	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
@@ -41,8 +44,8 @@
 							alt="프로필 이미지" class="w-full h-full object-cover">
 					</div>
 
-					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">나의닉네임</h2>
-					<p id="user-region" class="text-gray-500 text-sm">서울 강남구 역삼동</p>
+					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4"> ${user.nickname}</h2>
+					<p id="user-region" class="text-gray-500 text-sm">${user.addrDetail}</p>
 				</div>
 
 				<!-- 프로필 수정 버튼 -->
@@ -107,5 +110,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
+	
 </body>
 </html>
