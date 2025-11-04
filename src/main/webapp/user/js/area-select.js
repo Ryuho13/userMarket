@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    fetch(`${contextPath}/area/sigg?sidoId=${sidoId}`)
+	fetch(`${contextPath}/area/sigg?sidoId=${sidoId}`)
       .then(res => res.json())
       .then(data => {
         siggSelect.innerHTML = "<option value=''>선택</option>";

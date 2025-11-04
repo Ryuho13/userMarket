@@ -26,8 +26,8 @@ public class ProductDAO {
                    COALESCE(sa.name, '지역정보없음') AS sigg_name,
                    MIN(i.name) AS img_name
             FROM products p
-            LEFT JOIN products_images pi ON p.id = pi.products_id
-            LEFT JOIN imgs i ON pi.img_id = i.id
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN images i ON pi.image_id = i.id
             LEFT JOIN user u ON p.seller_id = u.id
             LEFT JOIN activity_areas aa ON u.id = aa.user_id
             LEFT JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
@@ -46,7 +46,7 @@ public class ProductDAO {
                 while (rs.next()) {
                     String imgName = rs.getString("img_name");
                     String displayImg = (imgName != null)
-                            ? "/product/resources/images/" + imgName
+                            ? imgName  // ✅ 이미 imgSrc 전체 경로(/upload/...)가 들어있음
                             : "/product/resources/images/noimage.jpg";
 
                     list.add(new Product(
@@ -73,8 +73,8 @@ public class ProductDAO {
             SELECT p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
                    COALESCE(sa.name, '지역정보없음') AS sigg_name, MIN(i.name) AS img_name
             FROM products p
-            LEFT JOIN products_images pi ON p.id = pi.products_id
-            LEFT JOIN imgs i ON pi.img_id = i.id
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN images i ON pi.image_id = i.id
             LEFT JOIN user u ON p.seller_id = u.id
             LEFT JOIN activity_areas aa ON u.id = aa.user_id
             LEFT JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
@@ -114,7 +114,7 @@ public class ProductDAO {
                 while (rs.next()) {
                     String imgName = rs.getString("img_name");
                     String displayImg = (imgName != null)
-                            ? "/product/resources/images/" + imgName
+                            ? imgName
                             : "/product/resources/images/noimage.jpg";
 
                     list.add(new Product(
