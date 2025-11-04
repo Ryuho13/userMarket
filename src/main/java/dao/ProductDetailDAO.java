@@ -1,11 +1,7 @@
 package dao;
 
-import dao.DBUtil;
 import model.ProductDetail;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +10,7 @@ public class ProductDetailDAO {
     public ProductDetail findById(int productId) throws Exception {
         ProductDetail pd = null;
 
-        // ✅ 1. 상품 기본 정보 조회
+        // ✅ 1. 상품 기본 정보
         String sql = """
             SELECT id, title, description, sell_price, seller_id, status
             FROM products
@@ -22,6 +18,7 @@ public class ProductDetailDAO {
         """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -38,16 +35,17 @@ public class ProductDetailDAO {
 
         if (pd == null) return null;
 
-        // ✅ 2. 상품 이미지 불러오기
+        // ✅ 2. 상품 이미지 (테이블명 변경됨)
         List<String> images = new ArrayList<>();
         String imgSql = """
             SELECT i.name
-            FROM imgs i
-            JOIN products_images pi ON i.id = pi.img_id
-            WHERE pi.products_id = ?
+            FROM product_images pi
+            JOIN images i ON i.id = pi.image_id
+            WHERE pi.product_id = ?
         """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(imgSql)) {
+
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -57,14 +55,15 @@ public class ProductDetailDAO {
         }
         pd.setImages(images);
 
-        // ✅ 3. 판매자 연락처 (휴대폰)
+        // ✅ 3. 판매자 연락처
         String sellerSql = """
             SELECT phn
-            FROM user
+            FROM `user`
             WHERE id = ?
         """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sellerSql)) {
+
             ps.setInt(1, pd.getSellerId());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -73,7 +72,7 @@ public class ProductDetailDAO {
             }
         }
 
-        // ✅ 4. 판매자 활동 지역 (sigg_areas)
+        // ✅ 4. 판매자 활동 지역
         String locSql = """
             SELECT sa.name AS sigg_name
             FROM activity_areas aa
@@ -83,6 +82,7 @@ public class ProductDetailDAO {
         """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(locSql)) {
+
             ps.setInt(1, pd.getSellerId());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
