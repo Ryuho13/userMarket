@@ -17,7 +17,7 @@
 <body>
 
 	<h1 class="main-logo">
-		<a href="${pageContext.request.contextPath}/product_list.jsp">
+		<a href="${pageContext.request.contextPath}/product/product_list.jsp">
 			<img alt="단감나라" src="<%=request.getContextPath()%>/user/img/real단감나라.png" style="width: 300px">
 		</a>
 	</h1>

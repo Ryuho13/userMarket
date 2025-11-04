@@ -42,15 +42,20 @@ public class ProductDAO {
             ps.setInt(1, size);
             ps.setInt(2, offset);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Product(
-                        rs.getInt("product_id"),
-                        rs.getString("product_name"),
-                        rs.getInt("sell_price"),
-                        rs.getString("sigg_name"),
-                        rs.getString("img_name")
-                    ));
-                }
+            	while (rs.next()) {
+            	    String imgName = rs.getString("img_name");
+            	    String displayImg = (imgName != null)
+            	        ? "/userMarket/product/resources/images/" + imgName
+            	        : null;
+
+            	    list.add(new Product(
+            	        rs.getInt("product_id"),
+            	        rs.getString("product_name"),
+            	        rs.getInt("sell_price"),
+            	        rs.getString("sigg_name"),
+            	        displayImg
+            	    ));
+            	}
             }
         }
         return list;
@@ -99,15 +104,21 @@ public class ProductDAO {
             }
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Product(
-                        rs.getInt("product_id"),
-                        rs.getString("product_name"),
-                        rs.getInt("sell_price"),
-                        rs.getString("sigg_name"),
-                        rs.getString("img_name")
-                    ));
-                }
+            	while (rs.next()) {
+            	    String imgName = rs.getString("img_name");
+            	    String displayImg = (imgName != null)
+            	        ? "/userMarket/product/resources/images/" + imgName
+            	        : null;
+
+            	    list.add(new Product(
+            	        rs.getInt("product_id"),
+            	        rs.getString("product_name"),
+            	        rs.getInt("sell_price"),
+            	        rs.getString("sigg_name"),
+            	        displayImg
+            	    ));
+            	}
+
             }
         }
         return list;
