@@ -115,7 +115,7 @@ public class UserDAO {
     public UserProfile findProfileByUserId(int userId) throws SQLException {
         String sql = """
             SELECT u.id, u.account_id, u.name, u.phn, u.em,
-                   i.nickname, i.region_id, i.addr_detail, i.profile_img
+                   i.nickname, i.addr_detail, i.profile_img
             FROM user u
             LEFT JOIN user_info i ON i.u_id = u.id
             WHERE u.id = ?
@@ -136,8 +136,8 @@ public class UserDAO {
                 u.setPhn(rs.getString("phn"));
                 u.setEm(rs.getString("em"));
                 u.setNickname(rs.getString("nickname"));
-                int rid = rs.getInt("region_id");
-                u.setRegionId(rs.wasNull() ? null : rid);
+				/* int rid = rs.getInt("region_id"); */
+				/* u.setRegionId(rs.wasNull() ? null : rid); */
                 u.setAddrDetail(rs.getString("addr_detail"));
                 u.setProfileImg(rs.getString("profile_img"));
                 

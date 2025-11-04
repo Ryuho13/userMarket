@@ -28,9 +28,9 @@ public class ProductDAO {
             FROM products p
             LEFT JOIN products_images pi ON p.id = pi.products_id
             LEFT JOIN imgs i ON pi.img_id = i.id
-            LEFT JOIN users u ON p.seller_id = u.id
+            LEFT JOIN user u ON p.seller_id = u.id
             LEFT JOIN activity_areas aa ON u.id = aa.user_id
-            LEFT JOIN sigg_areas sa ON aa.id2 = sa.id
+            LEFT JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
             GROUP BY p.id, p.title, p.sell_price, sa.name
             ORDER BY p.id DESC
             LIMIT ? OFFSET ?
@@ -75,9 +75,9 @@ public class ProductDAO {
             FROM products p
             LEFT JOIN products_images pi ON p.id = pi.products_id
             LEFT JOIN imgs i ON pi.img_id = i.id
-            LEFT JOIN users u ON p.seller_id = u.id
+            LEFT JOIN user u ON p.seller_id = u.id
             LEFT JOIN activity_areas aa ON u.id = aa.user_id
-            LEFT JOIN sigg_areas sa ON aa.id2 = sa.id
+            LEFT JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
             LEFT JOIN categories c ON p.category_id = c.id
             WHERE 1=1
         """);

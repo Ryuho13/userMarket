@@ -1,7 +1,6 @@
 package dao;
 
 import dao.DBUtil;
-
 import model.ProductDetail;
 
 import java.sql.Connection;
@@ -15,7 +14,12 @@ public class ProductDetailDAO {
     public ProductDetail findById(int productId) throws Exception {
         ProductDetail pd = null;
 
-        String sql = "SELECT id, title, description, sell_price, seller_id, status FROM products WHERE id = ?";
+        // ✅ 1. 상품 기본 정보 조회
+        String sql = """
+            SELECT id, title, description, sell_price, seller_id, status
+            FROM products
+            WHERE id = ?
+        """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
@@ -34,39 +38,56 @@ public class ProductDetailDAO {
 
         if (pd == null) return null;
 
-        // load images
+        // ✅ 2. 상품 이미지 불러오기
         List<String> images = new ArrayList<>();
-        String imgSql = "SELECT i.name FROM imgs i JOIN products_images pi ON i.id = pi.img_id WHERE pi.products_id = ?";
+        String imgSql = """
+            SELECT i.name
+            FROM imgs i
+            JOIN products_images pi ON i.id = pi.img_id
+            WHERE pi.products_id = ?
+        """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(imgSql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) images.add(rs.getString("name"));
+                while (rs.next()) {
+                    images.add(rs.getString("name"));
+                }
             }
         }
         pd.setImages(images);
 
-        // seller contact and rating
-        String sellerSql = "SELECT mobile_number, rating_score FROM users WHERE id = ?";
+        // ✅ 3. 판매자 연락처 (휴대폰)
+        String sellerSql = """
+            SELECT phn
+            FROM user
+            WHERE id = ?
+        """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sellerSql)) {
             ps.setInt(1, pd.getSellerId());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    pd.setSellerMobile(rs.getString("mobile_number"));
-                    double r = rs.getDouble("rating_score");
-                    if (!rs.wasNull()) pd.setSellerRating(r);
+                    pd.setSellerMobile(rs.getString("phn"));
                 }
             }
         }
 
-        // seller sigg (location)
-        String locSql = "SELECT sa.name AS sigg_name FROM activity_areas aa JOIN sigg_areas sa ON aa.id2 = sa.id WHERE aa.user_id = ? LIMIT 1";
+        // ✅ 4. 판매자 활동 지역 (sigg_areas)
+        String locSql = """
+            SELECT sa.name AS sigg_name
+            FROM activity_areas aa
+            JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
+            WHERE aa.user_id = ?
+            LIMIT 1
+        """;
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(locSql)) {
             ps.setInt(1, pd.getSellerId());
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) pd.setSellerSigg(rs.getString("sigg_name"));
+                if (rs.next()) {
+                    pd.setSellerSigg(rs.getString("sigg_name"));
+                }
             }
         }
 

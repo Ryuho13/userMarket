@@ -18,7 +18,7 @@
 
 	try {
 		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/usermarketdb", "root", "a010203");
+		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/usermarketdb", "root", "test1234");
 
 		PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM user WHERE account_id = ? AND pw = ?");
 		ps.setString(1, id);
