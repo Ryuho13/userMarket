@@ -8,12 +8,12 @@ public class Product {
     private String imgName;
     private String displayImg;
 
-    public Product(int id, String title, int sellPrice, String siggName, String imgName) {
+    public Product(int id, String title, int sellPrice, String siggName, String displayImg) {
         this.id = id;
         this.title = title;
         this.sellPrice = sellPrice;
         this.siggName = siggName;
-        this.imgName = imgName;
+        this.displayImg = displayImg;
     }
 
     public int getId() { return id; }
@@ -21,6 +21,7 @@ public class Product {
     public int getSellPrice() { return sellPrice; }
     public String getSiggName() { return siggName; }
     public String getImgName() { return imgName; }
+    public void setImgName(String imgName) { this.imgName = imgName; }
     public String getDisplayImg() { return displayImg; }
     public void setDisplayImg(String displayImg) { this.displayImg = displayImg; }
 }

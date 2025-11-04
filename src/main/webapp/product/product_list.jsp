@@ -6,29 +6,23 @@
 <meta charset="UTF-8">
 <title>상품 목록</title>
 
-<!-- Context Path 변수 설정 -->
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
+
+<!-- 구글 아이콘 + 부트스트랩 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 <link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-	crossorigin="anonymous">
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+  crossorigin="anonymous">
 <link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
 
-
-
 </head>
-<body>
-
-<c:if test="${empty products}">
-  <c:redirect url="/product/list" />
-</c:if>
+<body class="bg-light">
 
 <!-- 🔍 검색 영역 -->
-<div class="select_container">
-  <form action="${ctx}/product/search" method="get" class="d-flex align-items-center flex-grow-1 gap-3">
-    <!-- 지역 선택 -->
+<div class="select_container container py-4">
+  <form action="${ctx}/product/search" method="get" class="d-flex align-items-center gap-3">
     <div class="d-flex align-items-center gap-2">
       <select name="sigg_area" class="form-select">
         <option value="">지역 선택</option>
@@ -38,7 +32,6 @@
       </select>
     </div>
 
-    <!-- 검색창 -->
     <div class="input-group flex-grow-1">
       <span class="input-group-text bg-white border-end-0">
         <span class="material-symbols-outlined">search</span>
@@ -50,17 +43,16 @@
     </div>
   </form>
 
-  <div class="mt-2 text-secondary popular-searches-text">
+  <div class="mt-2 text-secondary small">
     인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
   </div>
 </div>
 
-
 <!-- 🧭 본문 영역 -->
-<div class="main_container">
+<div class="main_container container d-flex gap-4">
 
   <!-- 왼쪽 필터 -->
-  <aside class="product_filter">
+  <aside class="product_filter bg-white p-3 rounded shadow-sm">
     <h5 class="fw-bold mb-3">필터</h5>
     <div class="form-check mb-3">
       <input class="form-check-input" type="checkbox" id="tradeOnly">
@@ -68,11 +60,10 @@
     </div>
     <hr>
 
-    <!-- 위치 필터 -->
     <div class="mb-4">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="fw-bold mb-0">위치</h6>
-        <a href="${ctx}/product/product_list.jsp" class="text-decoration-none text-primary small">초기화</a>
+        <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
       </div>
       <div class="d-flex flex-column">
         <c:if test="${not empty userSidos}">
@@ -92,7 +83,6 @@
       </div>
     </div>
 
-    <!-- 카테고리 필터 -->
     <div class="categories">
       <h6 class="fw-bold mb-2">카테고리</h6>
       <div class="d-flex flex-column">
@@ -116,23 +106,25 @@
       </c:when>
       <c:otherwise>
         <c:forEach var="p" items="${products}">
-          <a href="${ctx}/product/detail?id=${p.id}" type="button" class="text-decoration-none">
-            <div class="product_item card p-2">
-              <c:choose>
-                <c:when test="${not empty p.displayImg}">
-                  <img src="${p.displayImg}" class="card-img-top rounded-4 product_img" alt="상품 이미지">
-                </c:when>
-                <c:otherwise>
-                  <img src="${ctx}/resources/images/noimage.jpg" class="card-img-top rounded-4 product_img" alt="이미지없음">
-                </c:otherwise>
-              </c:choose>
-              <div class="card-body p-2">
-                <h6 class="card-title text-truncate mb-1 fw-bold">${p.title}</h6>
-                <p class="mb-1 text-primary fw-semibold price-small">${p.sellPrice}원</p>
-                <p class="text-muted small mb-0">${p.siggName}</p>
+          <div class="product_item">
+            <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none">
+              <div class="card border-0 shadow-sm">
+                <c:choose>
+                  <c:when test="${not empty p.displayImg}">
+                    <img src="${p.displayImg}" class="card-img-top product_img" alt="상품 이미지">
+                  </c:when>
+                  <c:otherwise>
+                    <img src="${ctx}/product/resources/images/noimage.jpg" class="card-img-top product_img" alt="이미지없음">
+                  </c:otherwise>
+                </c:choose>
+                <div class="card-body p-2">
+                  <h6 class="card-title text-truncate mb-1 fw-bold">${p.title}</h6>
+                  <p class="mb-1 text-primary fw-semibold price-small">${p.sellPrice}원</p>
+                  <p class="text-muted small mb-0">${p.siggName}</p>
+                </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
         </c:forEach>
       </c:otherwise>
     </c:choose>
@@ -140,7 +132,7 @@
 </div>
 
 <!-- 페이지네이션 -->
-<nav aria-label="Page navigation" class="mt-4">
+<nav aria-label="Page navigation" class="mt-5">
   <c:if test="${not empty totalPages}">
     <ul class="pagination justify-content-center">
       <li class="page-item ${page <= 1 ? 'disabled' : ''}">

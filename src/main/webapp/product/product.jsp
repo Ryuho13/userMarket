@@ -22,10 +22,13 @@
       <a href="${pageContext.request.contextPath}/product/list" class="btn btn-primary">목록으로</a>
     </div>
   </c:when>
+
   <c:otherwise>
     <div class="container py-4">
       <a href="${pageContext.request.contextPath}/product/list" class="btn btn-secondary mb-3">목록으로</a>
+
       <div class="row">
+        <!-- 상품 이미지 영역 -->
         <div class="col-md-6">
           <div>
             <c:choose>
@@ -40,6 +43,8 @@
             </c:choose>
           </div>
         </div>
+
+        <!-- 상품 상세 정보 -->
         <div class="col-md-6">
           <h2 class="fw-bold">${product.title}</h2>
           <p class="text-muted">지역: ${product.sellerSigg}</p>
@@ -51,8 +56,25 @@
           <p>연락처: ${product.sellerMobile}</p>
           <p>평점: ${product.sellerRating != null ? product.sellerRating : '-'}</p>
 
-          <div class="mt-3">
-            <a href="#" class="btn btn-primary">채팅으로 문의</a>
+          <div class="mt-3 d-flex gap-2">
+            <!-- ✅ 로그인 여부에 따라 다르게 표시 -->
+            <c:choose>
+              <c:when test="${not empty sessionScope.userId}">
+                <!-- 로그인 되어있으면 채팅방 생성 -->
+                <form action="${pageContext.request.contextPath}/chat/chat.jsp" method="post">
+                  <input type="hidden" name="buyerId" value="${sessionScope.userId}">
+                  <input type="hidden" name="productId" value="${product.id}">
+                  <button type="submit" class="btn btn-primary">채팅으로 문의</button>
+                </form>
+              </c:when>
+
+              <c:otherwise>
+                <!-- 로그인 안 되어 있으면 로그인 페이지로 -->
+                <a href="${pageContext.request.contextPath}/user/login.jsp" 
+                   class="btn btn-outline-primary">로그인 후 채팅하기</a>
+              </c:otherwise>
+            </c:choose>
+
             <a href="#" class="btn btn-outline-secondary">찜</a>
           </div>
         </div>

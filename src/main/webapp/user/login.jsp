@@ -29,7 +29,7 @@
 
 			<div class="alert alert-danger" role="alert">아이디와 비밀번호를 확인해주세요.</div>
 
-			<form class="form-signin" action="<%=request.getContextPath()%>/product/product_list.jsp" method="post">
+			<form class="form-signin" action="<%=request.getContextPath()%>/product/list" method="get">
 				<div class="form-floating mb-3">
 					<input type="text" class="form-control" name="id" id="floatingInput" placeholder="ID" required autofocus>
 					<label for="floatingInput">아이디 (ID)</label>
