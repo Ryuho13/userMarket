@@ -1,13 +1,15 @@
-package com.kdhcode.usermarket.servlet;
+package web;
 
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import model.Product;
+
 import java.io.IOException;
 import java.util.*;
-import com.kdhcode.usermarket.dao.ProductDAO;
-import com.kdhcode.usermarket.model.Product;
+
+import dao.ProductDAO;
 
 @WebServlet("/product/search")
 public class ProductSearchServlet extends HttpServlet {

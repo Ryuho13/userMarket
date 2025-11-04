@@ -1,13 +1,12 @@
-package com.kdhcode.usermarket.servlet;
+package web;
 
-import com.kdhcode.usermarket.dao.ProductDAO;
-import com.kdhcode.usermarket.model.Product;
-
+import dao.ProductDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.Product;
 
 import java.io.IOException;
 import java.util.List;
@@ -94,12 +93,12 @@ public class ProductListServlet extends HttpServlet {
 
             // ✅ 추가 필터 데이터
             try {
-                com.kdhcode.usermarket.dao.CategoryDAO cdao = new com.kdhcode.usermarket.dao.CategoryDAO();
+                dao.CategoryDAO cdao = new dao.CategoryDAO();
                 req.setAttribute("categories", cdao.listCategories());
             } catch (Exception ignored) {}
 
             try {
-                com.kdhcode.usermarket.dao.AreaDAO adao = new com.kdhcode.usermarket.dao.AreaDAO();
+                dao.AreaDAO adao = new dao.AreaDAO();
                 Integer sessionUserId = null;
                 Object uidObj = req.getSession().getAttribute("userId");
                 if (uidObj != null) {

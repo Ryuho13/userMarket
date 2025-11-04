@@ -1,13 +1,12 @@
-package com.kdhcode.usermarket.servlet;
+package web;
 
-import com.kdhcode.usermarket.dao.ProductDetailDAO;
-import com.kdhcode.usermarket.model.ProductDetail;
-
+import dao.ProductDetailDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import model.ProductDetail;
 
 import java.io.IOException;
 

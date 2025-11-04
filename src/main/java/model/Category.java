@@ -1,4 +1,4 @@
-package com.kdhcode.usermarket.model;
+package model;
 
 public class Category {
     private int id;

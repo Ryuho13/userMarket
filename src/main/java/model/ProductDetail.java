@@ -1,4 +1,4 @@
-package com.kdhcode.usermarket.model;
+package model;
 
 import java.util.List;
 

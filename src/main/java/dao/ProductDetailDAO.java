@@ -1,7 +1,8 @@
-package com.kdhcode.usermarket.dao;
+package dao;
 
-import com.kdhcode.usermarket.model.ProductDetail;
-import com.kdhcode.usermarket.util.DBUtil;
+import dao.DBUtil;
+
+import model.ProductDetail;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

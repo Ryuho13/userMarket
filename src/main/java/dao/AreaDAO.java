@@ -1,8 +1,9 @@
-package com.kdhcode.usermarket.dao;
+package dao;
 
-import com.kdhcode.usermarket.model.SidoArea;
-import com.kdhcode.usermarket.model.SiggArea;
-import com.kdhcode.usermarket.util.DBUtil;
+import dao.DBUtil;
+
+import model.SidoArea;
+import model.SiggArea;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

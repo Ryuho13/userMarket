@@ -1,10 +1,10 @@
-package com.kdhcode.usermarket.model;
+package model;
 
-public class SiggArea {
+public class SidoArea {
     private int id;
     private String name;
 
-    public SiggArea(int id, String name) {
+    public SidoArea(int id, String name) {
         this.id = id;
         this.name = name;
     }

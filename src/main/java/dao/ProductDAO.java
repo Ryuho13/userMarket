@@ -1,7 +1,8 @@
-package com.kdhcode.usermarket.dao;
+package dao;
 
-import com.kdhcode.usermarket.model.Product;
-import com.kdhcode.usermarket.util.DBUtil;
+import dao.DBUtil;
+
+import model.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
