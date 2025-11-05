@@ -22,7 +22,7 @@ public class ProductListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         int page = 1;
-        int size = 12;
+        int size = 30;
 
         try {
             // ✅ 페이지 번호 파라미터 처리

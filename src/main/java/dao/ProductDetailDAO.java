@@ -6,6 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDetailDAO {
+	// ✅ 조회수 1 증가
+	public void increaseViewCount(int productId) throws SQLException {
+	    String sql = "UPDATE products SET view_count = view_count + 1 WHERE id = ?";
+	    try (Connection conn = DBUtil.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setInt(1, productId);
+	        ps.executeUpdate();
+	    }
+	}
 
     public ProductDetail findById(int productId) throws Exception {
         ProductDetail pd = null;

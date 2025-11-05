@@ -26,7 +26,6 @@ public class ImageServlet extends HttpServlet {
         String fileName = pathInfo.substring(1); 
 
         File file = new File(BASE_PATH, fileName);
-        System.out.println("📂 요청 파일 절대 경로: " + file.getAbsolutePath());
 
         if (!file.exists()) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND, "이미지를 찾을 수 없습니다.");
