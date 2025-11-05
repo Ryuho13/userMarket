@@ -3,8 +3,17 @@ let currentUserId;
 
 // 페이지 로드 시 실행될 초기화 함수
 window.onload = function() {
-  const roomId = document.getElementById("roomId").value;
-  currentUserId = document.getElementById("userId").value;
+  const roomIdInput = document.getElementById("roomId");
+  const userIdInput = document.getElementById("userId");
+
+  // roomIdInput 또는 userIdInput이 없으면 함수를 즉시 종료
+  if (!roomIdInput || !userIdInput) {
+    console.error("채팅방 정보를 찾을 수 없습니다. (roomId 또는 userId 요소가 없음)");
+    return;
+  }
+
+  const roomId = roomIdInput.value;
+  currentUserId = userIdInput.value;
   
   if(roomId && currentUserId) {
     connect(roomId, currentUserId);

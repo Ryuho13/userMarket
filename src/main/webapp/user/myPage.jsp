@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -97,9 +98,32 @@
 					<!-- 3. 채팅 목록 -->
 					<div id="content-chats" class="tab-content hidden">
 						<div class="space-y-3">
-						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-							<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
-						</div>
+							<c:choose>
+								<c:when test="${not empty chatRooms}">
+									<c:forEach var="chatRoom" items="${chatRooms}">
+										<a href="${pageContext.request.contextPath}/chatRoom?productId=${chatRoom.productId}" 
+										   class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
+											<div class="flex justify-between items-center">
+												<div>
+													<%-- ChatRoom 객체에 상품 제목이 있다면 표시 (현재는 없음) --%>
+													<p class="font-bold text-gray-800">상품 ID: ${chatRoom.productId}</p>
+													<p class="text-sm text-gray-600">채팅방 ID: ${chatRoom.id}</p>
+												</div>
+												<div class="text-right">
+													<span class="text-xs text-gray-400"><fmt:formatDate value="${chatRoom.createdAt}" pattern="yyyy-MM-dd"/></span>
+													<%-- 안 읽은 메시지 수 등 추가 가능 --%>
+													<%-- <span class="mt-1 inline-block bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">3</span> --%>
+												</div>
+											</div>
+										</a>
+									</c:forEach>
+								</c:when>
+								<c:otherwise>
+									<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+										<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
+									</div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</div>
 				</div>

@@ -11,8 +11,8 @@
 <script src="${pageContext.request.contextPath}/resources/chatRoom.js"></script>
 </head>
 <body>
-<%-- 임시 ID 설정 (원래는 세션에서 가져와야 함) --%>
-<c:set var="userId" value="99" />
+
+<c:set var="userId" value="${sessionScope.loginUserId}" />
 
 <c:if test="${empty room}">
   <h3 style="color:red;">채팅방 정보를 불러올 수 없습니다.</h3>

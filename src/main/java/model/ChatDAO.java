@@ -94,10 +94,40 @@ public class ChatDAO {
             pstmt.setLong(2, senderId);
             pstmt.setString(3, message);
             pstmt.executeUpdate();
-            System.out.println("[DB] 메시지 저장 완료");
+            System.out.println("[DB] 메시지를 저장했습니다.");
         } catch (SQLException e) {
-            System.out.println("[ERROR] ChatDAO.saveMessage() 예외 발생");
+            System.out.println("[ERROR] ChatDAO.saveMessage() 에서 오류 발생");
             e.printStackTrace();
         }
+    }
+
+    public List<ChatRoom> getChatRoomsByUserId(long userId) {
+        List<ChatRoom> list = new ArrayList<>();
+        // 사용자가 구매자(buyer_id)이거나 판매자(seller_id)인 모든 채팅방을 조회합니다.
+        // products 테이블과 조인하여 상품 제목도 함께 가져옵니다.
+        String sql = "SELECT cr.id, cr.products_id, cr.buyer_id, cr.created_at, p.title " +
+                     "FROM chat_room cr " +
+                     "JOIN products p ON cr.products_id = p.id " +
+                     "WHERE cr.buyer_id = ? OR p.seller_id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, userId);
+            pstmt.setLong(2, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    ChatRoom room = new ChatRoom(
+                        rs.getLong("id"),
+                        rs.getLong("products_id"),
+                        rs.getLong("buyer_id"),
+                        rs.getTimestamp("created_at")
+                    );
+                    // ChatRoom 객체에 상품 제목을 저장할 필드가 있다면 추가하면 좋습니다.
+                    // 예: room.setProductTitle(rs.getString("title"));
+                    list.add(room);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

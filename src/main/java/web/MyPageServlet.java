@@ -30,6 +30,20 @@ public class MyPageServlet extends HttpServlet {
         try {
             var profile = dao.findProfileByUserId(userId);
             req.setAttribute("user", profile);
+
+            // --- 채팅방 목록 조회 로직 추가 ---
+            try (java.sql.Connection conn = model.DBConnection.getConnection()) {
+                if (conn != null) {
+                    model.ChatDAO chatDAO = new model.ChatDAO(conn);
+                    java.util.List<model.ChatRoom> chatRooms = chatDAO.getChatRoomsByUserId(userId);
+                    req.setAttribute("chatRooms", chatRooms);
+                }
+            } catch (SQLException e) {
+                // 로깅을 추가하거나 사용자에게 오류 페이지를 보여주는 것이 좋습니다.
+                e.printStackTrace(); 
+            }
+            // ---------------------------------
+
             req.getRequestDispatcher("/user/myPage.jsp").forward(req, resp);
         } catch (SQLException e) {
             throw new ServletException(e);

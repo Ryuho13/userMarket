@@ -62,7 +62,7 @@
             <c:choose>
               <c:when test="${not empty sessionScope.loginUserId}">
                 <!-- 로그인 되어있으면 채팅방 생성 -->
-                <form action="${pageContext.request.contextPath}/chat/chat.jsp" method="post">
+                <form action="${pageContext.request.contextPath}/chatRoom" method="post">
                   <input type="hidden" name="buyerId" value="${sessionScope.loginUserId}">
                   <input type="hidden" name="productId" value="${product.id}">
                   <button type="submit" class="btn btn-primary">채팅으로 문의</button>
