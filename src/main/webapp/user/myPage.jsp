@@ -19,10 +19,13 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css"> 
 	
 </head>
-<body class="min-h-screen p-4 sm:p-8">
-<!-- 헤더의 HTML 구조 (header.jsp) 포함 -->
-<jsp:include page="/header/header.jsp"></jsp:include>
-	<%-- <jsp:include page="/header/header.jsp" /> --%>
+<%-- 
+    [수정]: body의 pb-4와 sm:pb-8 (하단 패딩) 클래스를 완전히 제거하여 
+    푸터가 화면의 맨 아래 모서리에 빈틈없이 붙도록 수정합니다. 
+--%>
+<body class="min-h-screen">
+<!-- 헤더의 HTML 구조 (header.jsp) 포함: Context Root를 사용하는 동적 포함 방식이 가장 안정적입니다. -->
+<jsp:include page="/header/header.jsp" />
 
 	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 

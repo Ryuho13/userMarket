@@ -1,7 +1,11 @@
+CREATE Table usermarketdb;
+CREATE Table region;
 USE usermarketdb;
 
 -- 2) 회원
-CREATE TABLE user (
+CREAT
+
+USE usermarregion)E TABLE user (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   account_id  VARCHAR(30)  NOT NULL,
   pw          VARCHAR(255) NOT NULL,
