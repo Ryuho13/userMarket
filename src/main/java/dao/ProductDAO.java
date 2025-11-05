@@ -45,9 +45,20 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String imgName = rs.getString("img_name");
-                    String displayImg = (imgName != null)
-                            ? imgName  // ✅ 이미 imgSrc 전체 경로(/upload/...)가 들어있음
-                            : "/product/resources/images/noimage.jpg";
+                    String displayImg;
+
+                    if (imgName != null && !imgName.isEmpty()) {
+                        // ✅ '/userMarket' 경로가 포함되어 있으면 제거
+                        displayImg = imgName.replace("/userMarket", "");
+
+                        // ✅ '/upload/product_images/' 경로가 없다면 추가
+                        if (!displayImg.contains("/upload/product_images/")) {
+                            displayImg = "/upload/product_images/" + displayImg;
+                        }
+                    } else {
+                        // 기본 이미지 설정
+                        displayImg = "/product/resources/images/noimage.jpg";
+                    }
 
                     list.add(new Product(
                             rs.getInt("product_id"),
@@ -113,9 +124,16 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String imgName = rs.getString("img_name");
-                    String displayImg = (imgName != null)
-                            ? imgName
-                            : "/product/resources/images/noimage.jpg";
+                    String displayImg;
+
+                    if (imgName != null && !imgName.isEmpty()) {
+                        displayImg = imgName.replace("/userMarket", "");
+                        if (!displayImg.contains("/upload/product_images/")) {
+                            displayImg = "/upload/product_images/" + displayImg;
+                        }
+                    } else {
+                        displayImg = "/product/resources/images/noimage.jpg";
+                    }
 
                     list.add(new Product(
                             rs.getInt("product_id"),

@@ -149,7 +149,8 @@
               <div class="card border-0 shadow-sm">
                 <c:choose>
                   <c:when test="${not empty p.displayImg}">
-                    <img src="${p.displayImg}" class="card-img-top product_img" alt="상품 이미지">
+                      <img src="${p.displayImg}"
+						 class="card-img-top product_img" alt="상품 이미지">
                   </c:when>
                   <c:otherwise>
                     <img src="${ctx}/product/resources/images/noimage.jpg" class="card-img-top product_img" alt="이미지없음">
