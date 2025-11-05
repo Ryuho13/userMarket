@@ -3,28 +3,28 @@ package web;
 import dao.ProductDetailDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
 import model.ProductDetail;
-
 import java.io.IOException;
 
 @WebServlet("/product/detail")
 public class ProductDetailServlet extends HttpServlet {
-
     private final ProductDetailDAO dao = new ProductDetailDAO();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
         String idParam = req.getParameter("id");
         if (idParam == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
             return;
         }
 
-        int id = 0;
-        try { id = Integer.parseInt(idParam); } catch (NumberFormatException e) { }
+        int id;
+        try { id = Integer.parseInt(idParam); } 
+        catch (NumberFormatException e) { id = 0; }
+
         if (id <= 0) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
             return;
@@ -37,27 +37,21 @@ public class ProductDetailServlet extends HttpServlet {
                 return;
             }
 
-            // normalize image paths for view (same logic used for list)
+            // ✅ 이미지 경로 정리
             for (int i = 0; i < pd.getImages().size(); i++) {
                 String img = pd.getImages().get(i);
-                String imgSrc = req.getContextPath() + "/resources/images/noimage.jpg";
-                if (img != null && !img.trim().isEmpty()) {
-                    String imgTrim = img.trim();
-                    if (imgTrim.matches("(?i)^https?://.*") || imgTrim.startsWith("/")) {
-                        imgSrc = imgTrim;
-                    } else {
-                        if (imgTrim.startsWith("../") || imgTrim.contains("resources/") || imgTrim.contains("/")) {
-                            imgSrc = imgTrim;
-                        } else {
-                            imgSrc = req.getContextPath() + "/resources/images/" + imgTrim;
-                        }
+                if (img != null && !img.isBlank()) {
+                    if (!img.startsWith("http")) {
+                        pd.getImages().set(i, req.getContextPath() + "/upload/product_images/" + img);
                     }
+                } else {
+                    pd.getImages().set(i, req.getContextPath() + "/resources/images/noimage.jpg");
                 }
-                pd.getImages().set(i, imgSrc);
             }
 
             req.setAttribute("product", pd);
-            req.getRequestDispatcher("/product/product.jsp").forward(req, resp);
+            req.getRequestDispatcher("/product/product_detail.jsp").forward(req, resp);
+
         } catch (Exception e) {
             throw new ServletException(e);
         }
