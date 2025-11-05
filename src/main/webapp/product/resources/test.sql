@@ -2,25 +2,43 @@
 -- 🚀 단감나라 / 유저마켓 통합 DB 초기화 스크립트
 -- Database: usermarketdb
 -- ==========================================
-DROP DATABASE usermarketdb;
 
+DROP DATABASE IF EXISTS usermarketdb;
 CREATE DATABASE IF NOT EXISTS usermarketdb
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_general_ci;
 
 USE usermarketdb;
 
+
+-- ==========================================
+-- 🗺️ 행정구역 (시도/시군구)
+-- ==========================================
+CREATE TABLE sido_areas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE sigg_areas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sido_area_id INT NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  FOREIGN KEY (sido_area_id) REFERENCES sido_areas(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- ==========================================
 -- 👤 회원 테이블
 -- ==========================================
 CREATE TABLE user (
-  id          INT AUTO_INCREMENT PRIMARY KEY,
-  account_id  VARCHAR(30)  NOT NULL,
-  pw          VARCHAR(255) NOT NULL,
-  name        VARCHAR(50)  NOT NULL,
-  phn         VARCHAR(20)  NULL,
-  em          VARCHAR(100) NULL,
-  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  account_id    VARCHAR(30)  NOT NULL,
+  pw VARCHAR(255) NOT NULL,
+  name          VARCHAR(50)  NOT NULL,
+  phn           VARCHAR(20)  NULL,
+  em            VARCHAR(100) NULL,
+  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   UNIQUE KEY uk_user_account (account_id),
   UNIQUE KEY uk_user_email   (em),
@@ -43,7 +61,7 @@ CREATE TABLE user_info (
     ON DELETE CASCADE ON UPDATE RESTRICT,
 
   CONSTRAINT fk_userinfo_region
-    FOREIGN KEY (region_id) REFERENCES region(id)
+    FOREIGN KEY (region_id) REFERENCES sigg_areas(id)
     ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -53,25 +71,9 @@ CREATE TABLE user_info (
 -- ==========================================
 CREATE TABLE categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(20) NOT NULL
-);
-
-
--- ==========================================
--- 🗺️ 행정구역 (시도/시군구)
--- ==========================================
-CREATE TABLE sido_areas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE sigg_areas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  sido_area_id INT NOT NULL,
-  name VARCHAR(50) NOT NULL,
-  FOREIGN KEY (sido_area_id) REFERENCES sido_areas(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-);
+  name VARCHAR(20) NOT NULL,
+  UNIQUE KEY uk_category_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
@@ -87,21 +89,22 @@ CREATE TABLE activity_areas (
   FOREIGN KEY (user_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (sigg_area_id) REFERENCES sigg_areas(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-);
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CHECK (JSON_VALID(emd_area_ids))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
 -- 🖼️ 이미지 파일
 -- ==========================================
-CREATE TABLE imgs (
+CREATE TABLE images (
   id INT AUTO_INCREMENT PRIMARY KEY,
   uploader_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (uploader_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
@@ -121,19 +124,21 @@ CREATE TABLE products (
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (category_id) REFERENCES categories(id)
     ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
 -- 🖼️ 상품 이미지
 -- ==========================================
-CREATE TABLE products_images (
-  products_id INT NOT NULL,
-  img_id INT NOT NULL,
-  PRIMARY KEY (products_id, img_id),
-  FOREIGN KEY (products_id) REFERENCES products(id) ON DELETE CASCADE,
-  FOREIGN KEY (img_id) REFERENCES imgs(id) ON DELETE CASCADE
-);
+CREATE TABLE product_images (
+  product_id INT NOT NULL,
+  image_id INT NOT NULL,
+  PRIMARY KEY (product_id, image_id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (image_id) REFERENCES images(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
@@ -142,13 +147,14 @@ CREATE TABLE products_images (
 CREATE TABLE wish_lists (
   id INT AUTO_INCREMENT PRIMARY KEY,
   register_id INT NOT NULL,
-  products_id INT NOT NULL,
+  product_id INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (register_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (products_id) REFERENCES products(id)
+  FOREIGN KEY (product_id) REFERENCES products(id)
     ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 -- ==========================================
@@ -299,12 +305,15 @@ VALUES
 ('기타');
 
 
+-- ==========================
+-- ✅ 확인용 쿼리
+-- ==========================
+
+
 SELECT * from user;
 select * from products;
 select * from products_images;
-select * from categories;
-select * from sido_areas;
-select * from sigg_areas;
-select * from activity_areas;
-select * from imgs;
+select * from images;
 select * from user_info;
+
+
