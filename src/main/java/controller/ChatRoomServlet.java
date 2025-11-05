@@ -22,50 +22,60 @@ public class ChatRoomServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html; charset=UTF-8");
+        setupRequestResponse(request, response);
 
         String pId = request.getParameter("productId");
         String bId = request.getParameter("buyerId");
 
-        System.out.println("[Servlet] productId = " + pId);
-        System.out.println("[Servlet] buyerId = " + bId);
-
-        if (pId == null || bId == null || pId.isEmpty() || bId.isEmpty()) {
-            response.getWriter().println("<h3 style='color:red;'>상품 또는 사용자 정보가 없습니다.</h3>");
+        if (!areParametersValid(pId, bId)) {
+            sendErrorResponse(response, "상품 또는 사용자 정보가 없습니다.");
             return;
         }
 
-        long productId = Long.parseLong(pId);
-        long buyerId = Long.parseLong(bId);
-
         Connection conn = DBConnection.getConnection();
         if (conn == null) {
-            response.getWriter().println("<h3 style='color:red;'>DB 연결 실패</h3>");
+            sendErrorResponse(response, "DB 연결에 실패했습니다.");
             return;
         }
 
         ChatDAO dao = new ChatDAO(conn);
-        ChatRoom room = dao.findOrCreateRoom(productId, buyerId);
+        ChatRoom room = dao.findOrCreateRoom(Long.parseLong(pId), Long.parseLong(bId));
 
-        System.out.println("[DEBUG] findOrCreateRoom() 결과: " + (room != null ? "성공" : "실패 ❌"));
         if (room == null) {
-            response.getWriter().println("<h3 style='color:red;'>채팅방 생성 오류</h3>");
+            sendErrorResponse(response, "채팅방을 생성하거나 찾는 중 오류가 발생했습니다.");
             return;
         }
 
         List<Message> messages = dao.getMessages(room.getId());
-        System.out.println("[DEBUG] 불러온 메시지 수: " + (messages != null ? messages.size() : 0));
 
-        request.setAttribute("room", room);
-        request.setAttribute("messages", messages);
-
-        request.getRequestDispatcher("/chat/chatRoom.jsp").forward(request, response);
+        // 성공 시, 데이터를 request에 담아 JSP로 포워딩
+        forwardToChatRoom(request, response, room, messages);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);
+    }
+
+    // --- Helper Methods ---
+
+    private void setupRequestResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+    }
+
+    private boolean areParametersValid(String productId, String buyerId) {
+        return productId != null && !productId.isEmpty() && buyerId != null && !buyerId.isEmpty();
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        response.getWriter().println("<h3 style='color:red;'>" + message + "</h3>");
+    }
+
+    private void forwardToChatRoom(HttpServletRequest request, HttpServletResponse response, ChatRoom room, List<Message> messages) throws ServletException, IOException {
+        request.setAttribute("room", room);
+        request.setAttribute("messages", messages);
+        request.getRequestDispatcher("/chat/chatRoom.jsp").forward(request, response);
     }
 }
