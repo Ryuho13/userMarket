@@ -7,146 +7,254 @@ import model.UserProfile;
 
 public class UserDAO {
 
-    public int createUserWithInfo(User user, UserInfo info) throws SQLException {
-        String sqlUser = """
-            INSERT INTO user (account_id, pw, name, phn, em, created_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
-        """;
+	/* 회원가입 (User + UserInfo 저장) */
+	public int createUserWithInfo(User user, UserInfo info) throws SQLException {
+		String sqlUser = """
+				    INSERT INTO user (account_id, pw, name, phn, em, created_at)
+				    VALUES (?, ?, ?, ?, ?, NOW())
+				""";
 
-        String sqlInfo = """
-            INSERT INTO user_info (u_id, nickname, region_id, addr_detail, profile_img)
-            VALUES (?, ?, ?, ?, ?)
-        """;
+		String sqlInfo = """
+				    INSERT INTO user_info (u_id, nickname, region_id, addr_detail, profile_img)
+				    VALUES (?, ?, ?, ?, ?)
+				""";
 
-        try (Connection conn = DBUtil.getConnection()) {
-            try {
-                conn.setAutoCommit(false);
+		try (Connection conn = DBUtil.getConnection()) {
+			try {
+				conn.setAutoCommit(false);
 
-                // user INSERT
-                int newUserId;
-                try (PreparedStatement ps = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
-                    ps.setString(1, user.getAccountId());
-                    ps.setString(2, user.getPw());
-                    ps.setString(3, user.getName());
-                    ps.setString(4, user.getPhn());
-                    ps.setString(5, user.getEm());
-                    ps.executeUpdate();
+				// user INSERT
+				int newUserId;
+				try (PreparedStatement ps = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS)) {
+					ps.setString(1, user.getAccountId());
+					ps.setString(2, user.getPw());
+					ps.setString(3, user.getName());
+					ps.setString(4, user.getPhn());
+					ps.setString(5, user.getEm());
+					ps.executeUpdate();
 
-                    try (ResultSet rs = ps.getGeneratedKeys()) {
-                        if (!rs.next()) throw new SQLException("No generated key for user");
-                        newUserId = rs.getInt(1);
-                    }
-                }
+					try (ResultSet rs = ps.getGeneratedKeys()) {
+						if (!rs.next())
+							throw new SQLException("No generated key for user");
+						newUserId = rs.getInt(1);
+					}
+				}
 
-                // user_info INSERT
-                try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
-                    ps.setInt(1, newUserId);
-                    ps.setString(2, info.getNickname());
-                    if (info.getRegionId() == null) ps.setNull(3, Types.INTEGER);
-                    else ps.setInt(3, info.getRegionId());
-                    ps.setString(4, info.getAddrDetail());
-                    ps.setString(5, info.getProfileImg());
-                    ps.executeUpdate();
-                }
+				// user_info INSERT
+				try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
+					ps.setInt(1, newUserId);
+					ps.setString(2, info.getNickname());
+					if (info.getRegionId() == null)
+						ps.setNull(3, Types.INTEGER);
+					else
+						ps.setInt(3, info.getRegionId());
+					ps.setString(4, info.getAddrDetail());
+					ps.setString(5, info.getProfileImg());
+					ps.executeUpdate();
+				}
 
-                conn.commit();
-                return newUserId;
+				conn.commit();
+				return newUserId;
 
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        }
-    }
+			} catch (SQLException e) {
+				conn.rollback();
+				throw e;
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		}
+	}
 
-    public boolean isAccountIdDuplicated(String accountId) throws SQLException {
-        String sql = "SELECT 1 FROM user WHERE account_id = ?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, accountId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
+	/* 아이디 중복 체크 */
+	public boolean isAccountIdDuplicated(String accountId) throws SQLException {
+		String sql = "SELECT 1 FROM user WHERE account_id = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, accountId);
+			try (ResultSet rs = ps.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
 
-    public boolean isNicknameDuplicated(String nickname) throws SQLException {
-        String sql = "SELECT 1 FROM user_info WHERE nickname = ?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, nickname);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
-    
-    public User login(String accountId, String pw) throws SQLException {
-        String sql = """
-            SELECT id, account_id, pw, name, phn, em, created_at
-            FROM user
-            WHERE account_id = ? AND pw = ?
-            LIMIT 1
-        """;
+	/* 닉네임 중복 체크 */
+	public boolean isNicknameDuplicated(String nickname) throws SQLException {
+		String sql = "SELECT 1 FROM user_info WHERE nickname = ?";
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, nickname);
+			try (ResultSet rs = ps.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+	/* 로그인 */
+	public User login(String accountId, String pw) throws SQLException {
+		String sql = """
+				    SELECT id, account_id, pw, name, phn, em, created_at
+				    FROM user
+				    WHERE account_id = ? AND pw = ?
+				    LIMIT 1
+				""";
 
-            ps.setString(1, accountId);
-            ps.setString(2, pw); // 해시를 쓰면 여기 대신 해시 비교 로직으로
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+			ps.setString(1, accountId);
+			ps.setString(2, pw);
 
-                User u = new User();
-                u.setId(rs.getInt("id"));
-                u.setAccountId(rs.getString("account_id"));
-                u.setPw(rs.getString("pw"));          // 세션엔 pw 안 넣는 걸 권장
-                u.setName(rs.getString("name"));
-                u.setPhn(rs.getString("phn"));
-                u.setEm(rs.getString("em"));
-                return u;
-            }
-        }
-    }
-    
-    public UserProfile findProfileByUserId(int userId) throws SQLException {
-        String sql = """
-            SELECT u.id, u.account_id, u.name, u.phn, u.em,
-                   i.nickname, i.region_id, i.addr_detail, i.profile_img
-            FROM user u
-            LEFT JOIN user_info i ON i.u_id = u.id
-            WHERE u.id = ?
-            LIMIT 1
-        """;
+			try (ResultSet rs = ps.executeQuery()) {
+				if (!rs.next())
+					return null;
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
+				User u = new User();
+				u.setId(rs.getInt("id"));
+				u.setAccountId(rs.getString("account_id"));
+				u.setPw(rs.getString("pw"));
+				u.setName(rs.getString("name"));
+				u.setPhn(rs.getString("phn"));
+				u.setEm(rs.getString("em"));
+				return u;
+			}
+		}
+	}
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+	/* 마이페이지용 프로필 조회 */
+	public UserProfile findProfileByUserId(int userId) throws SQLException {
+		String sql = """
+				    SELECT
+				        u.id            AS userId,
+				        u.account_id    AS accountId,
+				        u.name          AS name,
+				        u.em            AS em,
+				        u.phn           AS phn,
+				        ui.nickname     AS nickname,
+				        ui.region_id    AS regionId,
+				        ui.addr_detail  AS addrDetail,
+				        ui.profile_img  AS profileImg
+				    FROM user u
+				    LEFT JOIN user_info ui ON u.id = ui.u_id
+				    WHERE u.id = ?
+				""";
 
-                UserProfile u = new UserProfile();
-                u.setId(rs.getInt("id"));
-                u.setAccountId(rs.getString("account_id"));
-                u.setName(rs.getString("name"));
-                u.setPhn(rs.getString("phn"));
-                u.setEm(rs.getString("em"));
-                u.setNickname(rs.getString("nickname"));
-                int rid = rs.getInt("region_id");
-                u.setRegionId(rs.wasNull() ? null : rid);
-                u.setAddrDetail(rs.getString("addr_detail"));
-                u.setProfileImg(rs.getString("profile_img"));
-                
-                return u;
-            }
-            
-        }
+		try (Connection conn = DBUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-    }
+			ps.setInt(1, userId);
 
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					UserProfile p = new UserProfile();
+					p.setUserId(rs.getInt("userId"));
+					p.setAccountId(rs.getString("accountId"));
+					p.setName(rs.getString("name"));
+					p.setEm(rs.getString("em"));
+					p.setPhn(rs.getString("phn"));
+					p.setNickname(rs.getString("nickname"));
+					p.setRegionId((Integer) rs.getObject("regionId"));
+					p.setAddrDetail(rs.getString("addrDetail"));
+					p.setProfileImg(rs.getString("profileImg"));
+					return p;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/* 마이페이지 수정 */
+	public void updateUserAndInfo(int userId, String name, String phn, String emNullable, String newPwNullable,
+			String nickname, String addrDetail, String profileImgNullable) throws SQLException {
+
+		String sqlUser = """
+				UPDATE user
+				SET name = ?,
+				phn  = ?,
+				em   = ?,
+				pw   = CASE WHEN ? IS NULL OR ? = '' THEN pw ELSE ? END
+				WHERE id = ?
+				""";
+
+		String sqlInfo = """
+				UPDATE user_info
+				SET nickname    = ?,
+				addr_detail = ?,
+				profile_img = COALESCE(?, profile_img)
+				WHERE u_id = ?
+				""";
+
+		try (Connection conn = DBUtil.getConnection()) {
+			try {
+				conn.setAutoCommit(false);
+
+				// user 업데이트
+				try (PreparedStatement ps = conn.prepareStatement(sqlUser)) {
+					ps.setString(1, name);
+					ps.setString(2, phn);
+
+					if (emNullable == null || emNullable.isBlank())
+						ps.setNull(3, Types.VARCHAR);
+					else
+						ps.setString(3, emNullable);
+
+					// pw 업데이트
+					if (newPwNullable == null) {
+						ps.setNull(4, Types.VARCHAR);
+						ps.setNull(5, Types.VARCHAR);
+						ps.setNull(6, Types.VARCHAR);
+					} else {
+						ps.setString(4, newPwNullable);
+						ps.setString(5, newPwNullable);
+						ps.setString(6, newPwNullable);
+					}
+
+					ps.setInt(7, userId);
+					ps.executeUpdate();
+				}
+
+				// user_info 업데이트
+				try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
+					ps.setString(1, nickname);
+					ps.setString(2, addrDetail);
+
+					if (profileImgNullable == null || profileImgNullable.isBlank())
+						ps.setNull(3, Types.VARCHAR);
+					else
+						ps.setString(3, profileImgNullable);
+
+					ps.setInt(4, userId);
+					ps.executeUpdate();
+				}
+
+				conn.commit();
+			} catch (SQLException e) {
+				conn.rollback();
+				throw e;
+			} finally {
+				conn.setAutoCommit(true);
+			}
+		}
+	}
+	
+	/* 회원 탈퇴 */
+	public boolean deleteUserById(int userId) throws SQLException {
+	    String sqlInfo = "DELETE FROM user_info WHERE u_id = ?";
+	    String sqlUser = "DELETE FROM user WHERE id = ?";
+
+	    try (Connection conn = DBUtil.getConnection()) {
+	        conn.setAutoCommit(false);
+
+	        try (PreparedStatement ps1 = conn.prepareStatement(sqlInfo);
+	             PreparedStatement ps2 = conn.prepareStatement(sqlUser)) {
+	            ps1.setInt(1, userId);
+	            ps1.executeUpdate();
+
+	            ps2.setInt(1, userId);
+	            int affected = ps2.executeUpdate();
+
+	            conn.commit();
+	            return affected > 0;
+	        } catch (SQLException e) {
+	            conn.rollback();
+	            throw e;
+	        }
+	    }
+	}
 
 }

@@ -8,11 +8,12 @@ import model.User;
 import model.UserInfo;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/user/addUser")
+@WebServlet("/user/add")
 public class AddUserServlet extends HttpServlet {
 
     private final UserDAO userDAO = new UserDAO();
@@ -20,76 +21,74 @@ public class AddUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
+        RequestDispatcher rd = req.getRequestDispatcher("/user/addUser.jsp");
+        rd.forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
         req.setCharacterEncoding("UTF-8");
 
-        String accountId = req.getParameter("account_id");
-        String pw        = req.getParameter("pw");
-        String name      = req.getParameter("name");
-        String nickname  = req.getParameter("nickname");
-        String em        = req.getParameter("em");
-        String phn       = req.getParameter("phn");
-        String regionId  = req.getParameter("region_id");
-        String addrDet   = req.getParameter("addr_detail");
+        String id        = trim(req.getParameter("id"));
+        String pw        = trim(req.getParameter("pw"));
+        String name      = trim(req.getParameter("name"));
+        String nickname  = trim(req.getParameter("nickname"));
+        String em        = trim(req.getParameter("em"));
+        String phn       = trim(req.getParameter("phn"));
+        String regionStr = trim(req.getParameter("region_id"));
+        String addrDet   = trim(req.getParameter("addr_detail"));
 
-        // 회원가입 양식 한개라도 입력 안하면 실패
-        if (accountId == null || accountId.isBlank()
-                || pw == null || pw.isBlank()
-                || name == null || name.isBlank()
-                || nickname == null || nickname.isBlank()) {
-            req.setAttribute("error", "필수 항목을 모두 입력하세요.");
+        // 기본 검증
+        if (isBlank(id) || isBlank(pw)) {
+            req.setAttribute("error", "아이디/비밀번호는 필수입니다.");
+            keep(req, id, name, nickname, em, phn, regionStr, addrDet);
             req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
             return;
         }
 
+        Integer regionId = null;
         try {
-            // 중복 체크
-            if (userDAO.isAccountIdDuplicated(accountId)) {
-                req.setAttribute("error", "이미 사용 중인 아이디입니다.");
-                req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
-                return;
-            }
-            if (userDAO.isNicknameDuplicated(nickname)) {
-                req.setAttribute("error", "이미 사용 중인 닉네임입니다.");
-                req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
-                return;
-            }
+            if (!isBlank(regionStr)) regionId = Integer.valueOf(regionStr);
+        } catch (NumberFormatException ignore) {}
 
-            // DTO
-            User u = new User();
-            u.setAccountId(accountId);
-            u.setName(name);
-            u.setEm(em);
-            u.setPhn(phn);
+        // DTO 구성
+        User u = new User();
+        u.setAccountId(id);
+        u.setPw(pw);
+        u.setName(name);
+        u.setEm(em);
+        u.setPhn(phn);
 
-            UserInfo ui = new UserInfo();
-            ui.setNickname(nickname);
-            ui.setAddrDetail(addrDet);
-            ui.setProfileImg(null); // 초기 null
-            if (regionId != null && !regionId.isBlank()) {
-                try {
-                    ui.setRegionId(Integer.parseInt(regionId));
-                } catch (NumberFormatException ignore) {
-                    ui.setRegionId(null);
-                }
-            }
+        UserInfo ui = new UserInfo();
+        ui.setNickname(nickname);
+        ui.setRegionId(regionId);
+        ui.setAddrDetail(addrDet);
+        ui.setProfileImg(null); // 이미지 업로드 전이라 null
 
-            // 트랜잭션 INSERT
+        try {
             int newUserId = userDAO.createUserWithInfo(u, ui);
 
-            req.setAttribute("ok", "회원가입 완료! (user_id=" + newUserId + ")");
-            req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
-
+            // 새로고침 중복 방지 & 성공 메시지 표시
+            resp.sendRedirect(req.getContextPath() + "/user/welcome.jsp?uid=" + newUserId);
         } catch (SQLException e) {
             e.printStackTrace();
             req.setAttribute("error", "회원가입 중 오류가 발생했습니다: " + e.getMessage());
+            keep(req, id, name, nickname, em, phn, regionStr, addrDet);
             req.getRequestDispatcher("/user/addUser.jsp").forward(req, resp);
         }
+    }
+
+    private static String trim(String s){ return s==null? null : s.trim(); }
+    private static boolean isBlank(String s){ return s==null || s.isBlank(); }
+    private static void keep(HttpServletRequest req, String id, String name, String nickname,
+                             String em, String phn, String regionIdStr, String addrDetail) {
+        req.setAttribute("id", id);
+        req.setAttribute("name", name);
+        req.setAttribute("nickname", nickname);
+        req.setAttribute("em", em);
+        req.setAttribute("phn", phn);
+        req.setAttribute("region_id", regionIdStr);
+        req.setAttribute("addr_detail", addrDetail);
     }
 }

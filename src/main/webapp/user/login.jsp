@@ -29,7 +29,7 @@
 
 			<div class="alert alert-danger d-none" id="login-error">아이디와 비밀번호를 확인해주세요.</div>
 
-			<form class="form-signin" action="loginProcess.jsp" method="post">
+			<form class="form-signin" action="${pageContext.request.contextPath}/user/login" method="post">
 				<div class="form-floating mb-3">
 					<input type="text" class="form-control" name="id" id="floatingInput" placeholder="ID" required autofocus>
 					<label for="floatingInput">아이디 (ID)</label>
@@ -54,9 +54,7 @@
 		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
 		crossorigin="anonymous">
 	</script>
-	<script
-		src="<%=request.getContextPath()%>/user/js/login.js">
-	</script>
+	<script src="<%=request.getContextPath()%>/user/js/login.js"></script>
 
 </body>
 </html>

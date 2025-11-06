@@ -10,7 +10,6 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/updateMyPage.css">
 
 <style type="text/css">
 body {
@@ -71,7 +70,7 @@ body {
 		</div>
 
 		<!-- 본문 영역 -->
-		<form name="updateMyPage" action="processUpdateMyPage.jsp"
+		<form name="updateMyPage" action="${pageContext.request.contextPath}//user/mypage/update"
 			method="post" onsubmit="return checkForm(event)" class="space-y-4">
 
 			<!-- 아이디 (수정 불가 필드 - 순서 변경 없음) -->
@@ -81,7 +80,7 @@ body {
 				<!-- DB에서 로드할 사용자 ID. 수정 불가 (readonly) -->
 				<input name="id" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-					value="<%= (String)session.getAttribute("loginId") %>" readonly>
+					value="${profile.accountId}" readonly>
 			</div>
 
 			<!-- 1. 성명 (Name) - 순서 변경됨 -->
@@ -91,7 +90,7 @@ body {
 				<!-- DB에서 로드할 사용자 이름 -->
 				<input name="name" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-					placeholder="성명" value="홍길동" required>
+					placeholder="성명" value="${profile.name}" required>
 			</div>
 
 			<!-- 2. 닉네임 (Nickname) - 순서 변경됨 -->
@@ -102,7 +101,7 @@ body {
 				<!-- DB에서 로드할 사용자 닉네임 -->
 				<input name="nickname" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-					placeholder="닉네임" value="마켓_고수" required>
+					placeholder="닉네임" value="${profile.nickname}" required>
 			</div>
 
 			<!-- 3. 비밀번호 (Password) - 순서 변경됨 -->
@@ -122,36 +121,6 @@ body {
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
 					placeholder="비밀번호 재확인" value="">
 			</div>
-
-<!-- 			<!-- 생일 (Birth) - 순서 변경 없음 
-			<div class="space-y-1">
-				<label class="text-sm font-medium text-gray-700 block mb-1">생일
-					(Birth)</label>
-				DB에서 로드한 생일 데이터를 기반으로 기본값 설정
-				<div class="flex space-x-2">
-					<input type="text" name="birthyy" maxlength="4"
-						class="form-input px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/3"
-						placeholder="년(4자)" value="1990"> <select name="birthmm"
-						class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/3">
-						<option value="">월</option>
-						<option value="01">1</option>
-						<option value="02">2</option>
-						<option value="03" selected>3</option>
-						예시로 3월 선택
-						<option value="04">4</option>
-						<option value="05">5</option>
-						<option value="06">6</option>
-						<option value="07">7</option>
-						<option value="08">8</option>
-						<option value="09">9</option>
-						<option value="10">10</option>
-						<option value="11">11</option>
-						<option value="12">12</option>
-					</select> <input type="text" name="birthdd" maxlength="2"
-						class="form-input px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/3"
-						placeholder="일" value="15">
-				</div>
-			</div> -->
 
 			<!-- 이메일 (Email) - 순서 변경 없음 -->
 			<div class="space-y-1">
@@ -180,7 +149,7 @@ body {
 				<!-- DB에서 로드할 전화번호 -->
 				<input name="phone" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-					placeholder="'-' 없이 입력" value="01012345678">
+					placeholder="'-' 없이 입력" value="${profile.phn}">
 			</div>
 
 			<!-- 주소 (Address) - 순서 변경 없음 -->
@@ -190,17 +159,20 @@ body {
 				<!-- DB에서 로드할 주소 -->
 				<input name="address" type="text"
 					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-					placeholder="주소" value="서울시 강남구 역삼동">
+					placeholder="주소" value="${profile.addrDetail}">
 			</div>
 
 			<!-- 버튼 영역 -->
 			<div class="pt-4 flex justify-between space-x-4">
 				<button type="submit"
 					class="w-full py-2 primary-green text-white font-semibold rounded-lg shadow-md transition duration-150">
-					정보 수정 완료</button>
-				<button type="reset"
-					class="w-full py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-150">
-					수정 취소</button>
+					정보 수정 완료
+				</button>
+			  <button type="button"
+			    onclick="location.href='${pageContext.request.contextPath}/user/myPage'"
+			    class="w-full py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-150">
+			    수정 취소
+			  </button>
 			</div>
 		</form>
 	</div>

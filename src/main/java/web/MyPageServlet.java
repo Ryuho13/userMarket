@@ -1,39 +1,42 @@
 package web;
 
 import java.io.IOException;
-import java.sql.SQLException;
-
-import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
+import jakarta.servlet.RequestDispatcher;
+
+import dao.UserDAO;
+import model.User;
+import model.UserProfile;
 
 @WebServlet("/user/myPage")
 public class MyPageServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, ServletException {
-    	
-    	HttpSession session = req.getSession(false);
-    	
-        if (session == null || session.getAttribute("loginUserId") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
+            throws ServletException, IOException {
+
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("loginUser") == null) {
+            resp.sendRedirect(req.getContextPath() + "/user/login.jsp");
             return;
         }
 
-        int userId = (Integer) session.getAttribute("loginUserId");
+        User loginUser = (User) session.getAttribute("loginUser");
 
-        UserDAO dao = new UserDAO();
         try {
-            var profile = dao.findProfileByUserId(userId);
-            req.setAttribute("user", profile);
-            req.getRequestDispatcher("/user/myPage.jsp").forward(req, resp);
-        } catch (SQLException e) {
-            throw new ServletException(e);
+            UserDAO dao = new UserDAO();
+            UserProfile profile = dao.findProfileByUserId(loginUser.getId());
+
+            // request 범위로 전달 (JSP에서 requestScope.profile 로 접근)
+            req.setAttribute("profile", profile);
+
+            RequestDispatcher rd = req.getRequestDispatcher("/user/myPage.jsp");
+            rd.forward(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.sendError(500, "프로필 로드 실패: " + e.getMessage());
         }
     }
 }
-
