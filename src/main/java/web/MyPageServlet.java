@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.ChatRoomDisplayDTO;
 
 @WebServlet("/user/myPage")
 public class MyPageServlet extends HttpServlet {
@@ -35,7 +36,7 @@ public class MyPageServlet extends HttpServlet {
             try (java.sql.Connection conn = model.DBConnection.getConnection()) {
                 if (conn != null) {
                     model.ChatDAO chatDAO = new model.ChatDAO(conn);
-                    java.util.List<model.ChatRoom> chatRooms = chatDAO.getChatRoomsByUserId(userId);
+                    java.util.List<ChatRoomDisplayDTO> chatRooms = chatDAO.getChatRoomsByUserId(userId);
                     req.setAttribute("chatRooms", chatRooms);
                 }
             } catch (SQLException e) {

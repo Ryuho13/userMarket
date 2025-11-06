@@ -12,6 +12,9 @@ import jakarta.websocket.server.ServerEndpoint;
 import model.ChatDAO;
 import model.DBConnection;
 import model.Message; // Message 클래스를 사용하기 위해 import
+import controller.NotificationSocket;
+import dao.UserDAO;
+import model.UserProfile;
 
 @ServerEndpoint("/chatSocket/{roomId}/{userId}")
 public class ChatSocket {
@@ -45,29 +48,64 @@ public class ChatSocket {
         System.out.println("수신 : [" + userId + "] " + message);
 
         // 1. DB에 메시지 저장
-        Message newMessage = saveMessageToDB(roomId, userId, message);
-        if (newMessage == null) {
+        // saveMessageToDB가 Message 객체를 반환하도록 수정했다고 가정
+        // 현재는 void이므로, Message 객체를 직접 생성하여 사용.
+        Message newMessage = null;
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn != null) {
+                ChatDAO chatDAO = new ChatDAO(conn);
+                chatDAO.saveMessage(roomId, userId, message); // 메시지 저장
+                newMessage = new Message(0, roomId, userId, message, new Timestamp(System.currentTimeMillis()));
+            } else {
+                System.out.println("[ERROR] DB 연결 실패");
+                return;
+            }
+        } catch (Exception e) {
             System.out.println("[ERROR] 메시지 DB 저장 실패");
+            e.printStackTrace();
+            return;
+        }
+        if (newMessage == null) {
+            System.out.println("[ERROR] 메시지 객체 생성 실패");
             return;
         }
 
         // 2. 같은 방의 모든 클라이언트에게 새 메시지 정보 브로드캐스트
         broadcastMessage(roomId, newMessage);
-    }
 
-    private Message saveMessageToDB(long roomId, long userId, String message) {
+        // 3. 상대방에게 알림 전송
         try (Connection conn = DBConnection.getConnection()) {
             if (conn != null) {
-                ChatDAO dao = new ChatDAO(conn);
-                // saveMessage가 이제 저장된 Message 객체를 반환하도록 수정했다고 가정
-                // 지금은 새 객체를 직접 생성하여 반환
-                dao.saveMessage(roomId, userId, message);
-                return new Message(0, roomId, userId, message, new Timestamp(System.currentTimeMillis()));
+                ChatDAO chatDAO = new ChatDAO(conn);
+                long[] participantIds = chatDAO.getChatRoomParticipantIds(roomId); // [buyerId, sellerId]
+
+                if (participantIds != null) {
+                    long buyerId = participantIds[0];
+                    long sellerId = participantIds[1];
+
+                    long recipientId = (userId == buyerId) ? sellerId : buyerId; // 메시지 보낸 사람이 아니면 수신자
+
+                    // 수신자가 현재 채팅방에 없는 경우에만 알림을 보냄 (선택 사항, UX에 따라 조절)
+                    // 현재는 그냥 보냄. NotificationSocket에서 세션이 없으면 안 보냄.
+
+                    UserDAO userDAO = new UserDAO(); // UserDAO는 Connection을 받지 않는 기본 생성자 사용 가정
+                    UserProfile senderProfile = userDAO.findProfileByUserId((int) userId);
+                    String senderNickname = (senderProfile != null) ? senderProfile.getNickname() : "알 수 없음";
+
+                    String notificationJson = String.format(
+                        "{\"type\":\"newMessage\", \"senderNickname\":\"%s\", \"message\":\"%s\"}",
+                        senderNickname.replace("\"", "\\\""), // 닉네임 내 큰따옴표 이스케이프
+                        message.replace("\"", "\\\"") // 메시지 내 큰따옴표 이스케이프
+                    );
+                    NotificationSocket.sendNotification(recipientId, notificationJson);
+                }
+            } else {
+                System.out.println("[ERROR] 알림 전송을 위한 DB 연결 실패");
             }
         } catch (Exception e) {
+            System.out.println("[ERROR] 알림 전송 중 오류 발생");
             e.printStackTrace();
         }
-        return null;
     }
 
     private void broadcastMessage(long roomId, Message message) {

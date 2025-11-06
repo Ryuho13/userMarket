@@ -13,6 +13,24 @@ public class ChatDAO {
         this.conn = conn;
     }
 
+    public ChatRoom findChatRoomById(long roomId) throws SQLException {
+        String sql = "SELECT id, products_id, buyer_id, created_at FROM chat_room WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, roomId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new ChatRoom(
+                        rs.getLong("id"),
+                        rs.getLong("products_id"),
+                        rs.getLong("buyer_id"),
+                        rs.getTimestamp("created_at")
+                    );
+                }
+            }
+        }
+        return null; // Chat room not found
+    }
+
     // 채팅방 찾거나 생성
     public ChatRoom findOrCreateRoom(long productId, long buyerId) {
         String checkSql = "SELECT * FROM chat_room WHERE products_id = ? AND buyer_id = ?";
@@ -101,31 +119,82 @@ public class ChatDAO {
         }
     }
 
-    public List<ChatRoom> getChatRoomsByUserId(long userId) {
-        List<ChatRoom> list = new ArrayList<>();
-        // 사용자가 구매자(buyer_id)이거나 판매자(seller_id)인 모든 채팅방을 조회합니다.
-        // products 테이블과 조인하여 상품 제목도 함께 가져옵니다.
-        String sql = "SELECT cr.id, cr.products_id, cr.buyer_id, cr.created_at, p.title " +
-                     "FROM chat_room cr " +
-                     "JOIN products p ON cr.products_id = p.id " +
-                     "WHERE cr.buyer_id = ? OR p.seller_id = ?";
+    public long[] getChatRoomParticipantIds(long roomId) throws SQLException {
+        String sql = """
+            SELECT cr.buyer_id, p.seller_id
+            FROM chat_room cr
+            JOIN products p ON cr.products_id = p.id
+            WHERE cr.id = ?
+        """;
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, roomId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new long[]{rs.getLong("buyer_id"), rs.getLong("seller_id")};
+                }
+            }
+        }
+        return null; // Chat room not found
+    }
+
+    public List<ChatRoomDisplayDTO> getChatRoomsByUserId(long userId) {
+        List<ChatRoomDisplayDTO> list = new ArrayList<>();
+        String sql = """
+            SELECT
+                cr.id,
+                cr.products_id,
+                cr.buyer_id,
+                cr.created_at,
+                p.title AS productTitle,
+                p.seller_id,
+                ui_buyer.nickname AS buyerNickname,
+                ui_seller.nickname AS sellerNickname
+            FROM chat_room cr
+            JOIN products p ON cr.products_id = p.id
+            JOIN user_info ui_buyer ON cr.buyer_id = ui_buyer.u_id
+            JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
+            WHERE cr.buyer_id = ? OR p.seller_id = ?
+            ORDER BY cr.created_at DESC
+        """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, userId);
             pstmt.setLong(2, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    ChatRoom room = new ChatRoom(
-                        rs.getLong("id"),
-                        rs.getLong("products_id"),
-                        rs.getLong("buyer_id"),
-                        rs.getTimestamp("created_at")
+                    long roomId = rs.getLong("id");
+                    long productId = rs.getLong("products_id");
+                    long buyerId = rs.getLong("buyer_id");
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    String productTitle = rs.getString("productTitle");
+                    long sellerId = rs.getLong("seller_id");
+                    String buyerNickname = rs.getString("buyerNickname");
+                    String sellerNickname = rs.getString("sellerNickname");
+
+                    String otherUserNickname;
+                    long otherUserId;
+
+                    if (userId == buyerId) { // Current user is the buyer, so the other user is the seller
+                        otherUserNickname = sellerNickname;
+                        otherUserId = sellerId;
+                    } else { // Current user is the seller, so the other user is the buyer
+                        otherUserNickname = buyerNickname;
+                        otherUserId = buyerId;
+                    }
+
+                    ChatRoomDisplayDTO dto = new ChatRoomDisplayDTO(
+                        roomId,
+                        productId,
+                        buyerId,
+                        createdAt,
+                        productTitle,
+                        otherUserNickname,
+                        otherUserId
                     );
-                    // ChatRoom 객체에 상품 제목을 저장할 필드가 있다면 추가하면 좋습니다.
-                    // 예: room.setProductTitle(rs.getString("title"));
-                    list.add(room);
+                    list.add(dto);
                 }
             }
         } catch (SQLException e) {
+            System.out.println("[ERROR] ChatDAO.getChatRoomsByUserId() 예외 발생");
             e.printStackTrace();
         }
         return list;

@@ -7,26 +7,26 @@
 <head>
 <meta charset="UTF-8">
 <title>실시간 채팅방</title>
-<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/chatRoom.css">
-<script src="${pageContext.request.contextPath}/resources/chatRoom.js"></script>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/chatRoom.css">
+<script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </head>
-<body>
+<body data-context-path="${pageContext.request.contextPath}">
 
-<c:set var="userId" value="${sessionScope.loginUserId}" />
+
 
 <c:if test="${empty room}">
   <h3 style="color:red;">채팅방 정보를 불러올 수 없습니다.</h3>
 </c:if>
 
 <c:if test="${not empty room}">
-  <h2>${room.id}</h2>
+  <h2>${otherUserNickname}</h2>
 
   <div id="chatBox">
     <c:choose>
       <c:when test="${not empty messages}">
         <c:forEach var="msg" items="${messages}">
           <%-- 내가 보낸 메시지인지 여부 판단 --%>
-          <c:set var="isMine" value="${msg.senderId == userId}" />
+          <c:set var="isMine" value="${msg.senderId == sessionScope.loginUserId}" />
           <div class="chat-row ${isMine ? 'my-message' : 'other-message'}">
             <div class="bubble">
               <span class="message-text">${msg.message}</span>
@@ -50,8 +50,10 @@
   </div>
   
   <input type="hidden" id="roomId" value="${room.id}">
-  <input type="hidden" id="userId" value="${userId}">
+  
 </c:if>
+
+<jsp:include page="/WEB-INF/views/common/footer_includes.jsp" />
 
 </body>
 </html>
