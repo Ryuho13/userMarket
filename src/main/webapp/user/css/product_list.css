@@ -102,6 +102,28 @@ body {
     margin-bottom: 20px;
   }
 }
+.filter-tags-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 1rem;
+  padding: 10px 14px;
+  background: #fdfdfd;
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.filter-badge a:hover {
+  opacity: 0.8;
+}
+
+.filter-tags-box .fw-semibold {
+  font-size: 0.9rem;
+}
 
 /* Small helpers moved from inline styles */
 .popular-searches-text {
@@ -212,3 +234,103 @@ a.disabled-link {
 .product_item:not(.soldout) .card:hover .product_img {
   transform: scale(1.03);
 }
+
+.sigg-radio-list {
+  max-height: 200px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.sigg-radio-list.expanded {
+  max-height: none;
+}
+
+/* 라디오 리스트 기본 상태 - 6개까지만 표시 */
+#siggContainer .d-flex.flex-column {
+  max-height: 180px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* 더보기 눌렀을 때 전체 표시 */
+#siggContainer .d-flex.flex-column.expanded {
+  max-height: 1000px;
+}
+
+/* 🩶 시군구 라디오 리스트 */
+#siggContainer .d-flex.flex-column {
+  max-height: 220px;              /* 고정 높이 */
+  overflow-y: auto;               /* 내부 스크롤 생성 */
+  padding-right: 4px;             /* 스크롤바 여백 */
+  scrollbar-width: thin;          /* Firefox */
+  scrollbar-color: #ddd transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Chrome, Edge, Safari 스크롤바 스타일 */
+#siggContainer .d-flex.flex-column::-webkit-scrollbar {
+  width: 6px;
+}
+#siggContainer .d-flex.flex-column::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+#siggContainer .d-flex.flex-column::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+/* 라디오 항목 스타일 */
+#siggContainer .form-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+#siggContainer .form-check-input:checked {
+  background-color: #ff7e36;
+  border-color: #ff7e36;
+}
+
+#siggContainer .form-check-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.price_filter input[type="number"] {
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+
+.price_filter input[type="range"] {
+  accent-color: #ff7e36;
+}
+
+.price_filter h6 {
+  color: #333;
+}
+.price_filter h6 {
+  color: #333;
+}
+
+.price-btn {
+  border-radius: 20px;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.price-btn.active {
+  background-color: #212529;
+  color: #fff;
+  border-color: #212529;
+}
+
+.price_filter input[type="number"] {
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.price_filter button[type="submit"] {
+  color: #ff7e36;
+}
+

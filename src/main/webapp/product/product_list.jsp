@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -46,7 +48,7 @@
       </button>
     </div>
   </form>
-
+	
   <div class="mt-2 text-secondary small">
     인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
   </div>
@@ -55,51 +57,116 @@
 <!-- 🧭 본문 영역 -->
 <div class="main_container container d-flex gap-4">
 
+
   <!-- 왼쪽 필터 -->
   <aside class="product_filter bg-white p-3 rounded shadow-sm">
-    <h5 class="fw-bold mb-3">필터</h5>
-    <div class="form-check mb-3">
-      <input class="form-check-input" type="checkbox" id="tradeOnly">
-      <label class="form-check-label" for="tradeOnly">거래 기능만 보기</label>
+  <form method="get" action="${ctx}/product/list">
+    <h5 class="fw-bold mb-3">필터</h5>	
+<c:if test="${not empty param.category or not empty param.sigg_area or not empty param.maxPrice}">
+  <div class="filter-tags-box bg-white border rounded-4 shadow-sm px-3 py-2 mb-3">
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <span class="fw-semibold text-secondary me-2">적용된 필터</span>
+
+      <!-- ✅ 카테고리 -->
+      <c:if test="${not empty param.category}">
+        <span class="active-filter badge bg-primary text-white p-2 d-flex align-items-center">
+          ${param.category}
+          <button type="button"
+                  class="btn btn-sm btn-close btn-close-white remove-filter ms-2"
+                  data-type="category"
+                  data-value="${param.category}"
+                  aria-label="카테고리 제거"></button>
+        </span>
+      </c:if>
+
+      <!-- ✅ 시군구 -->
+      <c:if test="${not empty param.sigg_area}">
+        <span class="active-filter badge bg-success text-white p-2 d-flex align-items-center">
+          ${param.sigg_area}
+          <button type="button"
+                  class="btn btn-sm btn-close btn-close-white remove-filter ms-2"
+                  data-type="sigg"
+                  data-value="${param.sigg_area}"
+                  aria-label="시군구 제거"></button>
+        </span>
+      </c:if>
+
+      <!-- ✅ 가격 -->
+      <c:if test="${not empty param.maxPrice}">
+        <span class="active-filter badge bg-warning text-dark p-2 d-flex align-items-center">
+          ~${param.maxPrice}원
+          <button type="button"
+                  class="btn btn-sm btn-close remove-filter ms-2"
+                  data-type="price"
+                  data-value="${param.maxPrice}"
+                  aria-label="가격 제거"></button>
+        </span>
+      </c:if>
+
+
+      <a href="${ctx}/product/list" class="ms-auto text-secondary small text-decoration-none">필터 초기화 ✖</a>
     </div>
-    <hr>
+  </div>
+</c:if>
+
+
+
 
     <!-- 위치 필터 -->
     <div class="mb-4">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="fw-bold mb-0">위치</h6>
-        <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
-      </div>
-
-      <!-- 시/도 선택 -->
-      <select id="sidoSelect" data-role="sido" data-sigg-target="siggSelect" class="form-select mb-3">
+      <h6 class="fw-bold mb-2">위치</h6>
+      <select id="sido" name="sidoId" class="form-select mb-3">
         <option value="">시/도 선택</option>
         <c:forEach var="sido" items="${userSidos}">
-          <option value="${sido.id}">${sido.name}</option>
+          <option value="${sido.id}" ${param.sidoId == sido.id ? 'selected' : ''}>${sido.name}</option>
         </c:forEach>
       </select>
 
-      <!-- 시군구 선택 -->
-      <select id="siggSelect" name="sigg_area" class="form-select mb-3">
-        <option value="">시/군/구 선택</option>
-      </select>
-    </div>
-
-    <!-- 카테고리 필터 -->
-    <div class="categories">
-      <h6 class="fw-bold mb-2">카테고리</h6>
-      <div class="d-flex flex-column">
-        <c:if test="${not empty categories}">
-          <c:forEach var="cat" items="${categories}">
-            <div class="form-check mb-1">
-              <input class="form-check-input" type="radio" name="category" id="cat_${cat.id}" value="${cat.name}">
-              <label class="form-check-label" for="cat_${cat.id}">${cat.name}</label>
-            </div>
-          </c:forEach>
-        </c:if>
+      <div id="siggContainer" class="sigg-radio-list">
+        <p class="text-secondary small">시/군/구를 선택해주세요.</p>
       </div>
     </div>
-  </aside>
+
+    <!-- 카테고리 -->
+    <div class="categories mb-4">
+      <h6 class="fw-bold mb-2">카테고리</h6>
+      <div class="d-flex flex-column">
+        <c:forEach var="cat" items="${categories}">
+          <div class="form-check mb-1">
+            <input class="form-check-input" type="radio" name="category" id="cat_${cat.id}" 
+                   value="${cat.name}" ${param.category == cat.name ? 'checked' : ''}>
+            <label class="form-check-label" for="cat_${cat.id}">${cat.name}</label>
+          </div>
+        </c:forEach>
+      </div>
+    </div>
+
+    <!-- 가격 -->
+    <div class="price_filter mt-4">
+      <h6 class="fw-bold mb-3">가격</h6>
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="0">나눔</button>
+        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="5000">5천 이하</button>
+        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="10000">1만 이하</button>
+        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="20000">2만 이하</button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <input type="number" id="minPrice" name="minPrice" class="form-control form-control-sm text-end"
+               placeholder="0" min="0" step="1000" style="max-width: 100px;" value="${param.minPrice}">
+        <span class="text-secondary">-</span>
+        <input type="number" id="maxPrice" name="maxPrice" class="form-control form-control-sm text-end"
+               placeholder="최대" min="0" step="1000" style="max-width: 100px;" value="${param.maxPrice}">
+      </div>
+
+      <button type="submit" id="applyPrice" class="btn btn-link text-decoration-none p-0 small text-primary">
+        적용하기
+      </button>
+    </div>
+  </form>
+</aside>
+
 
   <!-- 오른쪽 상품 목록 -->
   <section class="product_items">
@@ -193,8 +260,15 @@
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>
-<script src="${pageContext.request.contextPath}/user/js/area-select.js"></script>
 <script src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
-
+<script src="${pageContext.request.contextPath}/user/js/product_filter.js"></script>
+<script>
+  // ✅ contextPath를 JS 전역 변수로 전달
+  window.contextPath = "${pageContext.request.contextPath}";
+  window.serverParams = {
+    sidoId: "${fn:escapeXml(param.sidoId)}",
+    siggArea: "${fn:escapeXml(param.sigg_area)}"
+  };
+</script>
 </body>
 </html>
