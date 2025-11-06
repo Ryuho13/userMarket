@@ -16,6 +16,7 @@ public class ProductSearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        // ✅ 검색 조건 받기
         String q = req.getParameter("q");
         String sigg = req.getParameter("sigg_area");
         String category = req.getParameter("category");
@@ -24,7 +25,7 @@ public class ProductSearchServlet extends HttpServlet {
             ProductDAO dao = new ProductDAO();
             List<Product> products = dao.searchProducts(q, sigg, category);
 
-            // ✅ context path 보정
+            // ✅ context path 보정 (이미지 경로 prefix)
             String contextPath = req.getContextPath();
             for (Product p : products) {
                 if (p.getDisplayImg() != null && !p.getDisplayImg().startsWith("http")) {
@@ -32,11 +33,13 @@ public class ProductSearchServlet extends HttpServlet {
                 }
             }
 
+            // ✅ JSP에서 사용할 데이터 전달
             req.setAttribute("products", products);
-            req.setAttribute("searchQuery", q);
+            req.setAttribute("query", q);      // 👉 JSP에서 ${query} 로 접근
             req.setAttribute("sigg", sigg);
             req.setAttribute("category", category);
 
+            // ✅ 검색 결과 페이지로 이동
             req.getRequestDispatcher("/product/product_search.jsp").forward(req, resp);
 
         } catch (Exception e) {

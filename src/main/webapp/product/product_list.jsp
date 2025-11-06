@@ -1,274 +1,29 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>상품 목록</title>
+  <meta charset="UTF-8">
+  <title>상품 목록</title>
 
-<c:set var="ctx" value="${pageContext.request.contextPath}" />
-
-<!-- 구글 아이콘 + 부트스트랩 -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link
-  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-  rel="stylesheet"
-  integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-  crossorigin="anonymous">
-
-<!-- 커스텀 CSS -->
-<link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
-
-
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
 </head>
 <body class="bg-light">
 
-<!-- 🔍 검색 영역 -->
-<div class="select_container container py-4">
-  <form action="${ctx}/product/search" method="get" class="d-flex align-items-center gap-3">
-    <div class="d-flex align-items-center gap-2">
-      <select name="sigg_area" class="form-select">
-        <option value="">지역 선택</option>
-        <c:forEach var="sigg" items="${userSiggs}">
-          <option value="${sigg.name}">${sigg.name}</option>
-        </c:forEach>
-      </select>
-    </div>
+  <%@ include file="_search.jsp" %>
 
-    <div class="input-group flex-grow-1">
-      <span class="input-group-text bg-white border-end-0">
-        <span class="material-symbols-outlined">search</span>
-      </span>
-      <input type="text" name="q" class="form-control border-start-0" placeholder="상품명 또는 카테고리 검색">
-      <button class="btn btn-primary" type="submit">
-        <span class="material-symbols-outlined">arrow_circle_right</span>
-      </button>
-    </div>
-  </form>
-	
-  <div class="mt-2 text-secondary small">
-    인기 검색어: 노트북, 자전거, 의자, 아이폰 ...
+  <div class="main_container container d-flex gap-4">
+    <%@ include file="_filter.jsp" %>
+
+    <section class="product_items flex-grow-1">
+      <%@ include file="_items.jsp" %>
+    </section>
   </div>
-</div>
 
-<!-- 🧭 본문 영역 -->
-<div class="main_container container d-flex gap-4">
+  <%@ include file="_pagination.jsp" %>
 
-
-  <!-- 왼쪽 필터 -->
-  <aside class="product_filter bg-white p-3 rounded shadow-sm">
-  <form method="get" action="${ctx}/product/list">
-    <h5 class="fw-bold mb-3">필터</h5>	
-<c:if test="${not empty param.category or not empty param.sigg_area or not empty param.maxPrice}">
-  <div class="filter-tags-box bg-white border rounded-4 shadow-sm px-3 py-2 mb-3">
-    <div class="d-flex align-items-center flex-wrap gap-2">
-      <span class="fw-semibold text-secondary me-2">적용된 필터</span>
-
-      <!-- ✅ 카테고리 -->
-      <c:if test="${not empty param.category}">
-        <span class="active-filter badge bg-primary text-white p-2 d-flex align-items-center">
-          ${param.category}
-          <button type="button"
-                  class="btn btn-sm btn-close btn-close-white remove-filter ms-2"
-                  data-type="category"
-                  data-value="${param.category}"
-                  aria-label="카테고리 제거"></button>
-        </span>
-      </c:if>
-
-      <!-- ✅ 시군구 -->
-      <c:if test="${not empty param.sigg_area}">
-        <span class="active-filter badge bg-success text-white p-2 d-flex align-items-center">
-          ${param.sigg_area}
-          <button type="button"
-                  class="btn btn-sm btn-close btn-close-white remove-filter ms-2"
-                  data-type="sigg"
-                  data-value="${param.sigg_area}"
-                  aria-label="시군구 제거"></button>
-        </span>
-      </c:if>
-
-      <!-- ✅ 가격 -->
-      <c:if test="${not empty param.maxPrice}">
-        <span class="active-filter badge bg-warning text-dark p-2 d-flex align-items-center">
-          ~${param.maxPrice}원
-          <button type="button"
-                  class="btn btn-sm btn-close remove-filter ms-2"
-                  data-type="price"
-                  data-value="${param.maxPrice}"
-                  aria-label="가격 제거"></button>
-        </span>
-      </c:if>
-
-
-      <a href="${ctx}/product/list" class="ms-auto text-secondary small text-decoration-none">필터 초기화 ✖</a>
-    </div>
-  </div>
-</c:if>
-
-
-
-
-    <!-- 위치 필터 -->
-    <div class="mb-4">
-      <h6 class="fw-bold mb-2">위치</h6>
-      <select id="sido" name="sidoId" class="form-select mb-3">
-        <option value="">시/도 선택</option>
-        <c:forEach var="sido" items="${userSidos}">
-          <option value="${sido.id}" ${param.sidoId == sido.id ? 'selected' : ''}>${sido.name}</option>
-        </c:forEach>
-      </select>
-
-      <div id="siggContainer" class="sigg-radio-list">
-        <p class="text-secondary small">시/군/구를 선택해주세요.</p>
-      </div>
-    </div>
-
-    <!-- 카테고리 -->
-    <div class="categories mb-4">
-      <h6 class="fw-bold mb-2">카테고리</h6>
-      <div class="d-flex flex-column">
-        <c:forEach var="cat" items="${categories}">
-          <div class="form-check mb-1">
-            <input class="form-check-input" type="radio" name="category" id="cat_${cat.id}" 
-                   value="${cat.name}" ${param.category == cat.name ? 'checked' : ''}>
-            <label class="form-check-label" for="cat_${cat.id}">${cat.name}</label>
-          </div>
-        </c:forEach>
-      </div>
-    </div>
-
-    <!-- 가격 -->
-    <div class="price_filter mt-4">
-      <h6 class="fw-bold mb-3">가격</h6>
-
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="0">나눔</button>
-        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="5000">5천 이하</button>
-        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="10000">1만 이하</button>
-        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="20000">2만 이하</button>
-      </div>
-
-      <div class="d-flex align-items-center gap-2 mb-2">
-        <input type="number" id="minPrice" name="minPrice" class="form-control form-control-sm text-end"
-               placeholder="0" min="0" step="1000" style="max-width: 100px;" value="${param.minPrice}">
-        <span class="text-secondary">-</span>
-        <input type="number" id="maxPrice" name="maxPrice" class="form-control form-control-sm text-end"
-               placeholder="최대" min="0" step="1000" style="max-width: 100px;" value="${param.maxPrice}">
-      </div>
-
-      <button type="submit" id="applyPrice" class="btn btn-link text-decoration-none p-0 small text-primary">
-        적용하기
-      </button>
-    </div>
-  </form>
-</aside>
-
-
-  <!-- 오른쪽 상품 목록 -->
-  <section class="product_items">
-    <c:choose>
-      <c:when test="${empty products}">
-        <div class="text-center text-secondary py-5">등록된 상품이 없습니다.</div>
-      </c:when>
-      <c:otherwise>
-        <c:forEach var="p" items="${products}">
-          <div class="col-6 col-md-4 col-lg-3 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
-            <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none ${p.status eq 'SOLD_OUT' ? 'disabled-link' : ''}">
-              <div class="card border-0 shadow-sm position-relative">
-
-                <!-- 이미지 + 배지 -->
-                <div class="image-wrapper">
-                  <img src="${p.displayImg}"
-                       class="card-img-top product_img ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}"
-                       alt="상품 이미지">
-
-	                  <c:choose>
-					    <c:when test="${p.status eq 'SOLD_OUT'}">
-					      <img src="${ctx}/user/img/sold_out.png" 
-					         alt="판매완료" 
-					         class="soldout-image">
-					    </c:when>
-					    <c:when test="${p.status eq 'RESERVED'}">
-					      <img src="${ctx}/user/img/reserved.png" 
-					         alt="예약중" 
-					         class="reserved-image">
-					    </c:when>
-					</c:choose>
-
-                </div>
-
-                <!-- 상품 정보 -->
-                <div class="card-body p-2">
-                  <h6 class="card-title text-truncate mb-1 fw-bold">${p.title}</h6>
-                  <p class="mb-1 text-primary fw-semibold price-small">${p.sellPrice}원</p>
-                  <p class="text-muted small mb-0">${p.siggName}</p>
-                </div>
-
-              </div>
-            </a>
-          </div>
-        </c:forEach>
-      </c:otherwise>
-    </c:choose>
-  </section>
-</div>
-
-<!-- 페이지네이션 -->
-<nav aria-label="Page navigation" class="mt-5">
-  <c:if test="${not empty totalPages}">
-    <ul class="pagination justify-content-center">
-      <li class="page-item ${page <= 1 ? 'disabled' : ''}">
-        <a class="page-link" href="?page=1${preserveParams}">처음</a>
-      </li>
-      <li class="page-item ${page <= 1 ? 'disabled' : ''}">
-        <a class="page-link" href="?page=${page-1}${preserveParams}" aria-label="Previous">&laquo;</a>
-      </li>
-
-      <c:set var="window" value="2" />
-      <c:set var="start" value="${page - window}" />
-      <c:if test="${start < 1}"><c:set var="start" value="1"/></c:if>
-      <c:set var="end" value="${page + window}" />
-      <c:if test="${end > totalPages}"><c:set var="end" value="${totalPages}"/></c:if>
-
-      <c:forEach begin="${start}" end="${end}" var="i">
-        <li class="page-item ${i == page ? 'active' : ''}">
-          <c:choose>
-            <c:when test="${i == page}">
-              <span class="page-link">${i}</span>
-            </c:when>
-            <c:otherwise>
-              <a class="page-link" href="?page=${i}${preserveParams}">${i}</a>
-            </c:otherwise>
-          </c:choose>
-        </li>
-      </c:forEach>
-
-      <li class="page-item ${page >= totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="?page=${page+1}${preserveParams}" aria-label="Next">&raquo;</a>
-      </li>
-      <li class="page-item ${page >= totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="?page=${totalPages}${preserveParams}">마지막</a>
-      </li>
-    </ul>
-  </c:if>
-</nav>
-
-<script>
-  const contextPath = "${pageContext.request.contextPath}";
-</script>
-<script src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
-<script src="${pageContext.request.contextPath}/user/js/product_filter.js"></script>
-<script>
-  // ✅ contextPath를 JS 전역 변수로 전달
-  window.contextPath = "${pageContext.request.contextPath}";
-  window.serverParams = {
-    sidoId: "${fn:escapeXml(param.sidoId)}",
-    siggArea: "${fn:escapeXml(param.sigg_area)}"
-  };
-</script>
+  <script src="${pageContext.request.contextPath}/user/js/product_filter.js"></script>
 </body>
 </html>
