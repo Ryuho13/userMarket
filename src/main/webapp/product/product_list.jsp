@@ -15,7 +15,11 @@
   rel="stylesheet"
   integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
   crossorigin="anonymous">
+
+<!-- 커스텀 CSS -->
 <link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
+
+
 
 </head>
 <body class="bg-light">
@@ -61,34 +65,27 @@
     <hr>
 
     <!-- 위치 필터 -->
-<div class="mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h6 class="fw-bold mb-0">위치</h6>
-    <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
-  </div>
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold mb-0">위치</h6>
+        <a href="${ctx}/product/list" class="text-decoration-none text-primary small">초기화</a>
+      </div>
 
-  <!-- 🔹 시/도 선택 -->
-  <!-- 🔹 시/도 선택 -->
-<select id="sidoSelect"
-        data-role="sido"
-        data-sigg-target="siggSelect"
-        class="form-select mb-3">
-  <option value="">시/도 선택</option>
-  <c:forEach var="sido" items="${userSidos}">
-    <option value="${sido.id}">${sido.name}</option>
-  </c:forEach>
-</select>
+      <!-- 시/도 선택 -->
+      <select id="sidoSelect" data-role="sido" data-sigg-target="siggSelect" class="form-select mb-3">
+        <option value="">시/도 선택</option>
+        <c:forEach var="sido" items="${userSidos}">
+          <option value="${sido.id}">${sido.name}</option>
+        </c:forEach>
+      </select>
 
-<!-- 🔹 시군구 선택 -->
-<select id="siggSelect"
-        name="sigg_area"
-        class="form-select mb-3">
-  <option value="">시/군/구 선택</option>
-</select>
+      <!-- 시군구 선택 -->
+      <select id="siggSelect" name="sigg_area" class="form-select mb-3">
+        <option value="">시/군/구 선택</option>
+      </select>
+    </div>
 
-</div>
-
-
+    <!-- 카테고리 필터 -->
     <div class="categories">
       <h6 class="fw-bold mb-2">카테고리</h6>
       <div class="d-flex flex-column">
@@ -112,23 +109,38 @@
       </c:when>
       <c:otherwise>
         <c:forEach var="p" items="${products}">
-          <div class="product_item">
-            <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none">
-              <div class="card border-0 shadow-sm">
-                <c:choose>
-                  <c:when test="${not empty p.displayImg}">
-                      <img src="${p.displayImg}"
-						 class="card-img-top product_img" alt="상품 이미지">
-                  </c:when>
-                  <c:otherwise>
-                    <img src="${ctx}/product/resources/images/noimage.jpg" class="card-img-top product_img" alt="이미지없음">
-                  </c:otherwise>
-                </c:choose>
+          <div class="col-6 col-md-4 col-lg-3 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
+            <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none ${p.status eq 'SOLD_OUT' ? 'disabled-link' : ''}">
+              <div class="card border-0 shadow-sm position-relative">
+
+                <!-- 이미지 + 배지 -->
+                <div class="image-wrapper">
+                  <img src="${p.displayImg}"
+                       class="card-img-top product_img ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}"
+                       alt="상품 이미지">
+
+	                  <c:choose>
+					    <c:when test="${p.status eq 'SOLD_OUT'}">
+					      <img src="${ctx}/user/img/sold_out.png" 
+					         alt="판매완료" 
+					         class="soldout-image">
+					    </c:when>
+					    <c:when test="${p.status eq 'RESERVED'}">
+					      <img src="${ctx}/user/img/reserved.png" 
+					         alt="예약중" 
+					         class="reserved-image">
+					    </c:when>
+					</c:choose>
+
+                </div>
+
+                <!-- 상품 정보 -->
                 <div class="card-body p-2">
                   <h6 class="card-title text-truncate mb-1 fw-bold">${p.title}</h6>
                   <p class="mb-1 text-primary fw-semibold price-small">${p.sellPrice}원</p>
                   <p class="text-muted small mb-0">${p.siggName}</p>
                 </div>
+
               </div>
             </a>
           </div>

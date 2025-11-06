@@ -41,13 +41,15 @@ public class ProductDAO {
 	                }
 
 	                return new Product(
-	                        rs.getInt("product_id"),
-	                        rs.getString("product_name"),
-	                        rs.getInt("sell_price"),
-	                        rs.getString("sigg_name"),
-	                        displayImg,
-	                        rs.getInt("view_count")
-	                );
+	                	    rs.getInt("product_id"),
+	                	    rs.getString("product_name"),
+	                	    rs.getInt("sell_price"),
+	                	    rs.getString("sigg_name"),
+	                	    displayImg,
+	                	    rs.getInt("view_count"),
+	                	    rs.getString("status")
+	                	);
+
 	            }
 	        }
 	    }
@@ -81,7 +83,7 @@ public class ProductDAO {
 
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price,
-                   COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                   p.status, COALESCE(sa.name, '지역정보없음') AS sigg_name,
                    MIN(i.name) AS img_name
             FROM products p
             LEFT JOIN product_images pi ON p.id = pi.product_id
@@ -89,7 +91,7 @@ public class ProductDAO {
             LEFT JOIN user u ON p.seller_id = u.id
             LEFT JOIN activity_areas aa ON u.id = aa.user_id
             LEFT JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
-            GROUP BY p.id, p.title, p.sell_price, sa.name
+            GROUP BY p.id, p.title, p.sell_price, p.status, sa.name
             ORDER BY p.id DESC
             LIMIT ? OFFSET ?
         """;
@@ -106,30 +108,28 @@ public class ProductDAO {
                     String displayImg;
 
                     if (imgName != null && !imgName.isEmpty()) {
-                        // ✅ '/userMarket' 경로가 포함되어 있으면 제거
                         displayImg = imgName.replace("/userMarket", "");
-
-                        // ✅ '/upload/product_images/' 경로가 없다면 추가
                         if (!displayImg.contains("/upload/product_images/")) {
                             displayImg = "/upload/product_images/" + displayImg;
                         }
                     } else {
-                        // 기본 이미지 설정
                         displayImg = "/product/resources/images/noimage.jpg";
                     }
 
                     list.add(new Product(
-                            rs.getInt("product_id"),
-                            rs.getString("product_name"),
-                            rs.getInt("sell_price"),
-                            rs.getString("sigg_name"),
-                            displayImg
+                        rs.getInt("product_id"),
+                        rs.getString("product_name"),
+                        rs.getInt("sell_price"),
+                        rs.getString("sigg_name"),
+                        displayImg,
+                        rs.getString("status")  
                     ));
                 }
             }
         }
         return list;
     }
+
 
     // ✅ 상품 검색 기능
     public List<Product> searchProducts(String q, String sigg, String category)
@@ -198,7 +198,8 @@ public class ProductDAO {
                             rs.getString("product_name"),
                             rs.getInt("sell_price"),
                             rs.getString("sigg_name"),
-                            displayImg
+                            displayImg, 
+                            rs.getString("status") 
                     ));
                 }
             }

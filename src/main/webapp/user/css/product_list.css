@@ -111,3 +111,104 @@ body {
 .price-small {
   font-size: 0.9rem;
 }
+
+
+.product_img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+/* 🩶 판매완료 상품 */
+.product_img.soldout {
+  opacity: 0.4;
+  filter: grayscale(90%);
+  pointer-events: none;
+}
+
+/* 카드 컨테이너 흐리게 */
+.product_item.soldout .card {
+  background-color: #f8f9fa;
+}
+
+/* 링크 비활성화 */
+a.disabled-link {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* 상태 배지 공통 */
+.soldout-badge, .reserved-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+}
+/* 카드 전체 컨테이너 */
+.card {
+  position: relative !important;  /* 카드가 기준이 되도록 강제 설정 */
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.reserved-image {
+  position: absolute !important;
+  top: -20px !important;        /* 위로 조금 올림 */
+  right: 150px !important;      /* 오른쪽으로 살짝 빼서 대각선 느낌 */
+  width: 110px !important;      /* 살짝 키워서 가독성 높임 */
+  height: auto !important;
+  transform: rotate(20deg) !important;
+  z-index: 20 !important;
+  opacity: 0.95 !important;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.25)) !important;
+  pointer-events: none !important;
+}
+
+/* ✅ 판매완료 배지 이미지 */
+.soldout-image {
+  position: absolute !important;
+  top: 0px !important;
+  right: 150px !important;
+  width: 105px !important;
+  height: auto !important;
+  transform: rotate(-20deg) !important;
+  z-index: 25 !important;
+  opacity: 0.9 !important;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)) !important;
+  pointer-events: none !important;
+}
+
+/* 상태별 색상 */
+.soldout-badge {
+  background-color: rgba(33, 37, 41, 0.7); /* 회색/검정 배경 */
+}
+.reserved-badge {
+  background-color: rgba(255, 193, 7, 0.9); /* 노랑 */
+  color: #212529;
+}
+
+/* hover 시 효과 (판매중일 때만) */
+.product_item:not(.soldout) .card:hover .product_img {
+  transform: scale(1.03);
+}
