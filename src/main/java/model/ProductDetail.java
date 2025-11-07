@@ -13,6 +13,7 @@ public class ProductDetail {
     private String sellerMobile;
     private Double sellerRating;
     private String sellerSigg;
+    private int categoryId;  // ✅ 추가
 
     public ProductDetail() {}
 
@@ -45,4 +46,7 @@ public class ProductDetail {
 
     public String getSellerSigg() { return sellerSigg; }
     public void setSellerSigg(String sellerSigg) { this.sellerSigg = sellerSigg; }
+
+    public int getCategoryId() { return categoryId; }     // ✅ 추가
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; } // ✅ 추가
 }

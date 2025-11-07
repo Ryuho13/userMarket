@@ -7,45 +7,22 @@
 <meta charset="UTF-8">
 <title>${product.title}</title>
 
-<!-- 부트스트랩 -->
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/user/css/product_detail.css'/>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<style>
-  body { background-color: #f8f9fa; }
-  .product-container { display: flex; gap: 3rem; align-items: flex-start; }
-  .carousel-item img {
-    width: 100%;
-    border-radius: 8px;
-    object-fit: cover;
-    height: 400px;
-  }
-  .seller-box {
-    background: #fff;
-    border-radius: 8px;
-    padding: 1.2rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  .btn-action {
-    min-width: 120px;
-  }
-  .btn-disabled {
-    pointer-events: none;
-    opacity: 0.6;
-  }
-</style>
 </head>
 
 <body class="py-5">
-
 <div class="container">
 
   <a href="${pageContext.request.contextPath}/product/list" class="btn btn-outline-secondary mb-4">← 목록으로</a>
 
-  <div class="product-container">
+  <div class="product-container d-flex gap-4 flex-wrap">
 
     <!-- 🔹 이미지 캐러셀 -->
-    <div id="productCarousel" class="carousel slide col-5" data-bs-ride="carousel">
+    <div id="productCarousel" class="carousel slide col-12 col-md-5" data-bs-ride="carousel" data-bs-interval="2500">
       <div class="carousel-inner">
         <c:forEach var="img" items="${product.images}" varStatus="status">
           <div class="carousel-item ${status.first ? 'active' : ''}">
@@ -66,7 +43,6 @@
       <div class="d-flex align-items-center justify-content-between">
         <h3 class="fw-bold mb-0">
           ${product.title}
-          <!-- 판매 상태 뱃지 -->
           <c:choose>
             <c:when test="${product.status eq 'SALE'}">
               <span class="badge bg-success ms-2">판매중</span>
@@ -74,13 +50,14 @@
             <c:when test="${product.status eq 'RESERVED'}">
               <span class="badge bg-warning text-dark ms-2">예약중</span>
             </c:when>
+            <c:when test="${product.status eq 'SOLD_OUT'}">
+              <span class="badge bg-secondary ms-2">판매완료</span>
+            </c:when>
           </c:choose>
         </h3>
 
-        <!-- 내 상품이면 수정 버튼 표시 -->
         <c:if test="${sessionScope.loginUserId == product.sellerId}">
-          <a href="${pageContext.request.contextPath}/product/update?id=${product.id}"
-             class="btn btn-outline-primary btn-sm">수정하기</a>
+          <a href="${pageContext.request.contextPath}/product/update?id=${product.id}" class="btn btn-outline-primary btn-sm">수정하기</a>
         </c:if>
       </div>
 
@@ -98,17 +75,14 @@
         <div class="d-flex gap-2 mt-3">
           <c:choose>
             <c:when test="${not empty sessionScope.loginUserId}">
-              <a href="${pageContext.request.contextPath}/chat/?sellerId=${product.sellerId}"
-                 class="btn btn-primary btn-action
-                        ${product.status eq 'SOLD_OUT' ? 'btn-disabled' : ''}">
+              <a href="${pageContext.request.contextPath}/chat/?sellerId=${product.sellerId}" 
+                 class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
                 채팅하기
               </a>
-              <button class="btn btn-outline-secondary btn-action
-                             ${product.status eq 'SOLD_OUT' ? 'btn-disabled' : ''}">
+              <button class="btn btn-outline-secondary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
                 찜
               </button>
             </c:when>
-
             <c:otherwise>
               <a href="${pageContext.request.contextPath}/user/login.jsp" class="btn btn-outline-primary btn-action">
                 로그인 후 채팅하기
@@ -119,10 +93,85 @@
       </div>
     </div>
   </div>
+
+  <!-- 🔸 비슷한 카테고리 상품 -->
+  <c:if test="${not empty sameCategory}">
+    <div class="section-box">
+      <h5 class="section-title"><i class="bi bi-box-seam"></i> 비슷한 카테고리의 상품</h5>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="categoryProducts">
+        <c:forEach var="item" items="${sameCategory}" varStatus="status">
+          <div class="col product-item ${status.index >= 4 ? 'd-none extra-category' : ''}">
+            <a href="${pageContext.request.contextPath}/product/detail?id=${item.id}" class="text-decoration-none text-dark">
+              <div class="card h-100 border-0 shadow-sm">
+                <img src="${pageContext.request.contextPath}${item.displayImg}" class="card-img-top" alt="${item.title}">
+                <div class="card-body">
+                  <h6 class="card-title text-truncate mb-1">${item.title}</h6>
+                  <small class="text-muted d-block mb-1">${item.siggName}</small>
+                  <p class="card-text text-danger fw-bold mb-0">${item.sellPrice}원</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </c:forEach>
+      </div>
+      <div class="text-center mt-3">
+        <button id="showMoreCategory" class="btn btn-outline-secondary btn-sm">더보기</button>
+      </div>
+    </div>
+  </c:if>
+
+  <!-- 🔸 이 판매자의 다른 상품 -->
+  <c:if test="${not empty sameSeller}">
+    <div class="section-box">
+      <h5 class="section-title"><i class="bi bi-person"></i> 이 판매자의 다른 상품</h5>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="sellerProducts">
+        <c:forEach var="item" items="${sameSeller}" varStatus="status">
+          <div class="col product-item ${status.index >= 4 ? 'd-none extra-seller' : ''}">
+            <a href="${pageContext.request.contextPath}/product/detail?id=${item.id}" class="text-decoration-none text-dark">
+              <div class="card h-100 border-0 shadow-sm">
+                <img src="${pageContext.request.contextPath}${item.displayImg}" class="card-img-top" alt="${item.title}">
+                <div class="card-body">
+                  <h6 class="card-title text-truncate mb-1">${item.title}</h6>
+                  <small class="text-muted d-block mb-1">${item.siggName}</small>
+                  <p class="card-text text-danger fw-bold mb-0">${item.sellPrice}원</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </c:forEach>
+      </div>
+      <div class="text-center mt-3">
+        <button id="showMoreSeller" class="btn btn-outline-secondary btn-sm">더보기</button>
+      </div>
+    </div>
+  </c:if>
+
 </div>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// 더보기 기능
+document.addEventListener("DOMContentLoaded", function() {
+  const showMoreCategory = document.getElementById("showMoreCategory");
+  const showMoreSeller = document.getElementById("showMoreSeller");
+
+  if (showMoreCategory) {
+    showMoreCategory.addEventListener("click", function() {
+      document.querySelectorAll(".extra-category").forEach(el => el.classList.remove("d-none"));
+      this.style.display = "none";
+    });
+  }
+
+  if (showMoreSeller) {
+    showMoreSeller.addEventListener("click", function() {
+      document.querySelectorAll(".extra-seller").forEach(el => el.classList.remove("d-none"));
+      this.style.display = "none";
+    });
+  }
+});
+</script>
 
 </body>
 </html>

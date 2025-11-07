@@ -1,15 +1,19 @@
 package web;
 
 import dao.ProductDetailDAO;
+import dao.ProductDAO;  // ← 추가
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.ProductDetail;
+import model.Product;
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/product/detail")
 public class ProductDetailServlet extends HttpServlet {
-    private final ProductDetailDAO dao = new ProductDetailDAO();
+    private final ProductDetailDAO detailDao = new ProductDetailDAO();
+    private final ProductDAO productDao = new ProductDAO(); // ✅ 추가
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -31,7 +35,7 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         try {
-            ProductDetail pd = dao.findById(id);
+            ProductDetail pd = detailDao.findById(id);
             if (pd == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                 return;
@@ -49,11 +53,19 @@ public class ProductDetailServlet extends HttpServlet {
                 }
             }
 
+            // ✅ 같은 카테고리 & 같은 판매자 상품 조회
+            List<Product> sameCategory = productDao.getProductsByCategory(pd.getCategoryId(), pd.getId());
+            List<Product> sameSeller = productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
+            
+            // ✅ JSP 전달
             req.setAttribute("product", pd);
+            req.setAttribute("sameCategory", sameCategory);
+            req.setAttribute("sameSeller", sameSeller);
+
             req.getRequestDispatcher("/product/product_detail.jsp").forward(req, resp);
 
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("상품 상세 조회 중 오류", e);
         }
     }
 }
