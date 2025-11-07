@@ -65,8 +65,9 @@
 			
 			<script>
 				function confirmDelete() {
+					event.preventDefault();
 					if (confirm("정말 탈퇴하시겠습니까?\n\n회원님의 모든 거래 기록과 정보가 완전히 삭제됩니다.")) {
-						location.href = `${pageContext.request.contextPath}/user/delete`;
+						window.location.href = `${event.currentTarget.getAttribute("href")}`;
 					}
 				}
 			</script>

@@ -78,7 +78,6 @@ function checkAddForm(e) {
 		if (!$addr2.value.trim()) { displayError('주소 (시/군/구)를 선택하세요.'); $addr2.focus(); return false; }
 		if (!$addr.value.trim()) { displayError('상세 주소를 입력하세요.'); $addr.focus(); return false; }
 
-
 		// 4) 이메일 도메인 처리 및 Hidden 'em' 설정
 		let domPart = '';
 		const idPart = ($mail1.value || '').trim();
@@ -130,8 +129,6 @@ function checkAddForm(e) {
 		}
 		addrHidden.value = fullAddr;
 
-
-
 		// 통과 → 제출
 		form.submit();
 		return true;
@@ -142,6 +139,20 @@ function checkAddForm(e) {
 		return false;
 	}
 }
+
+// 전역 이벤트 리스너: 페이지 로드 후 실행
+document.addEventListener('DOMContentLoaded', () => {
+   initializeIcons();
+
+    // --- 필수 수정: 이메일 도메인 입력 처리 초기화 호출 ---
+    handleEmailDomain(); 
+
+   // 회원가입 폼의 경우 onSubmit 이벤트 재연결
+   const addForm = document.querySelector('form[name="newUser"]');
+   if (addForm) {
+      addForm.onsubmit = checkAddForm;
+   }
+});
 
 // ---------------- 주소 데이터 및 로직 ----------------
 const regions = {
@@ -192,3 +203,123 @@ document.addEventListener('DOMContentLoaded', function() {
 		addr2Select.disabled = true;
 	}
 });
+
+// ---------------- 이메일 도메인 처리 (수정됨) ----------------
+
+// 이메일 도메인 선택 시 직접 입력 처리 함수
+function handleEmailDomain() {
+    const mail2Select = document.querySelector('select[name="mail2"]');
+    
+    // mail2Select 요소의 부모(flex items-center space-x-2)를 찾습니다.
+    const container = mail2Select?.closest('.flex.items-center.space-x-2');
+    if (!container) return; // 컨테이너가 없으면 실행 중지
+
+    let mail3Wrapper = document.getElementById('mail3-input-wrapper');
+    let mail3Input = null; // 실제 input 요소
+
+    // 1. mail3Input wrapper가 없으면 생성하고 container에 추가 (display: none 상태로)
+    if (!mail3Wrapper) {
+        // <div id="mail3-input-wrapper" class="w-2/3 flex items-center space-x-2 hidden">
+        mail3Wrapper = document.createElement('div');
+        mail3Wrapper.id = 'mail3-input-wrapper';
+        // select 요소와 동일한 w-2/3 클래스를 유지하면서 flex 레이아웃으로 변경
+        mail3Wrapper.className = 'w-2/3 flex items-center space-x-2'; 
+        mail3Wrapper.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'mail3-input';
+        input.maxLength = 50;
+        input.placeholder = '도메인 직접 입력';
+        // 버튼 공간 확보를 위해 너비를 줄임 (예: w-3/4)
+        input.className = 'w-full p-2 border border-gray-300 rounded-lg input-field';
+        
+        // 버튼을 감싸는 div (버튼 클릭 시 mail2Select 표시)
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'absolute right-0 top-0 h-full flex items-center pr-1.5';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        // chevron-down 아이콘 (lucide 아이콘을 인라인 SVG로 사용)
+        button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down text-gray-500 hover:text-gray-700 transition duration-150"><path d="m6 9 6 6 6-6"/></svg>';
+        button.className = 'p-1';
+        button.title = '도메인 선택으로 돌아가기';
+        
+        buttonWrapper.appendChild(button);
+        
+        // input과 button을 포함할 상대적 위치의 컨테이너
+        const relativeContainer = document.createElement('div');
+        // w-full 클래스를 삭제하고 flex item의 너비를 상속받도록 함.
+        relativeContainer.className = 'relative flex-grow'; 
+        relativeContainer.appendChild(input);
+        relativeContainer.appendChild(buttonWrapper);
+
+
+        // mail3Wrapper는 w-2/3 이므로, 그 안에 input(w-full)을 넣고, select와 동일한 너비를 차지하도록 조정
+        // 여기서는 mail2Select와 mail3Wrapper가 같은 w-2/3 공간을 차지하도록 토글만 합니다.
+        mail3Wrapper.appendChild(relativeContainer);
+        
+        // mail2Select 옆에 mail3Wrapper를 추가
+        mail2Select.after(mail3Wrapper);
+        
+        // 실제 input 요소 참조 업데이트
+        mail3Input = input;
+
+        // 버튼 클릭 이벤트: mail2Select를 다시 보이게 함
+        button.addEventListener('click', () => {
+            // mail2를 보이게 하고, mail3Wrapper를 숨김
+            toggleDomainInput(false); 
+        });
+
+    } else {
+        // 이미 생성된 경우 input 요소 참조 업데이트
+        mail3Input = mail3Wrapper.querySelector('input[name="mail3-input"]');
+    }
+    
+    // 토글 함수 정의
+    function toggleDomainInput(isDirectInput) {
+        // isDirectInput이 true면 mail2 숨김/mail3 보임
+        if (isDirectInput) {
+            mail2Select.style.display = 'none';
+            // mail3Wrapper의 display를 'flex'로 변경 (생성 시 'flex'를 사용했으므로)
+            mail3Wrapper.style.display = 'flex'; 
+            mail3Input.required = true;
+            mail2Select.required = false;
+            // 포커스
+            setTimeout(() => {
+                mail3Input.focus();
+            }, 0); 
+        } else {
+            // mail2 보임/mail3 숨김
+            // **수정된 부분: display를 빈 문자열로 설정하여 select의 기본 display 속성(대부분 inline-block 또는 block)을 복원**
+            mail2Select.style.display = ''; 
+            mail3Wrapper.style.display = 'none';
+            mail3Input.value = ''; // 값 초기화
+            mail3Input.required = false;
+            mail2Select.required = true;
+            // ************ 이 부분을 제거하여 사용자가 자유롭게 선택하도록 합니다. ************
+            // mail2Select를 초기값 ('naver.com')으로 돌려놓기 (선택하지 않은 상태를 방지)
+            // mail2Select.value = mail2Select.options[0].value;
+        }
+    }
+
+    // mail2가 변경될 때마다 실행
+    mail2Select.addEventListener('change', function() {
+        // '직접 입력' 옵션 선택 시 (value="")
+        const isDirect = this.value === "";
+        toggleDomainInput(isDirect);
+    });
+
+    // 초기 로드 시 상태 설정
+    const isDirectInitially = mail2Select.value === "";
+    
+    // 만약 mail2Select의 초기값이 '직접 입력'이면, 직접 입력 모드로 시작
+    if (isDirectInitially) {
+        toggleDomainInput(true);
+    } else {
+        // 기본 상태에서는 mail2Select 보이고, mail3Wrapper 숨김
+        mail2Select.style.display = ''; // 기본값으로 설정
+        mail3Wrapper.style.display = 'none';
+        mail2Select.required = true;
+    }
+}

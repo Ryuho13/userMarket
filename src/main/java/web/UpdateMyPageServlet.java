@@ -1,4 +1,4 @@
-package web;
+	package web;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -72,17 +72,37 @@ public class UpdateMyPageServlet extends HttpServlet {
         String nickname = trim(req.getParameter("nickname"));
         String pw       = trim(req.getParameter("password"));            // 비우면 유지
         String pw2      = trim(req.getParameter("password_confirm"));
-        String mail1    = trim(req.getParameter("mail1"));
-        String mail2    = trim(req.getParameter("mail2"));
-        String phn      = trim(req.getParameter("phone"));
-        String addrDet  = trim(req.getParameter("address"));
-        String em       = (!isBlank(mail1) && !isBlank(mail2)) ? (mail1 + "@" + mail2) : null;
 
+        // --- 이메일: mail3-input(직접입력)이 있으면 그것을 도메인으로 사용 ---
+        String mail1    = trim(req.getParameter("mail1"));
+        String mail2Sel = trim(req.getParameter("mail2"));               // select 값 (직접입력 선택 시 빈 문자열일 수 있음)
+        String mail2Dir = trim(req.getParameter("mail3-input"));         // 직접입력 input (존재할 수도)
+        String domain   = !isBlank(mail2Dir) ? mail2Dir : mail2Sel;      // 우선순위: 직접입력 > 선택값
+        String em       = (!isBlank(mail1) && !isBlank(domain)) ? (mail1 + "@" + domain) : null;
+
+        // --- 전화번호 ---
+        String phn      = trim(req.getParameter("phone"));
+
+        // --- 주소: addr1/addr2/addr3를 공백으로 합쳐 addrDet로 저장 ---
+        String addr1 = trim(req.getParameter("addr1"));
+        String addr2 = trim(req.getParameter("addr2")); // 주의: 클라이언트에서 disabled면 아예 안 넘어올 수 있음
+        String addr3 = trim(req.getParameter("addr3"));
+
+        String addrDet = null;
+        if (!isBlank(addr1) || !isBlank(addr2) || !isBlank(addr3)) {
+            StringBuilder sb = new StringBuilder();
+            if (!isBlank(addr1)) sb.append(addr1);
+            if (!isBlank(addr2)) { if (sb.length() > 0) sb.append(' '); sb.append(addr2); }
+            if (!isBlank(addr3)) { if (sb.length() > 0) sb.append(' '); sb.append(addr3); }
+            addrDet = sb.toString();
+        }
+
+        // --- 기본 검증 ---
         if (isBlank(name) || isBlank(nickname)) {
             req.setAttribute("error", "성명과 닉네임은 필수입니다.");
             try { req.setAttribute("profile", userDAO.findProfileByUserId(userId)); } catch (SQLException ignored) {}
             req.setAttribute("mail1", mail1);
-            req.setAttribute("mail2", mail2);
+            req.setAttribute("mail2", domain);
             req.getRequestDispatcher("/user/updateMyPage.jsp").forward(req, resp);
             return;
         }
@@ -90,7 +110,7 @@ public class UpdateMyPageServlet extends HttpServlet {
             req.setAttribute("error", "비밀번호와 확인이 일치하지 않습니다.");
             try { req.setAttribute("profile", userDAO.findProfileByUserId(userId)); } catch (SQLException ignored) {}
             req.setAttribute("mail1", mail1);
-            req.setAttribute("mail2", mail2);
+            req.setAttribute("mail2", domain);
             req.getRequestDispatcher("/user/updateMyPage.jsp").forward(req, resp);
             return;
         }
@@ -102,14 +122,14 @@ public class UpdateMyPageServlet extends HttpServlet {
                     userId,
                     name,
                     phn,
-                    em,             // null이면 이메일 NULL 처리 (원하면 기존 유지 로직으로 바꿔도 됨)
+                    em,             // null이면 이메일 NULL 처리 (원하면 기존 유지 정책으로 바꿔도 됨)
                     newPwNullable,  // null이면 비밀번호 유지
                     nickname,
-                    addrDet,
-                    null            // profile_img (이미지 업로드는 추후)
+                    addrDet,        // ✅ 합쳐진 주소 문자열
+                    null            // profile_img (추후)
             );
 
-            // 세션 표시값도 갱신해 두면 UX 좋음
+            // 세션 표시값도 갱신
             loginUser.setName(name);
             loginUser.setPhn(phn);
             loginUser.setEm(em);
@@ -120,7 +140,7 @@ public class UpdateMyPageServlet extends HttpServlet {
             req.setAttribute("error", "회원정보 수정 중 오류가 발생했습니다: " + e.getMessage());
             try { req.setAttribute("profile", userDAO.findProfileByUserId(userId)); } catch (SQLException ignored) {}
             req.setAttribute("mail1", mail1);
-            req.setAttribute("mail2", mail2);
+            req.setAttribute("mail2", domain);
             req.getRequestDispatcher("/user/updateMyPage.jsp").forward(req, resp);
         }
     }

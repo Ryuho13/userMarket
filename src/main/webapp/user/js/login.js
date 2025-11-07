@@ -1,20 +1,29 @@
-// 에러 메시지 표시 (Bootstrap alert)
-function showError(message) {
-  let alertBox = document.querySelector(".login-card .alert.alert-danger");
-  if (!alertBox) {
-    alertBox = document.createElement("div");
-    alertBox.className = "alert alert-danger";
-    alertBox.setAttribute("role", "alert");
-    document.querySelector(".login-card").prepend(alertBox);
+// ---- 클라이언트 전용 에러 박스 (#login-error)만 사용 ----
+function ensureClientErrorBox() {
+  let box = document.getElementById("login-error");
+  if (!box) {
+    // 서버 에러 박스(.alert-danger)는 건드리지 않기 위해 별도 id 박스를 만든다
+    const host = document.querySelector(".login-card") || document.body;
+    box = document.createElement("div");
+    box.id = "login-error";
+    box.className = "alert alert-danger d-none";
+    box.setAttribute("role", "alert");
+    host.prepend(box);
   }
-  alertBox.textContent = message;
-  alertBox.classList.remove("d-none");
+  return box;
 }
 
-// 에러 숨기기
+// 에러 메시지 표시 (클라이언트 전용)
+function showError(message) {
+  const box = ensureClientErrorBox();
+  box.textContent = message;
+  box.classList.remove("d-none");
+}
+
+// 에러 숨기기 (클라이언트 전용)
 function hideError() {
-  const alertBox = document.querySelector(".login-card .alert.alert-danger");
-  if (alertBox) alertBox.classList.add("d-none");
+  const box = document.getElementById("login-error");
+  if (box) box.classList.add("d-none");
 }
 
 // 아이디 정규식 검사 (영문/숫자 6~12자)
@@ -35,8 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pwInput = form.elements.namedItem("pw");
   const submitBtn = form.querySelector("button[type='submit']");
 
-  // 기존 alert 숨기기
-  hideError();
+  // ❌ 기존: hideError();  -> 서버 에러 박스까지 숨겨버리던 원인, 제거!
 
   // ---------- [비밀번호 표시 + 아이디 저장 영역 생성] ----------
   (function createOptionRow() {
@@ -98,10 +106,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    hideError();
 
     const id = (idInput?.value || "").trim();
     const pw = pwInput?.value || "";
+
+    // 제출할 때마다 클라이언트 에러박스만 정리
+    hideError();
 
     if (!id) {
       showError("아이디를 입력하세요.");
@@ -130,6 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.innerText = "로그인 중...";
     }
 
-    form.submit();
+    form.submit(); // 서버 forward 시 JSP의 서버 에러 박스는 그대로 노출됨
   });
 });

@@ -70,7 +70,7 @@ body {
 		</div>
 
 		<!-- 본문 영역 -->
-		<form name="updateMyPage" action="${pageContext.request.contextPath}//user/mypage/update"
+		<form name="updateMyPage" action="${pageContext.request.contextPath}/user/mypage/update"
 			method="post" onsubmit="return checkForm(event)" class="space-y-4">
 
 			<!-- 아이디 (수정 불가 필드 - 순서 변경 없음) -->
@@ -128,16 +128,17 @@ body {
 					(Email)</label>
 				<!-- DB에서 로드한 이메일 데이터를 기반으로 기본값 설정 -->
 				<div class="flex space-x-2 items-center">
-					<input type="text" name="mail1" maxlength="50"
+					<input type="text" name="mail1" value="${mail1}" maxlength="50"
 						class="form-input px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-full md:w-5/12"
 						placeholder="email" value="usermail"> <span
-						class="text-gray-500">@</span> <select name="mail2"
+						class="text-gray-500">@</span>
+					<select name="mail2"
 						class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-full md:w-5/12">
-						<option value="naver.com">naver.com</option>
-						<option value="daum.net" selected>daum.net</option>
-						<!-- 예시로 daum.net 선택 -->
-						<option value="gmail.com">gmail.com</option>
-						<option value="nate.com">nate.com</option>
+					  <option value="naver.com" <c:if test="${mail2 eq 'naver.com'}">selected</c:if>>naver.com</option>
+					  <option value="daum.net" <c:if test="${mail2 eq 'daum.net'}">selected</c:if>>daum.net</option>
+					  <option value="gmail.com" <c:if test="${mail2 eq 'gmail.com'}">selected</c:if>>gmail.com</option>
+					  <option value="nate.com" <c:if test="${mail2 eq 'nate.com'}">selected</c:if>>nate.com</option>
+					  <option value="">직접입력</option>
 					</select>
 				</div>
 			</div>
@@ -152,15 +153,51 @@ body {
 					placeholder="'-' 없이 입력" value="${profile.phn}">
 			</div>
 
-			<!-- 주소 (Address) - 순서 변경 없음 -->
-			<div class="space-y-1">
-				<label for="address" class="text-sm font-medium text-gray-700 block">주소
-					(Address)</label>
-				<!-- DB에서 로드할 주소 -->
-				<input name="address" type="text"
-					class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-					placeholder="주소" value="${profile.addrDetail}">
-			</div>
+			<!-- 주소 (Address) - **수정된 부분: 3단계 선택 기능 통합** -->
+         <div class="space-y-1">
+            <label class="text-sm font-medium text-gray-700 block mb-1">주소
+               (Address)</label>
+            <div class="space-y-3">
+               
+               <!-- 1. 도/시 선택 및 2. 시/군/구 선택 -->
+               <div class="flex space-x-2">
+                  <select name="addr1" id="addr1-select"
+                     class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
+                     required>
+                     <option value="">도/시 선택</option>
+                     <option value="서울특별시">서울특별시</option>
+                     <option value="부산광역시">부산광역시</option>
+                     <option value="대구광역시">대구광역시</option>
+                     <option value="인천광역시">인천광역시</option>
+                     <option value="광주광역시">광주광역시</option>
+                     <option value="대전광역시">대전광역시</option>
+                     <option value="울산광역시">울산광역시</option>
+                     <option value="세종특별자치시">세종특별자치시</option>
+                     <option value="경기도">경기도</option>
+                     <option value="강원특별자치도">강원특별자치도</option>
+                     <option value="충청북도">충청북도</option>
+                     <option value="충청남도">충청남도</option>
+                     <option value="전라북도">전라북도</option>
+                     <option value="전라남도">전라남도</option>
+                     <option value="경상북도">경상북도</option>
+                     <option value="경상남도">경상남도</option>
+                     <option value="제주특별자치도">제주특별자치도</option>
+                  </select>
+                  
+                  <!-- 2. 시/군/구 선택 -->
+                  <select name="addr2" id="addr2-select"
+                     class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
+                     required disabled>
+                     <option value="">시/군/구 선택</option>
+                  </select>
+               </div>
+               
+                <!-- 3. 상세 주소 입력 -->
+               <input name="addr3" type="text"
+                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                  placeholder="도로명, 지번, 건물명 등 상세 주소" value="${profile.addrDetail}" required>
+            </div>
+         </div>
 
 			<!-- 버튼 영역 -->
 			<div class="pt-4 flex justify-between space-x-4">
