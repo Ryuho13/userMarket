@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const contextPath = document.body.getAttribute('data-context-path') || ''; // Get context path from body attribute
     const wsUrl = `${wsProtocol}//${wsHost}${contextPath}/notifications/${currentUserId}`;
 
+    const currentChatRoomId = document.body.getAttribute('data-room-id'); // 현재 채팅방 ID 가져오기
+
     let socket;
 
     function connect() {
@@ -25,7 +27,12 @@ document.addEventListener("DOMContentLoaded", function() {
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'newMessage') {
-                    showToast(data.senderNickname, data.message);
+                    // 현재 보고 있는 채팅방의 메시지가 아닐 경우에만 알림 표시
+                    if (!currentChatRoomId || data.roomId != currentChatRoomId) {
+                        showToast(data.senderNickname, data.message, data.roomId);
+                    } else {
+                        console.log("현재 채팅방 메시지이므로 알림을 표시하지 않습니다.");
+                    }
                 }
             } catch (e) {
                 console.error("알림 메시지 파싱 오류:", e);
@@ -50,8 +57,9 @@ document.addEventListener("DOMContentLoaded", function() {
  * 화면에 토스트 알림을 표시하는 함수
  * @param {string} sender - 메시지를 보낸 사람의 닉네임
  * @param {string} message - 메시지 내용
+ * @param {number} roomId - 채팅방 ID
  */
-function showToast(sender, message) {
+function showToast(sender, message, roomId) {
     // 토스트 컨테이너 생성
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
@@ -61,6 +69,22 @@ function showToast(sender, message) {
         <div class="toast-header">${sender}님의 새 메시지!</div>
         <div>${message}</div>
     `;
+
+    // 클릭 이벤트 추가
+    toast.addEventListener('click', function() {
+        console.log('Toast clicked!');
+        console.log('roomId:', roomId);
+        console.log('currentUserId:', currentUserId);
+        
+        if (roomId && currentUserId) {
+            const contextPath = document.body.getAttribute('data-context-path') || '';
+            const url = `${contextPath}/chatRoom?roomId=${roomId}&currentUserId=${currentUserId}`;
+            console.log('Redirecting to:', url);
+            window.location.href = url;
+        } else {
+            console.error('roomId or currentUserId is missing.');
+        }
+    });
 
     // body에 토스트 추가
     document.body.appendChild(toast);
@@ -75,7 +99,9 @@ function showToast(sender, message) {
         toast.classList.remove('show');
         // 애니메이션이 끝난 후 DOM에서 제거
         setTimeout(() => {
-            document.body.removeChild(toast);
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
         }, 300); // CSS transition 시간과 일치시키는 것이 좋음
     }, 3000);
 }

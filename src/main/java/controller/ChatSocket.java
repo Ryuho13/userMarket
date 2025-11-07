@@ -93,9 +93,10 @@ public class ChatSocket {
                     String senderNickname = (senderProfile != null) ? senderProfile.getNickname() : "알 수 없음";
 
                     String notificationJson = String.format(
-                        "{\"type\":\"newMessage\", \"senderNickname\":\"%s\", \"message\":\"%s\"}",
+                        "{\"type\":\"newMessage\", \"senderNickname\":\"%s\", \"message\":\"%s\", \"roomId\":%d}",
                         senderNickname.replace("\"", "\\\""), // 닉네임 내 큰따옴표 이스케이프
-                        message.replace("\"", "\\\"") // 메시지 내 큰따옴표 이스케이프
+                        message.replace("\"", "\\\""), // 메시지 내 큰따옴표 이스케이프
+                        roomId
                     );
                     NotificationSocket.sendNotification(recipientId, notificationJson);
                 }

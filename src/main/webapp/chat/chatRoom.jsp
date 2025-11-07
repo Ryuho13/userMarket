@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/chatRoom.css">
 <script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </head>
-<body data-context-path="${pageContext.request.contextPath}">
+<body data-context-path="${pageContext.request.contextPath}" data-room-id="${room.id}">
 
 
 
