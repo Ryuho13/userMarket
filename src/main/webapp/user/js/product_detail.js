@@ -44,3 +44,33 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleSeller.addEventListener("click", () => toggleItems(".extra-seller", toggleSeller));
   }
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("btnWish");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const productId = btn.dataset.productId;
+    const isWish = btn.dataset.wish === "true";
+
+    const formData = new URLSearchParams();
+    formData.append("productId", productId);
+    formData.append("isWish", isWish);
+
+    const res = await fetch(`${contextPath}/product/wishlist`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      btn.dataset.wish = (!isWish).toString();
+      btn.classList.toggle("btn-danger", !isWish);
+      btn.classList.toggle("btn-outline-secondary", isWish);
+      btn.innerHTML = !isWish
+        ? '<i class="bi bi-heart-fill"></i> 찜 취소'
+        : '<i class="bi bi-heart"></i> 찜';
+    } else if (res.status === 401) {
+      window.location.href = `${contextPath}/user/login?redirect=/product/detail?id=${productId}`;
+    }
+  });
+});
+

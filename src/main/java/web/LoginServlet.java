@@ -20,6 +20,13 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        // ✅ redirect 파라미터 유지 (로그인 후 돌아가기 위함)
+        String redirect = req.getParameter("redirect");
+        if (redirect != null) {
+            req.setAttribute("redirect", redirect);
+        }
+
         req.getRequestDispatcher("/user/login.jsp").forward(req, resp);
     }
 
@@ -28,12 +35,13 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String accountId = trimOrNull(req.getParameter("id"));
-        String pw        = trimOrNull(req.getParameter("pw"));
+        String pw = trimOrNull(req.getParameter("pw"));
+        String redirect = trimOrNull(req.getParameter("redirect")); // ✅ 추가
 
         if (accountId == null || pw == null) {
             req.setAttribute("error", "아이디와 비밀번호를 입력하세요.");
             req.setAttribute("lastId", accountId);
-            req.getRequestDispatcher("user/login.jsp").forward(req, resp);
+            req.getRequestDispatcher("/user/login.jsp").forward(req, resp);
             return;
         }
 
@@ -52,13 +60,17 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = req.getSession(true);
             try {
                 req.changeSessionId();
-            } catch (IllegalStateException ignore) {
-            }
+            } catch (IllegalStateException ignore) {}
 
             session.setAttribute("loginUserId", user.getId());
             session.setAttribute("loginAccountId", user.getAccountId());
-            
-            resp.sendRedirect(req.getContextPath() + "/user/myPage");
+
+            // ✅ 로그인 성공 후 redirect 있으면 해당 페이지로 이동
+            if (redirect != null && redirect.startsWith("/")) {
+                resp.sendRedirect(req.getContextPath() + redirect);
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/user/myPage");
+            }
 
         } catch (SQLException e) {
             throw new ServletException("로그인 처리 중 DB 오류", e);

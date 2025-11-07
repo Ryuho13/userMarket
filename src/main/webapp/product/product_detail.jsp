@@ -91,9 +91,25 @@
                  class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
                 채팅하기
               </a>
-              <button class="btn btn-outline-secondary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
-                찜
-              </button>
+              <c:choose>
+				  <c:when test="${sessionScope.loginUserId != null}">
+				    <button 
+					  id="wishBtn"
+					  class="btn btn-outline-secondary btn-action"
+					  data-product-id="${product.id}"
+					  data-wish="${isWished}">
+					  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
+					</button>
+
+				  </c:when>
+				  <c:otherwise>
+				    <a href="${pageContext.request.contextPath}/user/login?redirect=/product/detail?id=${product.id}"
+				       class="btn btn-outline-secondary btn-action">
+				      찜하려면 로그인
+				    </a>
+				  </c:otherwise>
+				</c:choose>
+
             </c:when>
             <c:otherwise>
 			  <a href="${pageContext.request.contextPath}/user/login.jsp?redirect=${pageContext.request.requestURI}?id=${product.id}"
@@ -171,6 +187,10 @@
 
 <!-- 🔹 분리된 JS 파일 -->
 <script src="<c:url value='/user/js/product_detail.js'/>"></script>
+<script src="<c:url value='/user/js/wish_list.js'/>"></script>
+<script>
+  window.contextPath = '${pageContext.request.contextPath}';
+</script>
 
 </body>
 </html>
