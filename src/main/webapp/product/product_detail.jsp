@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -11,7 +12,6 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/user/css/product_detail.css'/>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
 </head>
 
 <body class="py-5">
@@ -114,9 +114,11 @@
           </div>
         </c:forEach>
       </div>
-      <div class="text-center mt-3">
-        <button id="showMoreCategory" class="btn btn-outline-secondary btn-sm">더보기</button>
-      </div>
+      <c:if test="${fn:length(sameCategory) > 4}">
+		  <div class="text-center mt-3">
+		    <button id="toggleCategory" class="btn btn-outline-secondary btn-sm">더보기 ▼</button>
+		  </div>
+		</c:if>
     </div>
   </c:if>
 
@@ -140,9 +142,12 @@
           </div>
         </c:forEach>
       </div>
-      <div class="text-center mt-3">
-        <button id="showMoreSeller" class="btn btn-outline-secondary btn-sm">더보기</button>
-      </div>
+      <c:if test="${fn:length(sameSeller) > 4}">
+		  <div class="text-center mt-3">
+		    <button id="toggleSeller" class="btn btn-outline-secondary btn-sm">더보기 ▼</button>
+		  </div>
+		</c:if>
+
     </div>
   </c:if>
 
@@ -151,27 +156,8 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-// 더보기 기능
-document.addEventListener("DOMContentLoaded", function() {
-  const showMoreCategory = document.getElementById("showMoreCategory");
-  const showMoreSeller = document.getElementById("showMoreSeller");
-
-  if (showMoreCategory) {
-    showMoreCategory.addEventListener("click", function() {
-      document.querySelectorAll(".extra-category").forEach(el => el.classList.remove("d-none"));
-      this.style.display = "none";
-    });
-  }
-
-  if (showMoreSeller) {
-    showMoreSeller.addEventListener("click", function() {
-      document.querySelectorAll(".extra-seller").forEach(el => el.classList.remove("d-none"));
-      this.style.display = "none";
-    });
-  }
-});
-</script>
+<!-- 🔹 분리된 JS 파일 -->
+<script src="<c:url value='/user/js/product_detail.js'/>"></script>
 
 </body>
 </html>

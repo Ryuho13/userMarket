@@ -350,7 +350,6 @@ public class ProductDAO {
             WHERE p.category_id = ? AND p.id <> ?
             GROUP BY p.id, p.title, p.sell_price, p.status, sa.name
             ORDER BY p.id DESC
-            LIMIT 4
         """;
 
         List<Product> list = new ArrayList<>();
@@ -403,7 +402,6 @@ public class ProductDAO {
             WHERE p.seller_id = ? AND p.id <> ?
             GROUP BY p.id, p.title, p.sell_price, p.status, sa.name
             ORDER BY p.id DESC
-            LIMIT 4
         """;
 
         List<Product> list = new ArrayList<>();

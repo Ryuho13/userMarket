@@ -41,7 +41,7 @@
 
     <div class="p-8">
       <form id="productForm" method="post" enctype="multipart/form-data"
-            action="${pageContext.request.contextPath}/product/insert"
+            action="${pageContext.request.contextPath}/product/${empty product.id ? 'insert' : 'update'}"
             class="space-y-6">
 
         <!-- 상품명 -->

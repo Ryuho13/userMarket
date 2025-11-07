@@ -90,6 +90,26 @@ body {
   margin: 0 auto;
 }
 
+.extra-category, .extra-seller {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.extra-category:not(.d-none), 
+.extra-seller:not(.d-none) {
+  opacity: 1;
+}
+
+#toggleCategory, #toggleSeller {
+  min-width: 110px;
+  transition: all 0.2s ease;
+}
+
+#toggleCategory:hover, #toggleSeller:hover {
+  transform: scale(1.05);
+}
+
+
 /* ✅ 반응형: 모바일 대응 */
 @media (max-width: 768px) {
   .carousel-item img {
