@@ -61,7 +61,19 @@
         </c:if>
       </div>
 
-      <p class="text-muted mt-1 mb-3">지역: ${product.sellerSigg}</p>
+		<p class="text-muted mt-1 mb-3">
+		  지역:
+		  <c:choose>
+		    <c:when test="${not empty product.sidoName}">
+		      ${product.sidoName}
+		      <c:if test="${not empty product.regionName}">
+		        ${product.regionName}
+		      </c:if>
+		    </c:when>
+		    <c:otherwise>등록된 지역 없음</c:otherwise>
+		  </c:choose>
+		</p>
+
       <h4 class="text-danger fw-bold mb-3">${product.sellPrice}원</h4>
       <p>${product.description}</p>
       <hr>
@@ -84,10 +96,11 @@
               </button>
             </c:when>
             <c:otherwise>
-              <a href="${pageContext.request.contextPath}/user/login.jsp" class="btn btn-outline-primary btn-action">
-                로그인 후 채팅하기
-              </a>
-            </c:otherwise>
+			  <a href="${pageContext.request.contextPath}/user/login.jsp?redirect=${pageContext.request.requestURI}?id=${product.id}"
+			     class="btn btn-outline-primary btn-action">
+			    로그인 후 채팅하기
+			  </a>
+			</c:otherwise>
           </c:choose>
         </div>
       </div>
