@@ -12,7 +12,7 @@ body {
 
 /* ✅ 상품 캐러셀 이미지 (크기 줄임) */
 .carousel-item img {
-  width: 60%;              /* 전체 너비 중 70% */
+  width: 100%;              /* 전체 너비 중 70% */
   height: 300px;           /* 높이 축소 */
   object-fit: cover;       /* 비율 유지 */
   border-radius: 10px;
