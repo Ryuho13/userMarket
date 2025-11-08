@@ -129,7 +129,6 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String displayImg = normalizeDisplayImg(rs.getString("img_name")); // ✅ 누락 수정
-
                     list.add(new Product(
                             rs.getInt("product_id"),
                             rs.getString("product_name"),
@@ -145,16 +144,15 @@ public class ProductDAO {
     }
 
     // ─────────────────────────────
-    // 검색(기존 시그니처 유지 + 페이징 오버로드 추가)
+    // 검색(문자열 기반 + 페이징 오버로드)
     // ─────────────────────────────
 
     // ✅ 기존 시그니처 유지(전부 반환). 내부적으로 페이징 오버로드 호출
     public List<Product> searchProducts(String q, String sigg, String category) throws SQLException {
-        // 무제한 반환은 부담이 크니, 필요시 호출부에서 오버로드 사용 권장
         return searchProducts(q, sigg, category, 0, Integer.MAX_VALUE);
     }
 
-    // ✅ 검색(페이징 가능, LIKE 이스케이프 + ESCAPE 절)
+    // ✅ 검색(문자열 기반, 페이징 가능, LIKE ESCAPE 적용)
     public List<Product> searchProducts(String q, String sigg, String category,
                                         int offset, int size) throws SQLException {
 
@@ -182,12 +180,10 @@ public class ProductDAO {
             params.add(like);
             params.add(like);
         }
-
         if (sigg != null && !sigg.trim().isEmpty()) {
             sql.append(" AND sa.name = ? ");
             params.add(sigg.trim());
         }
-
         if (category != null && !category.trim().isEmpty()) {
             sql.append(" AND c.name = ? ");
             params.add(category.trim());
@@ -195,8 +191,6 @@ public class ProductDAO {
 
         sql.append(" GROUP BY p.id, p.title, p.status, p.sell_price, sa.name ");
         sql.append(" ORDER BY p.id DESC ");
-
-        // 페이징
         sql.append(" LIMIT ? OFFSET ? ");
         params.add(size);
         params.add(offset);
@@ -209,7 +203,6 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-
                     list.add(new Product(
                             rs.getInt("product_id"),
                             rs.getString("product_name"),
@@ -224,7 +217,7 @@ public class ProductDAO {
         return list;
     }
 
-    // ✅ 검색 총 개수 (페이지네이션 용)
+    // ✅ 검색 총 개수 (문자열 기반)
     public int countSearchProducts(String q, String sigg, String category) throws SQLException {
         StringBuilder sql = new StringBuilder("""
             SELECT COUNT(DISTINCT p.id) AS cnt
@@ -263,7 +256,7 @@ public class ProductDAO {
     }
 
     // ─────────────────────────────
-    // 필터(가격/지역/카테고리)
+    // 필터(문자열 기반)
     // ─────────────────────────────
 
     // ✅ 가격/지역/카테고리 필터 기능
@@ -290,17 +283,14 @@ public class ProductDAO {
             sql.append(" AND c.name = ?");
             params.add(category);
         }
-
         if (region != null && !region.isEmpty()) {
             sql.append(" AND sa.name = ?");
             params.add(region);
         }
-
         if (minPrice != null) {
             sql.append(" AND p.sell_price >= ?");
             params.add(minPrice);
         }
-
         if (maxPrice != null) {
             sql.append(" AND p.sell_price <= ?");
             params.add(maxPrice);
@@ -322,7 +312,6 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-
                     list.add(new Product(
                             rs.getInt("product_id"),
                             rs.getString("product_name"),
@@ -334,7 +323,6 @@ public class ProductDAO {
                 }
             }
         }
-
         return list;
     }
 
@@ -356,17 +344,14 @@ public class ProductDAO {
             sql.append(" AND c.name = ?");
             params.add(category);
         }
-
         if (region != null && !region.isEmpty()) {
             sql.append(" AND sa.name = ?");
             params.add(region);
         }
-
         if (minPrice != null) {
             sql.append(" AND p.sell_price >= ?");
             params.add(minPrice);
         }
-
         if (maxPrice != null) {
             sql.append(" AND p.sell_price <= ?");
             params.add(maxPrice);
@@ -414,7 +399,6 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-
                     list.add(new Product(
                             rs.getInt("product_id"),
                             rs.getString("product_name"),
@@ -456,7 +440,6 @@ public class ProductDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-
                     list.add(new Product(
                             rs.getInt("product_id"),
                             rs.getString("product_name"),
@@ -470,120 +453,132 @@ public class ProductDAO {
         }
         return list;
     }
- // =========================
- // ✅ 검색 총 개수 (ID 기반 오버로드)
- // =========================
- public int countSearchProducts(String q, Integer categoryId, Integer siggAreaId) throws SQLException {
-     StringBuilder sql = new StringBuilder("""
-         SELECT COUNT(DISTINCT p.id) AS cnt
-           FROM products p
-           LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-           LEFT JOIN categories c ON p.category_id = c.id
-          WHERE 1=1
-     """);
 
-     List<Object> params = new ArrayList<>();
+    // ─────────────────────────────
+    // ✅ (수정완료) ID 기반 오버로드 2개
+    // ─────────────────────────────
 
-     if (q != null && !q.trim().isEmpty()) {
-         sql.append(" AND (p.title LIKE ? OR c.name LIKE ?) ");
-         String like = "%" + q.trim() + "%";
-         params.add(like);
-         params.add(like);
-     }
-     if (categoryId != null && categoryId > 0) {
-         sql.append(" AND p.category_id = ? ");
-         params.add(categoryId);
-     }
-     if (siggAreaId != null && siggAreaId > 0) {
-         sql.append(" AND p.region_id = ? ");
-         params.add(siggAreaId);
-     }
+    // 총 개수 (ESCAPE + description 검색)
+    public int countSearchProducts(String q, Integer categoryId, Integer siggAreaId) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+            SELECT COUNT(DISTINCT p.id) AS cnt
+              FROM products p
+             WHERE 1=1
+        """);
 
-     try (Connection conn = DBUtil.getConnection();
-          PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-         for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
-         try (ResultSet rs = ps.executeQuery()) {
-             return rs.next() ? rs.getInt("cnt") : 0;
-         }
-     }
- }
+        List<Object> params = new ArrayList<>();
 
- // =========================
- // ✅ 검색 결과 (ID 기반 오버로드, 페이징)
- // =========================
- public List<Product> searchProducts(String q, Integer categoryId, Integer siggAreaId,
-                                     int offset, int size) throws SQLException {
-     StringBuilder sql = new StringBuilder("""
-         SELECT
-             p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
-             COALESCE(sa.name, '지역정보없음') AS sigg_name,
-             (
-               SELECT i.name
-                 FROM product_images pi
-                 JOIN images i ON pi.image_id = i.id
-                WHERE pi.product_id = p.id
-                ORDER BY pi.image_id
-                LIMIT 1
-             ) AS img_name
-           FROM products p
-           LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-           LEFT JOIN categories c ON p.category_id = c.id
-          WHERE 1=1
-     """);
+        if (q != null && !q.trim().isEmpty()) {
+            sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+            String like = "%" + escapeLike(q.trim()) + "%";
+            params.add(like);
+            params.add(like);
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append(" AND p.category_id = ? ");
+            params.add(categoryId);
+        }
+        if (siggAreaId != null && siggAreaId > 0) {
+            sql.append(" AND p.region_id = ? ");
+            params.add(siggAreaId);
+        }
 
-     List<Object> params = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            bind(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
 
-     if (q != null && !q.trim().isEmpty()) {
-         sql.append(" AND (p.title LIKE ? OR c.name LIKE ?) ");
-         String like = "%" + q.trim() + "%";
-         params.add(like);
-         params.add(like);
-     }
-     if (categoryId != null && categoryId > 0) {
-         sql.append(" AND p.category_id = ? ");
-         params.add(categoryId);
-     }
-     if (siggAreaId != null && siggAreaId > 0) {
-         sql.append(" AND p.region_id = ? ");
-         params.add(siggAreaId);
-     }
+    // 목록 (ESCAPE + description 검색 + 이미지 경로 정규화)
+    public List<Product> searchProducts(String q, Integer categoryId, Integer siggAreaId,
+                                        int offset, int size) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+            SELECT
+                p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
+                COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                ( SELECT i.name
+                    FROM product_images pi
+                    JOIN images i ON pi.image_id = i.id
+                   WHERE pi.product_id = p.id
+                   ORDER BY pi.image_id
+                   LIMIT 1
+                ) AS img_name
+              FROM products p
+              LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+             WHERE 1=1
+        """);
 
-     sql.append("""
-          GROUP BY p.id, p.title, p.status, p.sell_price, sa.name
-          ORDER BY p.id DESC
-          LIMIT ? OFFSET ?
-     """);
-     params.add(size);
-     params.add(offset);
+        List<Object> params = new ArrayList<>();
 
-     try (Connection conn = DBUtil.getConnection();
-          PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-         for (int i = 0; i < params.size(); i++) ps.setObject(i + 1, params.get(i));
-         try (ResultSet rs = ps.executeQuery()) {
-             List<Product> list = new ArrayList<>();
-             while (rs.next()) {
-                 String imgName = rs.getString("img_name");
-                 String displayImg;
-                 if (imgName != null && !imgName.isEmpty()) {
-                     displayImg = imgName.replace("/userMarket", "");
-                     if (!displayImg.contains("/upload/product_images/")) {
-                         displayImg = "/upload/product_images/" + displayImg;
-                     }
-                 } else {
-                     displayImg = "/product/resources/images/noimage.jpg";
-                 }
-                 list.add(new Product(
-                         rs.getInt("product_id"),
-                         rs.getString("product_name"),
-                         rs.getInt("sell_price"),
-                         rs.getString("sigg_name"),
-                         displayImg,
-                         rs.getString("status")
-                 ));
-             }
-             return list;
-         }
-     }
- }
+        if (q != null && !q.trim().isEmpty()) {
+            sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+            String like = "%" + escapeLike(q.trim()) + "%";
+            params.add(like);
+            params.add(like);
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append(" AND p.category_id = ? ");
+            params.add(categoryId);
+        }
+        if (siggAreaId != null && siggAreaId > 0) {
+            sql.append(" AND p.region_id = ? ");
+            params.add(siggAreaId);
+        }
+
+        sql.append("""
+             ORDER BY p.created_at DESC, p.id DESC
+             LIMIT ? OFFSET ?
+        """);
+        params.add(size);
+        params.add(offset);
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            bind(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Product> list = new ArrayList<>();
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getString("status")
+                    ));
+                }
+                return list;
+            }
+        }
+    }
+ // ProductDAO.java
+
+    public List<String> getPopularKeywords(int limit) throws SQLException {
+        List<String> list = new ArrayList<>();
+
+        String sql = """
+            SELECT p.title
+              FROM products p
+             ORDER BY p.view_count DESC, p.id DESC
+             LIMIT ?
+        """;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, limit);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(rs.getString("title"));
+                }
+            }
+        }
+        return list;
+    }
 
 }
