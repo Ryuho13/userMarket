@@ -2,9 +2,7 @@ package web;
 
 import java.io.IOException;
 import java.util.List;
-import java.sql.*; // ← JDBC 타입 인식용
 
-import dao.DBUtil;
 import dao.ProductDAO;
 import dao.ProductDetailDAO;
 import jakarta.servlet.ServletException;
@@ -30,22 +28,21 @@ public class ProductDetailServlet extends HttpServlet {
             return;
         }
 
-        int id;
+        final int id;
         try {
             id = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id format");
             return;
         }
-
         if (id <= 0) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id value");
             return;
         }
 
         try {
-            // ✅ 상품 상세 조회 (지역 + 판매자 포함)
-            ProductDetail pd = detailDao.findById(id);
+            // ✅ 매 요청마다 증가 + 최신 상세 조회 (한 트랜잭션)
+            ProductDetail pd = detailDao.incrementAndFindById(id);
             if (pd == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                 return;
@@ -65,7 +62,7 @@ public class ProductDetailServlet extends HttpServlet {
 
             // ✅ 같은 카테고리 & 같은 판매자 상품 조회
             List<Product> sameCategory = productDao.getProductsByCategory(pd.getCategoryId(), pd.getId());
-            List<Product> sameSeller = productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
+            List<Product> sameSeller   = productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
 
             // ✅ JSP로 전달
             req.setAttribute("product", pd);
@@ -75,7 +72,6 @@ public class ProductDetailServlet extends HttpServlet {
             req.getRequestDispatcher("/product/product_detail.jsp").forward(req, resp);
 
         } catch (Exception e) {
-            e.printStackTrace();
             throw new ServletException("상품 상세 조회 중 오류 발생", e);
         }
     }

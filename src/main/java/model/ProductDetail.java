@@ -13,6 +13,10 @@ public class ProductDetail {
     private int sellPrice;
     private String description;
     private Timestamp createdAt;
+
+    // ✅ 추가: 조회수
+    private int viewCount;
+
     private String sidoName;
     private String regionName;
     private String sellerName;
@@ -44,6 +48,10 @@ public class ProductDetail {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    // ✅ viewCount
+    public int getViewCount() { return viewCount; }
+    public void setViewCount(int viewCount) { this.viewCount = viewCount; }
 
     public String getSidoName() { return sidoName; }
     public void setSidoName(String sidoName) { this.sidoName = sidoName; }
