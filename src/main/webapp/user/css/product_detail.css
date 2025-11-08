@@ -1,0 +1,124 @@
+/* 기본 배경색 */
+body {
+  background-color: #f8f9fa;
+}
+
+/* 상품 상세 컨테이너 */
+.product-container {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+/* ✅ 상품 캐러셀 이미지 (크기 줄임) */
+.carousel-item img {
+  width: 100%;              /* 전체 너비 중 70% */
+  height: 300px;           /* 높이 축소 */
+  object-fit: cover;       /* 비율 유지 */
+  border-radius: 10px;
+  margin: 0 auto;          /* 가운데 정렬 */
+  display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 상태 뱃지 */
+.status-badge {
+  font-size: 0.9rem;
+  margin-left: 8px;
+}
+
+/* 판매자 정보 박스 */
+.seller-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 버튼 최소 너비 */
+.btn-action {
+  min-width: 120px;
+}
+
+/* 카드 공통 스타일 */
+.card {
+  transition: all 0.25s ease-in-out;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+/* 카드 이미지 (비슷한 상품용) */
+.card-img-top {
+  height: 180px;
+  object-fit: cover;
+}
+
+/* 섹션 박스 스타일 */
+.section-box {
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 40px;
+}
+
+/* 섹션 타이틀 */
+.section-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title i {
+  margin-right: 8px;
+  color: #ff6600;
+}
+
+/* 상품 단일 이미지 (단독 표시용) */
+.product-image {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+}
+
+.extra-category, .extra-seller {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.extra-category:not(.d-none), 
+.extra-seller:not(.d-none) {
+  opacity: 1;
+}
+
+#toggleCategory, #toggleSeller {
+  min-width: 110px;
+  transition: all 0.2s ease;
+}
+
+#toggleCategory:hover, #toggleSeller:hover {
+  transform: scale(1.05);
+}
+
+
+/* ✅ 반응형: 모바일 대응 */
+@media (max-width: 768px) {
+  .carousel-item img {
+    width: 100%;
+    height: 220px;
+  }
+
+  .product-container {
+    flex-direction: column;
+    align-items: center;
+  }
+}

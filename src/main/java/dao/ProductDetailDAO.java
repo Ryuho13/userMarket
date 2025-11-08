@@ -7,45 +7,72 @@ import java.util.List;
 
 public class ProductDetailDAO {
 
-    public ProductDetail findById(int productId) throws Exception {
-        ProductDetail pd = null;
+    // ✅ 조회수 1 증가
+    public void increaseViewCount(int productId) throws SQLException {
+        String sql = "UPDATE products SET view_count = view_count + 1 WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ps.executeUpdate();
+        }
+    }
 
-        // ✅ 1. 상품 기본 정보
+    // ✅ 상품 상세 조회 (지역 + 판매자 + 이미지)
+    public ProductDetail findById(int productId) throws SQLException {
         String sql = """
-            SELECT id, title, description, sell_price, seller_id, status
-            FROM products
-            WHERE id = ?
+            SELECT p.*, 
+                   s.name AS sido_name,
+                   g.name AS region_name,
+                   u.name AS seller_name,
+                   u.phn AS seller_mobile
+              FROM products p
+              LEFT JOIN sido_areas s ON p.sido_id = s.id
+              LEFT JOIN sigg_areas g ON p.region_id = g.id
+              JOIN user u ON p.seller_id = u.id
+             WHERE p.id = ?
         """;
+
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, productId);
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    pd = new ProductDetail();
-                    pd.setId(rs.getInt("id"));
-                    pd.setTitle(rs.getString("title"));
-                    pd.setDescription(rs.getString("description"));
-                    pd.setSellPrice(rs.getInt("sell_price"));
-                    pd.setSellerId(rs.getInt("seller_id"));
-                    pd.setStatus(rs.getString("status"));
-                }
+                if (!rs.next()) return null;
+
+                ProductDetail pd = new ProductDetail();
+                pd.setId(rs.getInt("id"));
+                pd.setSellerId(rs.getInt("seller_id"));
+                pd.setCategoryId(rs.getInt("category_id"));
+                pd.setTitle(rs.getString("title"));
+                pd.setStatus(rs.getString("status"));
+                pd.setSellPrice(rs.getInt("sell_price"));
+                pd.setDescription(rs.getString("description"));
+                pd.setCreatedAt(rs.getTimestamp("created_at"));
+                pd.setSidoName(rs.getString("sido_name"));
+                pd.setRegionName(rs.getString("region_name"));
+                pd.setSellerName(rs.getString("seller_name"));
+                pd.setSellerMobile(rs.getString("seller_mobile"));
+
+                // ✅ 이미지 목록 불러오기
+                pd.setImages(loadProductImages(conn, productId));
+
+                return pd;
             }
         }
+    }
 
-        if (pd == null) return null;
-
-        // ✅ 2. 상품 이미지 (테이블명 변경됨)
+    // ✅ 상품 이미지 로드
+    private List<String> loadProductImages(Connection conn, int productId) throws SQLException {
         List<String> images = new ArrayList<>();
-        String imgSql = """
+        String sql = """
             SELECT i.name
-            FROM product_images pi
-            JOIN images i ON i.id = pi.image_id
-            WHERE pi.product_id = ?
+              FROM product_images pi
+              JOIN images i ON pi.image_id = i.id
+             WHERE pi.product_id = ?
         """;
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(imgSql)) {
 
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -53,44 +80,19 @@ public class ProductDetailDAO {
                 }
             }
         }
-        pd.setImages(images);
+        return images;
+    }
 
-        // ✅ 3. 판매자 연락처
-        String sellerSql = """
-            SELECT phn
-            FROM `user`
-            WHERE id = ?
-        """;
+    // ✅ 찜 여부 확인
+    public boolean isWished(int userId, int productId) throws SQLException {
+        String sql = "SELECT 1 FROM wish_lists WHERE register_id = ? AND product_id = ?";
         try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sellerSql)) {
-
-            ps.setInt(1, pd.getSellerId());
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    pd.setSellerMobile(rs.getString("phn"));
-                }
+                return rs.next();
             }
         }
-
-        // ✅ 4. 판매자 활동 지역
-        String locSql = """
-            SELECT sa.name AS sigg_name
-            FROM activity_areas aa
-            JOIN sigg_areas sa ON aa.sigg_area_id = sa.id
-            WHERE aa.user_id = ?
-            LIMIT 1
-        """;
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(locSql)) {
-
-            ps.setInt(1, pd.getSellerId());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    pd.setSellerSigg(rs.getString("sigg_name"));
-                }
-            }
-        }
-
-        return pd;
     }
 }

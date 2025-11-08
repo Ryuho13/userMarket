@@ -108,7 +108,7 @@ public class ProductInsertServlet extends HttpServlet {
                     File file = new File(uploadDir, fileName);
                     part.write(file.getAbsolutePath());
 
-                    String imgSrc = "/upload/product_images/" + fileName;
+                    String imgSrc = fileName;
                     saveImageRecord(conn, newProductId, loginUserId, imgSrc);
                     System.out.println("✅ 이미지 저장 완료: " + file.getAbsolutePath());
                 }
