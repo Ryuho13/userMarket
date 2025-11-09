@@ -109,7 +109,7 @@
 <div class="main_container container d-flex gap-4">
 
   <!-- 왼쪽 필터 -->
-  <aside class="product_filter bg-white p-3 rounded shadow-sm">
+  <aside class="product_filter p-3 rounded shadow-sm">
     <!-- ✅ 라우트 통합: /product -->
     <form method="get" action="${ctx}/product">
       <h5 class="fw-bold mb-3">필터</h5>
@@ -220,7 +220,7 @@
       <c:otherwise>
         <div class="row g-3">
           <c:forEach var="p" items="${products}">
-            <div class="col-6 col-md-4 col-lg-3 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
+            <div class="col-6 col-md-4 col-lg-4 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
               <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none ${p.status eq 'SOLD_OUT' ? 'disabled-link' : ''}">
                 <div class="card border-0 shadow-sm position-relative">
 
