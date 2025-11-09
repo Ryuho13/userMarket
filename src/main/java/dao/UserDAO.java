@@ -3,6 +3,7 @@ package dao;
 import java.sql.*;
 import model.User;
 import model.UserInfo;
+import model.UserProfile;
 
 public class UserDAO {
 
@@ -81,4 +82,71 @@ public class UserDAO {
             }
         }
     }
+    
+    public User login(String accountId, String pw) throws SQLException {
+        String sql = """
+            SELECT id, account_id, pw, name, phn, em, created_at
+            FROM user
+            WHERE account_id = ? AND pw = ?
+            LIMIT 1
+        """;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, accountId);
+            ps.setString(2, pw); // 해시를 쓰면 여기 대신 해시 비교 로직으로
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setAccountId(rs.getString("account_id"));
+                u.setPw(rs.getString("pw"));          // 세션엔 pw 안 넣는 걸 권장
+                u.setName(rs.getString("name"));
+                u.setPhn(rs.getString("phn"));
+                u.setEm(rs.getString("em"));
+                return u;
+            }
+        }
+    }
+    
+    public UserProfile findProfileByUserId(int userId) throws SQLException {
+        String sql = """
+            SELECT u.id, u.account_id, u.name, u.phn, u.em,
+                   i.nickname, i.addr_detail, i.profile_img
+            FROM user u
+            LEFT JOIN user_info i ON i.u_id = u.id
+            WHERE u.id = ?
+            LIMIT 1
+        """;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+
+                UserProfile u = new UserProfile();
+                u.setId(rs.getInt("id"));
+                u.setAccountId(rs.getString("account_id"));
+                u.setName(rs.getString("name"));
+                u.setPhn(rs.getString("phn"));
+                u.setEm(rs.getString("em"));
+                u.setNickname(rs.getString("nickname"));
+				/* int rid = rs.getInt("region_id"); */
+				/* u.setRegionId(rs.wasNull() ? null : rid); */
+                u.setAddrDetail(rs.getString("addr_detail"));
+                u.setProfileImg(rs.getString("profile_img"));
+                
+                return u;
+            }
+            
+        }
+
+    }
+
+
 }

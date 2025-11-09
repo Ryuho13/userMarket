@@ -1,67 +1,56 @@
-// 페이지가 다 그려지면 아이콘 렌더링하고 기본 탭을 켬
-document.addEventListener("DOMContentLoaded", function () {
-  // Lucide 아이콘 렌더링 (CDN 스크립트가 있으면 동작)
-  if (window.lucide && lucide.createIcons) {
+// ---------------- 마이페이지 ----------------
+
+// 탭 변경 
+function changeTab(tabName) {
+	// 모든 탭 버튼 스타일 초기화
+	document.querySelectorAll('.tab-button').forEach(button => {
+		button.classList.remove('text-green-500', 'border-green-500');
+		button.classList.add('text-gray-500', 'border-transparent', 'hover:border-gray-300');
+	});
+
+	// 모든 탭 콘텐츠 숨김
+	document.querySelectorAll('.tab-content').forEach(content => {
+		content.classList.add('hidden');
+	});
+
+	// 선택된 탭 활성화
+	const selectedButton = document.getElementById(`tab-${tabName}`);
+	if (selectedButton) {
+		selectedButton.classList.add('text-green-500', 'border-green-500');
+		selectedButton.classList.remove('text-gray-500', 'border-transparent', 'hover:border-gray-300');
+	}
+
+	// 선택된 콘텐츠 표시
+	const selectedContent = document.getElementById(`content-${tabName}`);
+	if (selectedContent) {
+		selectedContent.classList.remove('hidden');
+	}
+}
+
+
+// 전역 이벤트 리스너: 페이지 로드 후 실행
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof initializeIcons === 'function') {
+    initializeIcons();
+  } else if (window.lucide) {
+    // initializeIcons가 없다면 직접 아이콘 초기화
     lucide.createIcons();
   }
-
-  // 기본 탭은 'products'로
-  changeTab('products');
 });
 
-// 탭 바꾸기 (버튼 클래스도 그냥 대충 바꿔줌)
-function changeTab(tabName) {
-  var tabProductsBtn = document.getElementById("tab-products");
-  var tabWishlistBtn = document.getElementById("tab-wishlist");
-  var tabChatsBtn = document.getElementById("tab-chats");
+	// 마이페이지의 경우 기본 탭 설정
+	if (document.getElementById('tab-products')) {
+		changeTab('products');
+	}
 
-  var contentProducts = document.getElementById("content-products");
-  var contentWishlist = document.getElementById("content-wishlist");
-  var contentChats = document.getElementById("content-chats");
+	// 회원가입 폼의 경우 onSubmit 이벤트 재연결
+	const addForm = document.querySelector('form[name="newUser"]');
+	if (addForm) {
+		addForm.onsubmit = checkAddForm;
+	}
 
-  // 전부 숨기고
-  if (contentProducts) contentProducts.classList.add("hidden");
-  if (contentWishlist) contentWishlist.classList.add("hidden");
-  if (contentChats) contentChats.classList.add("hidden");
-
-  // 버튼 스타일도 전부 비활성화 느낌으로
-  if (tabProductsBtn) tabProductsBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-gray-500 border-transparent hover:border-gray-300";
-  if (tabWishlistBtn) tabWishlistBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-gray-500 border-transparent hover:border-gray-300";
-  if (tabChatsBtn) tabChatsBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-gray-500 border-transparent hover:border-gray-300";
-
-  // 선택된 탭만 보여주고 버튼 강조
-  if (tabName === 'products') {
-    if (contentProducts) contentProducts.classList.remove("hidden");
-    if (tabProductsBtn) tabProductsBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-green-500 border-green-500";
-  } else if (tabName === 'wishlist') {
-    if (contentWishlist) contentWishlist.classList.remove("hidden");
-    if (tabWishlistBtn) tabWishlistBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-green-500 border-green-500";
-  } else if (tabName === 'chats') {
-    if (contentChats) contentChats.classList.remove("hidden");
-    if (tabChatsBtn) tabChatsBtn.className = "tab-button border-b-2 font-medium py-2 px-1 text-green-500 border-green-500";
-  }
-}
-
-// 이미지 미리보기 (파일 타입 체크만 간단히)
-function previewImage(e) {
-  var file = e.target.files && e.target.files[0];
-  if (!file) return;
-
-  if (!file.type || file.type.indexOf("image/") !== 0) {
-    alert("이미지 파일만 올려주세요!");
-    e.target.value = "";
-    return;
-  }
-
-  var reader = new FileReader();
-  reader.onload = function (ev) {
-    var img = document.getElementById("profile-image");
-    if (img) {
-      img.src = ev.target.result;
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-// (참고) JSP의 버튼에 이미 onclick="changeTab('products')"가 있으니
-// 전역의 changeTab을 그대로 씀. 위처럼 전역 함수 선언으로 충분함.
+	// 회원수정 폼의 경우 onSubmit 이벤트 재연결
+	const updateForm = document.querySelector('form[name="updateUser"]');
+	if (updateForm) {
+		updateForm.onsubmit = checkUpdateForm;
+	};

@@ -6,10 +6,10 @@
     <meta charset="UTF-8">
     <title>상품 상세</title>
     <link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-	crossorigin="anonymous">
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
     <link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/product_list.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
@@ -33,7 +33,8 @@
           <div>
             <c:choose>
               <c:when test="${empty product.images}">
-                <img src="${pageContext.request.contextPath}/resources/images/noimage.jpg" class="img-fluid rounded" alt="이미지 없음">
+                <img src="${pageContext.request.contextPath}/resources/images/noimage.jpg"
+                     class="img-fluid rounded" alt="이미지 없음">
               </c:when>
               <c:otherwise>
                 <c:forEach var="img" items="${product.images}">
@@ -59,10 +60,10 @@
           <div class="mt-3 d-flex gap-2">
             <!-- ✅ 로그인 여부에 따라 다르게 표시 -->
             <c:choose>
-              <c:when test="${not empty sessionScope.userId}">
+              <c:when test="${not empty sessionScope.loginUserId}">
                 <!-- 로그인 되어있으면 채팅방 생성 -->
                 <form action="${pageContext.request.contextPath}/chat/chat.jsp" method="post">
-                  <input type="hidden" name="buyerId" value="${sessionScope.userId}">
+                  <input type="hidden" name="buyerId" value="${sessionScope.loginUserId}">
                   <input type="hidden" name="productId" value="${product.id}">
                   <button type="submit" class="btn btn-primary">채팅으로 문의</button>
                 </form>

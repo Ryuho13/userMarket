@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!form) return;
 
   const idInput = form.elements.namedItem("id");
-  const pwInput = form.elements.namedItem("password");
+  const pwInput = form.elements.namedItem("pw");
   const submitBtn = form.querySelector("button[type='submit']");
 
   // 기존 alert 숨기기
