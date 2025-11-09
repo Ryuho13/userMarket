@@ -200,7 +200,7 @@
 			</div>
 		</form>
 	</div>
-
+<script src="https://unpkg.com/lucide@latest"></script>
 	<!-- 외부 JavaScript 파일 참조: /user/js/addUser.js -->
 	<script src="<%=request.getContextPath()%>/user/js/addUser.js"></script>
     
