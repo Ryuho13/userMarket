@@ -3,16 +3,13 @@ package web;
 import dao.ProductDAO;
 import dao.AreaDAO;
 import dao.CategoryDAO;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import model.Product;
-import model.SidoArea;
-import model.SiggArea;
-import model.Category;
-
+import model.*;
 import java.io.IOException;
 import java.util.List;
+
 
 @WebServlet(urlPatterns = {"/product/list", "/product", "/product/"})
 public class ProductListServlet extends HttpServlet {
@@ -30,14 +27,16 @@ public class ProductListServlet extends HttpServlet {
         String q = trimToNull(req.getParameter("q"));
         String categoryParam = trimToNull(req.getParameter("category"));
         String siggParam = trimToNull(req.getParameter("sigg_area"));
+        String sidoParam = trimToNull(req.getParameter("sidoId"));
 
         Integer categoryId = parseIntOrNull(categoryParam);
         Integer siggAreaId = parseIntOrNull(siggParam);
+        Integer sidoId = parseIntOrNull(sidoParam);
 
         Integer minPrice = parseIntOrNull(req.getParameter("minPrice"));
         Integer maxPrice = parseIntOrNull(req.getParameter("maxPrice"));
 
-        // ✅ 정렬 파라미터 추가
+        // ✅ 정렬 기본값 설정
         String sort = req.getParameter("sort");
         if (sort == null) sort = "latest";
 
@@ -46,10 +45,12 @@ public class ProductListServlet extends HttpServlet {
             AreaDAO areaDAO = new AreaDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
 
+            // ✅ 지역/카테고리 목록
             List<SidoArea> sidoList = areaDAO.getAllSidoAreas();
             List<SiggArea> siggList = areaDAO.getAllSiggAreas();
             List<Category> categoryList = categoryDAO.getAllCategories();
 
+            // ✅ 상품 목록 불러오기
             List<Product> products;
             int totalCount;
 
@@ -63,6 +64,21 @@ public class ProductListServlet extends HttpServlet {
 
             int totalPages = (int) Math.ceil(totalCount / (double) size);
 
+            // ✅ 선택된 필터 이름 표시용
+            if (categoryId != null) {
+                Category selectedCategory = categoryDAO.getCategoryById(categoryId);
+                if (selectedCategory != null) {
+                    req.setAttribute("selectedCategoryName", selectedCategory.getName());
+                }
+            }
+            if (siggAreaId != null) {
+                SiggArea selectedSigg = areaDAO.getSiggAreaById(siggAreaId);
+                if (selectedSigg != null) {
+                    req.setAttribute("selectedSiggName", selectedSigg.getName());
+                }
+            }
+
+            // ✅ JSP로 전달
             req.setAttribute("products", products);
             req.setAttribute("page", page);
             req.setAttribute("totalPages", totalPages);
@@ -70,9 +86,12 @@ public class ProductListServlet extends HttpServlet {
             req.setAttribute("userSidos", sidoList);
             req.setAttribute("userSiggs", siggList);
             req.setAttribute("categories", categoryList);
+
+            // 필터 파라미터 유지
             req.setAttribute("q", q);
             req.setAttribute("category", categoryParam);
             req.setAttribute("sigg_area", siggParam);
+            req.setAttribute("sidoId", sidoParam);
             req.setAttribute("minPrice", minPrice);
             req.setAttribute("maxPrice", maxPrice);
             req.setAttribute("sort", sort);
@@ -84,6 +103,8 @@ public class ProductListServlet extends HttpServlet {
             throw new ServletException("상품 목록/검색 처리 실패", e);
         }
     }
+
+    // ------------------ 유틸 ------------------
 
     private static String trimToNull(String s) {
         if (s == null) return null;
