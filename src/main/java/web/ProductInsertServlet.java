@@ -34,18 +34,20 @@ public class ProductInsertServlet extends HttpServlet {
             return;
         }
 
+        // 📥 파라미터 수집
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String sellPriceStr = req.getParameter("sellPrice");
         String categoryIdStr = req.getParameter("categoryId");
-        String siggAreaIdStr = req.getParameter("regionId"); 
-        String sidoAreaIdStr = req.getParameter("sidoId");   
+        String siggAreaIdStr = req.getParameter("regionId");  // 시군구
+        String sidoAreaIdStr = req.getParameter("sidoId");    // 시도
 
         int sellPrice = (sellPriceStr != null && !sellPriceStr.isEmpty())
                 ? Integer.parseInt(sellPriceStr) : 0;
         int categoryId = Integer.parseInt(categoryIdStr);
         String status = "SALE";
 
+        // 📂 이미지 업로드 경로
         String uploadPath = "D:/upload/product_images";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
@@ -53,6 +55,7 @@ public class ProductInsertServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection()) {
             conn.setAutoCommit(false);
 
+            // 🗺️ 유저 활동 지역 등록 (최초 등록 시만)
             if (siggAreaIdStr != null && !siggAreaIdStr.isEmpty()) {
                 int siggAreaId = Integer.parseInt(siggAreaIdStr);
 
@@ -76,9 +79,12 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
+            // 🛒 상품 등록 (지역 포함)
             String sql = """
-                INSERT INTO products (seller_id, category_id, title, status, sell_price, description, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                INSERT INTO products (
+                    seller_id, category_id, title, status,
+                    sell_price, description, sido_id, region_id, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
             """;
 
             int newProductId;
@@ -89,6 +95,20 @@ public class ProductInsertServlet extends HttpServlet {
                 ps.setString(4, status);
                 ps.setInt(5, sellPrice);
                 ps.setString(6, description);
+
+                // 📍 지역 정보 저장
+                if (sidoAreaIdStr != null && !sidoAreaIdStr.isEmpty()) {
+                    ps.setInt(7, Integer.parseInt(sidoAreaIdStr));
+                } else {
+                    ps.setNull(7, Types.INTEGER);
+                }
+
+                if (siggAreaIdStr != null && !siggAreaIdStr.isEmpty()) {
+                    ps.setInt(8, Integer.parseInt(siggAreaIdStr));
+                } else {
+                    ps.setNull(8, Types.INTEGER);
+                }
+
                 ps.executeUpdate();
 
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -97,14 +117,14 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
+            // 🖼️ 이미지 저장
             for (Part part : req.getParts()) {
                 if (part.getName().equals("images") && part.getSize() > 0) {
                     String fileName = UUID.randomUUID() + "_" + part.getSubmittedFileName();
                     File file = new File(uploadDir, fileName);
                     part.write(file.getAbsolutePath());
 
-                    String imgSrc = fileName;
-                    saveImageRecord(conn, newProductId, loginUserId, imgSrc);
+                    saveImageRecord(conn, newProductId, loginUserId, fileName);
                     System.out.println("✅ 이미지 저장 완료: " + file.getAbsolutePath());
                 }
             }
@@ -119,6 +139,7 @@ public class ProductInsertServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/product/list");
     }
 
+    // 🖼️ 이미지 DB 기록 메서드
     private void saveImageRecord(Connection conn, int productId, int uploaderId, String imgSrc) throws SQLException {
         String insertImg = "INSERT INTO images (uploader_id, name) VALUES (?, ?)";
         String insertMap = "INSERT INTO product_images (product_id, image_id) VALUES (?, ?)";
