@@ -53,7 +53,7 @@
   
 </c:if>
 
-<jsp:include page="/WEB-INF/views/common/footer_includes.jsp" />
+<jsp:include page="../resources/alarm.jsp" />
 
 </body>
 </html>
