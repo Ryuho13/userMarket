@@ -28,13 +28,9 @@ public class ProductFormServlet extends HttpServlet {
             CategoryDAO categoryDAO = new CategoryDAO();
             AreaDAO areaDAO = new AreaDAO();
 
-            // ✅ DB에서 카테고리 전체 목록
             List<Category> categoryList = categoryDAO.findAll();
-
-            // ✅ 시도 전체 목록
             List<SidoArea> sidoList = areaDAO.getAllSidos();
 
-            // ✅ JSP로 전달
             req.setAttribute("categoryList", categoryList);
             req.setAttribute("sidoList", sidoList);
 

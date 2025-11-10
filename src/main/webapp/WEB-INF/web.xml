@@ -16,6 +16,16 @@
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
 
+    <!-- ✅ D:/upload/product_images 에 있는 이미지를 URL로 서빙 -->
+    <servlet>
+        <servlet-name>ImageServlet</servlet-name>
+        <servlet-class>web.ImageServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ImageServlet</servlet-name>
+        <url-pattern>/upload/product_images/*</url-pattern>
+    </servlet-mapping>
 
     <!-- ✅ 기본 시작 페이지 -->
     <welcome-file-list>
