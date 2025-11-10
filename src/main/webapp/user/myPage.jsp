@@ -101,7 +101,7 @@
 						<div id="content-products" class="tab-content">
 							<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
 								<p class="text-gray-600">등록된 상품이 없습니다.</p>
-								<a href="${pageContext.request.contextPath}/product/list"
+								<a href="${pageContext.request.contextPath}/product/product_form.jsp"
 									class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품
 									등록하러 가기 &rarr;</a>
 							</div>

@@ -8,7 +8,6 @@
 <meta charset="UTF-8">
 <title>${product.title}</title>
 
-<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/user/css/product_detail.css'/>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -21,7 +20,6 @@
 
   <div class="product-container d-flex gap-4 flex-wrap">
 
-    <!-- 🔹 이미지 캐러셀 -->
     <div id="productCarousel" class="carousel slide col-12 col-md-5" data-bs-ride="carousel" data-bs-interval="2500">
       <div class="carousel-inner">
         <c:forEach var="img" items="${product.images}" varStatus="status">
@@ -38,7 +36,6 @@
       </button>
     </div>
 
-    <!-- 🔹 상품 정보 -->
     <div class="product-info flex-grow-1">
       <div class="d-flex align-items-center justify-content-between">
         <h3 class="fw-bold mb-0">
@@ -78,7 +75,6 @@
       <p>${product.description}</p>
       <hr>
 
-      <!-- 🔹 판매자 정보 -->
       <div class="seller-box mt-4">
         <h6 class="fw-bold mb-2">판매자 정보</h6>
         <p class="mb-1">연락처: <strong>${product.sellerMobile}</strong></p>
@@ -103,19 +99,19 @@
 
 				  </c:when>
 				  <c:otherwise>
-				    <a href="${pageContext.request.contextPath}/user/login?redirect=/product/detail?id=${product.id}"
-				       class="btn btn-outline-secondary btn-action">
-				      찜하려면 로그인
-				    </a>
+				    <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
+  					 class="btn btn-outline-secondary btn-action">
+ 					 찜하려면 로그인
+					</a>
 				  </c:otherwise>
 				</c:choose>
 
             </c:when>
             <c:otherwise>
-			  <a href="${pageContext.request.contextPath}/user/login.jsp?redirect=${pageContext.request.requestURI}?id=${product.id}"
-			     class="btn btn-outline-primary btn-action">
-			    로그인 후 채팅하기
-			  </a>
+			  <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
+  				 class="btn btn-outline-primary btn-action">
+  				로그인 후 채팅하기
+				</a>
 			</c:otherwise>
           </c:choose>
         </div>
@@ -123,7 +119,6 @@
     </div>
   </div>
 
-  <!-- 🔸 비슷한 카테고리 상품 -->
   <c:if test="${not empty sameCategory}">
     <div class="section-box">
       <h5 class="section-title"><i class="bi bi-box-seam"></i> 비슷한 카테고리의 상품</h5>
@@ -151,7 +146,6 @@
     </div>
   </c:if>
 
-  <!-- 🔸 이 판매자의 다른 상품 -->
   <c:if test="${not empty sameSeller}">
     <div class="section-box">
       <h5 class="section-title"><i class="bi bi-person"></i> 이 판매자의 다른 상품</h5>

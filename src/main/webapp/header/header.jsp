@@ -11,8 +11,9 @@
 <header class="header-container">
     <div class="header-content">
         <div class="site-logo">
+        	<img class="gam" alt="" src="${pageContext.request.contextPath}/user/img/gampic.png">
             <%-- 기본 상품 목록 페이지로 연결 --%>
-            <a href="${pageContext.request.contextPath}/product?q=">
+            <a href="${pageContext.request.contextPath}/product/list">
                 단감나라
             </a>
         </div>

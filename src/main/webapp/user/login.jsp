@@ -20,7 +20,7 @@
 <body>
 
 	<h1 class="main-logo">
-		<a href="${pageContext.request.contextPath}/index.jsp"> <img
+		<a href="${pageContext.request.contextPath}/product"> <img
 			alt="단감나라" src="<%=request.getContextPath()%>/user/img/real단감나라.png"
 			style="width: 300px">
 		</a>
@@ -43,6 +43,13 @@
 
 			<form class="form-signin"
 				action="${pageContext.request.contextPath}/user/login" method="post">
+                
+                <%-- ✅ Redirect 파라미터를 유지하는 hidden field 추가 --%>
+				<c:if test="${not empty param.redirect or not empty requestScope.redirect}">
+        			<input type="hidden" name="redirect" 
+              		 value="${not empty param.redirect ? param.redirect : requestScope.redirect}">
+   				</c:if>
+                
 				<div class="form-floating mb-3">
 					<input type="text" class="form-control" name="id"
 						id="floatingInput" placeholder="ID" required autofocus> <label
