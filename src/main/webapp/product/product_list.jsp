@@ -47,27 +47,9 @@
   <c:set var="preserveParams" value="${preserveParams}&amp;maxPrice=${fn:escapeXml(param.maxPrice)}"/>
 </c:if>
 
-<!-- 🔍 검색 영역 -->
+
 <div class="select_container container py-4 d-flex flex-column align-items-center">
-<%-- 
-  <!-- 검색 폼 -->
-  <form action="${ctx}/product" method="get"
-        class="w-100 d-flex justify-content-center">
-    <div class="input-group" style="max-width: 600px; width: 100%;">
-      <span class="input-group-text bg-white border-end-0">
-        <span class="material-symbols-outlined">search</span>
-      </span>
-      <input type="text"
-             name="q"
-             class="form-control border-start-0 text-center"
-             placeholder="상품명 또는 카테고리 검색"
-             value="<c:out value='${param.q}'/>">
-      <button class="btn btn-primary" type="submit">
-        <span class="material-symbols-outlined">arrow_circle_right</span>
-      </button>
-    </div>
-  </form>
- --%>
+
   <!-- 현재 검색어 표시 -->
   <c:if test="${not empty param.q}">
     <div class="mt-2 text-secondary small text-center"
@@ -214,6 +196,111 @@
 
   <!-- 오른쪽 상품 목록 -->
   <section class="product_items">
+	  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<c:url var="latestUrl" value="/product/list">
+    <c:param name="sort" value="latest" />
+    <c:if test="${not empty q}">
+        <c:param name="q" value="${q}" />
+    </c:if>
+    <c:if test="${not empty category}">
+        <c:param name="category" value="${category}" />
+    </c:if>
+    <c:if test="${not empty sigg_area}">
+        <c:param name="sigg_area" value="${sigg_area}" />
+    </c:if>
+    <c:if test="${not empty minPrice}">
+        <c:param name="minPrice" value="${minPrice}" />
+    </c:if>
+    <c:if test="${not empty maxPrice}">
+        <c:param name="maxPrice" value="${maxPrice}" />
+    </c:if>
+</c:url>
+
+<c:url var="viewUrl" value="/product/list">
+    <c:param name="sort" value="view" />
+    <c:if test="${not empty q}">
+        <c:param name="q" value="${q}" />
+    </c:if>
+    <c:if test="${not empty category}">
+        <c:param name="category" value="${category}" />
+    </c:if>
+    <c:if test="${not empty sigg_area}">
+        <c:param name="sigg_area" value="${sigg_area}" />
+    </c:if>
+    <c:if test="${not empty minPrice}">
+        <c:param name="minPrice" value="${minPrice}" />
+    </c:if>
+    <c:if test="${not empty maxPrice}">
+        <c:param name="maxPrice" value="${maxPrice}" />
+    </c:if>
+</c:url>
+
+<c:url var="nameUrl" value="/product/list">
+    <c:param name="sort" value="name" />
+    <c:if test="${not empty q}">
+        <c:param name="q" value="${q}" />
+    </c:if>
+    <c:if test="${not empty category}">
+        <c:param name="category" value="${category}" />
+    </c:if>
+    <c:if test="${not empty sigg_area}">
+        <c:param name="sigg_area" value="${sigg_area}" />
+    </c:if>
+    <c:if test="${not empty minPrice}">
+        <c:param name="minPrice" value="${minPrice}" />
+    </c:if>
+    <c:if test="${not empty maxPrice}">
+        <c:param name="maxPrice" value="${maxPrice}" />
+    </c:if>
+</c:url>
+
+<c:url var="priceLowUrl" value="/product/list">
+    <c:param name="sort" value="priceLow" />
+    <c:if test="${not empty q}">
+        <c:param name="q" value="${q}" />
+    </c:if>
+    <c:if test="${not empty category}">
+        <c:param name="category" value="${category}" />
+    </c:if>
+    <c:if test="${not empty sigg_area}">
+        <c:param name="sigg_area" value="${sigg_area}" />
+    </c:if>
+    <c:if test="${not empty minPrice}">
+        <c:param name="minPrice" value="${minPrice}" />
+    </c:if>
+    <c:if test="${not empty maxPrice}">
+        <c:param name="maxPrice" value="${maxPrice}" />
+    </c:if>
+</c:url>
+
+<c:url var="priceHighUrl" value="/product/list">
+    <c:param name="sort" value="priceHigh" />
+    <c:if test="${not empty q}">
+        <c:param name="q" value="${q}" />
+    </c:if>
+    <c:if test="${not empty category}">
+        <c:param name="category" value="${category}" />
+    </c:if>
+    <c:if test="${not empty sigg_area}">
+        <c:param name="sigg_area" value="${sigg_area}" />
+    </c:if>
+    <c:if test="${not empty minPrice}">
+        <c:param name="minPrice" value="${minPrice}" />
+    </c:if>
+    <c:if test="${not empty maxPrice}">
+        <c:param name="maxPrice" value="${maxPrice}" />
+    </c:if>
+</c:url>
+
+<div class="sort-bar" style="text-align:right; margin-bottom:10px;">
+    <a href="${latestUrl}"    class="${sort eq 'latest'    ? 'font-bold' : ''}">최신순</a> |
+    <a href="${viewUrl}"      class="${sort eq 'view'      ? 'font-bold' : ''}">조회수순</a> |
+    <a href="${nameUrl}"      class="${sort eq 'name'      ? 'font-bold' : ''}">이름순</a> |
+    <a href="${priceLowUrl}"  class="${sort eq 'priceLow'  ? 'font-bold' : ''}">가격낮은순</a> |
+    <a href="${priceHighUrl}" class="${sort eq 'priceHigh' ? 'font-bold' : ''}">가격높은순</a>
+</div>
+
     <c:choose>
       <c:when test="${empty products}">
         <div class="text-center text-secondary py-5">등록된 상품이 없습니다.</div>

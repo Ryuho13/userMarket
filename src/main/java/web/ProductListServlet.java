@@ -23,64 +23,45 @@ public class ProductListServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
-        int size   = 20;
-        int page   = parseIntOrDefault(req.getParameter("page"), 1);
+        int size = 21;
+        int page = parseIntOrDefault(req.getParameter("page"), 1);
         int offset = (page - 1) * size;
 
-        String q            = trimToNull(req.getParameter("q"));
-        String categoryParam = trimToNull(req.getParameter("category"));   
-        String siggParam     = trimToNull(req.getParameter("sigg_area"));  
+        String q = trimToNull(req.getParameter("q"));
+        String categoryParam = trimToNull(req.getParameter("category"));
+        String siggParam = trimToNull(req.getParameter("sigg_area"));
 
-        Integer categoryId = parseIntOrNull(categoryParam); 
-        Integer siggAreaId = parseIntOrNull(siggParam);     
+        Integer categoryId = parseIntOrNull(categoryParam);
+        Integer siggAreaId = parseIntOrNull(siggParam);
 
-        Integer minPrice   = parseIntOrNull(req.getParameter("minPrice"));
-        Integer maxPrice   = parseIntOrNull(req.getParameter("maxPrice"));
+        Integer minPrice = parseIntOrNull(req.getParameter("minPrice"));
+        Integer maxPrice = parseIntOrNull(req.getParameter("maxPrice"));
+
+        // ✅ 정렬 파라미터 추가
+        String sort = req.getParameter("sort");
+        if (sort == null) sort = "latest";
 
         try {
-            ProductDAO  productDAO  = new ProductDAO();
-            AreaDAO     areaDAO     = new AreaDAO();
+            ProductDAO productDAO = new ProductDAO();
+            AreaDAO areaDAO = new AreaDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
 
-            List<SidoArea>  sidoList     = areaDAO.getAllSidoAreas();
-            List<SiggArea>  siggList     = areaDAO.getAllSiggAreas();
-            List<Category>  categoryList = categoryDAO.getAllCategories();
+            List<SidoArea> sidoList = areaDAO.getAllSidoAreas();
+            List<SiggArea> siggList = areaDAO.getAllSiggAreas();
+            List<Category> categoryList = categoryDAO.getAllCategories();
 
             List<Product> products;
             int totalCount;
 
             if (q != null || categoryId != null || siggAreaId != null) {
                 totalCount = productDAO.countSearchProducts(q, categoryId, siggAreaId);
-                products   = productDAO.searchProducts(q, categoryId, siggAreaId, offset, size);
+                products = productDAO.searchProducts(q, categoryId, siggAreaId, offset, size, sort);
             } else {
-                products   = productDAO.getFilteredProducts(categoryParam, siggParam, minPrice, maxPrice, offset, size);
+                products = productDAO.getFilteredProducts(categoryParam, siggParam, minPrice, maxPrice, offset, size, sort);
                 totalCount = productDAO.countFilteredProducts(categoryParam, siggParam, minPrice, maxPrice);
             }
 
             int totalPages = (int) Math.ceil(totalCount / (double) size);
-            String selectedCategoryName = null;
-            if (categoryId != null) { 
-                for (Category c : categoryList) {
-                    if (c.getId() == categoryId) {
-                        selectedCategoryName = c.getName();
-                        break;
-                    }
-                }
-            } else {
-                selectedCategoryName = categoryParam; 
-            }
-
-            String selectedSiggName = null;
-            if (siggAreaId != null) { 
-                for (SiggArea s : siggList) {
-                    if (s.getId() == siggAreaId) {
-                        selectedSiggName = s.getName();
-                        break;
-                    }
-                }
-            } else {
-                selectedSiggName = siggParam; 
-            }
 
             req.setAttribute("products", products);
             req.setAttribute("page", page);
@@ -94,8 +75,7 @@ public class ProductListServlet extends HttpServlet {
             req.setAttribute("sigg_area", siggParam);
             req.setAttribute("minPrice", minPrice);
             req.setAttribute("maxPrice", maxPrice);
-            req.setAttribute("selectedCategoryName", selectedCategoryName);
-            req.setAttribute("selectedSiggName", selectedSiggName);
+            req.setAttribute("sort", sort);
 
             req.getRequestDispatcher("/product/product_list.jsp").forward(req, resp);
 
@@ -105,7 +85,26 @@ public class ProductListServlet extends HttpServlet {
         }
     }
 
-    private static String  trimToNull(String s){ if(s==null) return null; s=s.trim(); return s.isEmpty()?null:s; }
-    private static Integer parseIntOrNull(String s){ try{ if(s==null||s.isBlank()) return null; return Integer.valueOf(s.trim()); }catch(Exception e){ return null; } }
-    private static int     parseIntOrDefault(String s,int def){ try{ return Integer.parseInt(s); }catch(Exception e){ return def; } }
+    private static String trimToNull(String s) {
+        if (s == null) return null;
+        s = s.trim();
+        return s.isEmpty() ? null : s;
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        try {
+            if (s == null || s.isBlank()) return null;
+            return Integer.valueOf(s.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static int parseIntOrDefault(String s, int def) {
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return def;
+        }
+    }
 }

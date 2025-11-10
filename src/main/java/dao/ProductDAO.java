@@ -66,7 +66,146 @@ public class ProductDAO {
         }
         return null;
     }
+    
+ // ✅ 정렬 추가 버전
+    public List<Product> searchProducts(String q, Integer categoryId, Integer siggAreaId,
+                                        int offset, int size, String sort) throws SQLException {
+        StringBuilder sql = new StringBuilder("""
+            SELECT p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
+                   p.view_count,
+                   COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                   (SELECT i.name FROM product_images pi
+                     JOIN images i ON pi.image_id = i.id
+                     WHERE pi.product_id = p.id
+                     ORDER BY pi.image_id
+                     LIMIT 1) AS img_name
+              FROM products p
+              LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+             WHERE 1=1
+        """);
 
+        List<Object> params = new ArrayList<>();
+
+        if (q != null && !q.trim().isEmpty()) {
+            sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+            String like = "%" + escapeLike(q.trim()) + "%";
+            params.add(like);
+            params.add(like);
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append(" AND p.category_id = ? ");
+            params.add(categoryId);
+        }
+        if (siggAreaId != null && siggAreaId > 0) {
+            sql.append(" AND p.region_id = ? ");
+            params.add(siggAreaId);
+        }
+
+        // ✅ 정렬 기준
+        switch (sort) {
+            case "view": sql.append(" ORDER BY p.view_count DESC "); break;
+            case "name": sql.append(" ORDER BY p.title ASC "); break;
+            case "priceLow": sql.append(" ORDER BY p.sell_price ASC "); break;
+            case "priceHigh": sql.append(" ORDER BY p.sell_price DESC "); break;
+            default: sql.append(" ORDER BY p.created_at DESC ");
+        }
+
+        sql.append(" LIMIT ? OFFSET ? ");
+        params.add(size);
+        params.add(offset);
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            bind(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Product> list = new ArrayList<>();
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getInt("view_count"),
+                            rs.getString("status")
+                    ));
+                }
+                return list;
+            }
+        }
+    }
+
+    public List<Product> getFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice,
+                                             int offset, int size, String sort) throws Exception {
+        StringBuilder sql = new StringBuilder("""
+            SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
+                   p.view_count, COALESCE(sa.name, '지역정보없음') AS sigg_name, MIN(i.name) AS img_name
+              FROM products p
+              LEFT JOIN product_images pi ON p.id = pi.product_id
+              LEFT JOIN images i ON pi.image_id = i.id
+              LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+              LEFT JOIN categories c ON p.category_id = c.id
+             WHERE 1=1
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (category != null && !category.isEmpty()) {
+            sql.append(" AND c.name = ? ");
+            params.add(category);
+        }
+        if (region != null && !region.isEmpty()) {
+            sql.append(" AND sa.name = ? ");
+            params.add(region);
+        }
+        if (minPrice != null) {
+            sql.append(" AND p.sell_price >= ? ");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND p.sell_price <= ? ");
+            params.add(maxPrice);
+        }
+
+        sql.append(" GROUP BY p.id, p.title, p.sell_price, p.status, sa.name ");
+
+        // ✅ 정렬 기준 추가
+        switch (sort) {
+            case "view": sql.append(" ORDER BY p.view_count DESC "); break;
+            case "name": sql.append(" ORDER BY p.title ASC "); break;
+            case "priceLow": sql.append(" ORDER BY p.sell_price ASC "); break;
+            case "priceHigh": sql.append(" ORDER BY p.sell_price DESC "); break;
+            default: sql.append(" ORDER BY p.created_at DESC ");
+        }
+
+        sql.append(" LIMIT ? OFFSET ? ");
+        params.add(size);
+        params.add(offset);
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            bind(ps, params);
+            List<Product> list = new ArrayList<>();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getInt("view_count"),
+                            rs.getString("status")
+                    ));
+                }
+            }
+            return list;
+        }
+    }
+
+    
     public void increaseViewCount(int id) throws SQLException {
         String sql = "UPDATE products SET view_count = view_count + 1 WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
