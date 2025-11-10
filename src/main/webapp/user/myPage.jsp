@@ -1,6 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-UTF-8"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,22 +14,14 @@
 	rel="stylesheet"
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
-<!-- [수정]: 파일 구조(/webapp/user/css/)에 맞춰 경로를 /user/css/header.css로 지정합니다. -->
-<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css"> 
-<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css"> 
-	
 </head>
-<%-- 
-    [수정]: body의 pb-4와 sm:pb-8 (하단 패딩) 클래스를 완전히 제거하여 
-    푸터가 화면의 맨 아래 모서리에 빈틈없이 붙도록 수정합니다. 
---%>
-<body class="min-h-screen">
-<!-- 헤더의 HTML 구조 (header.jsp) 포함: Context Root를 사용하는 동적 포함 방식이 가장 안정적입니다. -->
-<jsp:include page="/header/header.jsp" />
+<body class="min-h-screen p-4 sm:p-8">
+	<%-- <jsp:include page="/header/header.jsp" /> --%>
 
-	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+	<div
+		class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
-		<!-- 페이지 제목 섹션 -->
+		<!-- 헤더 및 제목 -->
 		<header class="p-6 border-b border-gray-100">
 			<h1 class="text-3xl font-bold text-gray-800 text-center">나의 마켓활동</h1>
 		</header>
@@ -50,15 +42,35 @@
 							alt="프로필 이미지" class="w-full h-full object-cover">
 					</div>
 
-					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">나의닉네임</h2>
-					<p id="user-region" class="text-gray-500 text-sm">서울 강남구 역삼동</p>
+					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">${profile.nickname}</h2>
+					<p id="user-region" class="text-gray-500 text-sm break-words whitespace-pre-line"> ${profile.addrDetail}</p>
 				</div>
 
-				<!-- 프로필 수정 버튼 -->
-				<a href="updateMyPage.jsp"
-					class="block w-full text-center py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition duration-150">
-					프로필 수정 (탈퇴 포함) </a>
+				<!-- 프로필 수정, 탈퇴 버튼 -->
+				<div class="space-y-3">
+				  <a href="${pageContext.request.contextPath}/user/mypage/update"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-green-500 text-green-600 hover:bg-green-50 
+				            transition duration-150 shadow-sm">
+				    프로필 수정
+				  </a>
+				  <a href="${pageContext.request.contextPath}/user/delete"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-red-400 text-red-500 hover:bg-red-50 
+				            transition duration-150 shadow-sm" onclick="confirmDelete()">
+				    회원 탈퇴
+				  </a>
+				</div>
 			</div>
+			
+			<script>
+				function confirmDelete() {
+					event.preventDefault();
+					if (confirm("정말 탈퇴하시겠습니까?\n\n회원님의 모든 거래 기록과 정보가 완전히 삭제됩니다.")) {
+						window.location.href = `${event.currentTarget.getAttribute("href")}`;
+					}
+				}
+			</script>
 
 			<!-- 2. 우측 콘텐츠 영역: 목록 탭 -->
 			<div class="md:w-2/3">
@@ -84,7 +96,7 @@
 					<div id="content-products" class="tab-content">
 						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
 							<p class="text-gray-600">등록된 상품이 없습니다.</p>
-							<a href="#"
+							<a href="${pageContext.request.contextPath}/product/product_form"
 								class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품
 								등록하러 가기 &rarr;</a>
 						</div>
@@ -103,9 +115,9 @@
 					<!-- 3. 채팅 목록 -->
 					<div id="content-chats" class="tab-content hidden">
 						<div class="space-y-3">
-						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-							<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
-						</div>
+							<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+								<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -116,6 +128,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-	<jsp:include page="/footer/footer.jsp"></jsp:include>
+
 </body>
 </html>
