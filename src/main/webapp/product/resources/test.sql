@@ -11,35 +11,35 @@ CREATE DATABASE IF NOT EXISTS usermarketdb
 
 USE usermarketdb;
 
+-- ==========================================
+-- 🗺️ 행정구역 (시도 / 시군구)
+-- ==========================================
 
--- ==========================================
--- 🗺️ 행정구역 (시도/시군구)
--- ==========================================
 CREATE TABLE sido_areas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id   INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE sigg_areas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id           INT AUTO_INCREMENT PRIMARY KEY,
   sido_area_id INT NOT NULL,
-  name VARCHAR(50) NOT NULL,
+  name         VARCHAR(50) NOT NULL,
   FOREIGN KEY (sido_area_id) REFERENCES sido_areas(id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ==========================================
+-- 👤 회원 / 프로필
+-- ==========================================
 
--- ==========================================
--- 👤 회원 테이블
--- ==========================================
 CREATE TABLE user (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  account_id    VARCHAR(30)  NOT NULL,
-  pw VARCHAR(255) NOT NULL,
-  name          VARCHAR(50)  NOT NULL,
-  phn           VARCHAR(20)  NULL,
-  em            VARCHAR(100) NULL,
-  created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  account_id VARCHAR(30)   NOT NULL,
+  pw         VARCHAR(255)  NOT NULL,
+  name       VARCHAR(50)   NOT NULL,
+  phn        VARCHAR(20)   NULL,
+  em         VARCHAR(100)  NULL,
+  created_at DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   UNIQUE KEY uk_user_account (account_id),
   UNIQUE KEY uk_user_email   (em),
@@ -47,14 +47,14 @@ CREATE TABLE user (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE user_info (
-  u_id         INT NOT NULL PRIMARY KEY,
-  nickname     VARCHAR(30) NOT NULL,
-  profile_img  VARCHAR(255) NULL,
-  intro        VARCHAR(255) NULL,
-  region_id    INT NULL,
-  addr_detail  VARCHAR(100) NULL,
+  u_id        INT NOT NULL PRIMARY KEY,
+  nickname    VARCHAR(30)  NOT NULL,
+  profile_img VARCHAR(255) NULL,
+  intro       VARCHAR(255) NULL,
+  region_id   INT          NULL,
+  addr_detail VARCHAR(100) NULL,
 
-  UNIQUE KEY uk_userinfo_uid (u_id),
+  UNIQUE KEY uk_userinfo_uid  (u_id),
   UNIQUE KEY uk_userinfo_nick (nickname),
 
   CONSTRAINT fk_userinfo_user
@@ -66,25 +66,25 @@ CREATE TABLE user_info (
     ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 -- ==========================================
 -- 📦 카테고리
 -- ==========================================
+
 CREATE TABLE categories (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id   INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(20) NOT NULL,
   UNIQUE KEY uk_category_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 -- ==========================================
 -- 📍 활동 지역
 -- ==========================================
+
 CREATE TABLE activity_areas (
-  user_id INT NOT NULL,
-  sigg_area_id INT NOT NULL,
+  user_id        INT       NOT NULL,
+  sigg_area_id   INT       NOT NULL,
   distance_meters SMALLINT NOT NULL DEFAULT 2000,
-  emd_area_ids JSON NOT NULL,
+  emd_area_ids   JSON      NOT NULL,
   authenticated_at TIMESTAMP NULL,
   PRIMARY KEY (user_id, sigg_area_id),
   FOREIGN KEY (user_id) REFERENCES user(id)
@@ -94,36 +94,36 @@ CREATE TABLE activity_areas (
   CHECK (JSON_VALID(emd_area_ids))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 -- ==========================================
 -- 🖼️ 이미지 파일
 -- ==========================================
+
 CREATE TABLE images (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id         INT AUTO_INCREMENT PRIMARY KEY,
   uploader_id INT NOT NULL,
-  name VARCHAR(255) NOT NULL,
+  name       VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (uploader_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 -- ==========================================
 -- 🛒 상품
 -- ==========================================
--- ✅ products 테이블 생성
+
 CREATE TABLE products (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  seller_id INT NOT NULL,
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  seller_id   INT NOT NULL,
   category_id INT NOT NULL,
-  title VARCHAR(100) NOT NULL,
-  status ENUM('SALE', 'RESERVED', 'SOLD_OUT') NOT NULL DEFAULT 'SALE',
-  sell_price INT NULL,
-  view_count INT NOT NULL DEFAULT 0,
+  title       VARCHAR(100) NOT NULL,
+  status      ENUM('SALE', 'RESERVED', 'SOLD_OUT') NOT NULL DEFAULT 'SALE',
+  sell_price  INT NULL,
+  view_count  INT NOT NULL DEFAULT 0,
   description TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  sido_id INT NULL,
-  region_id INT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  sido_id     INT NULL,
+  region_id   INT NULL,
+
   FOREIGN KEY (seller_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (category_id) REFERENCES categories(id)
@@ -131,17 +131,22 @@ CREATE TABLE products (
   FOREIGN KEY (sido_id) REFERENCES sido_areas(id)
     ON DELETE SET NULL ON UPDATE CASCADE,
   FOREIGN KEY (region_id) REFERENCES sigg_areas(id)
-    ON DELETE SET NULL ON UPDATE CASCADE
+    ON DELETE SET NULL ON UPDATE CASCADE,
+
+  -- 🔍 검색/필터용 인덱스
+  KEY idx_products_category (category_id),
+  KEY idx_products_region   (region_id),
+  KEY idx_products_sido     (sido_id),
+  KEY idx_products_seller   (seller_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-
 -- ==========================================
--- 🖼️ 상품 이미지
+-- 🖼️ 상품 이미지 매핑
 -- ==========================================
+
 CREATE TABLE product_images (
   product_id INT NOT NULL,
-  image_id INT NOT NULL,
+  image_id   INT NOT NULL,
   PRIMARY KEY (product_id, image_id),
   FOREIGN KEY (product_id) REFERENCES products(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -152,17 +157,50 @@ CREATE TABLE product_images (
 -- ==========================================
 -- 💖 찜 목록
 -- ==========================================
+
 CREATE TABLE wish_lists (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id          INT AUTO_INCREMENT PRIMARY KEY,
   register_id INT NOT NULL,
-  product_id INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  product_id  INT NOT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- ✅ 같은 유저가 같은 상품 여러 번 찜 못하게
+  UNIQUE KEY uq_wish_user_product (register_id, product_id),
+
   FOREIGN KEY (register_id) REFERENCES user(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (product_id) REFERENCES products(id)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ==========================================
+-- 💬 채팅 관련 테이블
+-- ==========================================
+
+CREATE TABLE chat_room (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    buyer_id   INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id) REFERENCES products(id)
+      ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (buyer_id) REFERENCES user(id)
+      ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE chat_messages (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    chat_room_id INT NOT NULL,
+    sender_id   INT NOT NULL,
+    message     TEXT,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (chat_room_id) REFERENCES chat_room(id)
+      ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES user(id)
+      ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ==========================================
@@ -483,17 +521,6 @@ INSERT INTO product_images (product_id, image_id) VALUES
 -- ✅ 확인용 쿼리
 -- ==========================
 
-
-SELECT * from user;
-select * from products;
-select * from product_images;
-select * from images;
-select * from user_info;
-select * from categories;
-select * from sido_areas;
-select * from sigg_areas;
-select * from categories;
-SELECT * FROM activity_areas;
 
 SELECT * from user;
 select * from products;
