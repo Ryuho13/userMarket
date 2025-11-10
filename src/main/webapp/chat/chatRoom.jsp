@@ -29,7 +29,15 @@
           <c:set var="isMine" value="${msg.senderId == sessionScope.loginUserId}" />
           <div class="chat-row ${isMine ? 'my-message' : 'other-message'}">
             <div class="bubble">
-              <span class="message-text">${msg.message}</span>
+              <c:choose>
+                <c:when test="${msg.message.startsWith('IMG::')}">
+                  <c:set var="imageUrl" value="${msg.message.substring(5)}" />
+                  <img src="${pageContext.request.contextPath}${imageUrl}" class="chat-image" alt="채팅 이미지" />
+                </c:when>
+                <c:otherwise>
+                  <span class="message-text">${msg.message}</span>
+                </c:otherwise>
+              </c:choose>
               <span class="time">
                 <%-- 날짜 포맷팅은 fmt 라이브러리 사용 --%>
                 <fmt:formatDate value="${msg.createdAt}" pattern="HH:mm" />
@@ -45,6 +53,8 @@
   </div>
   
   <div class="input-area">
+    <label for="imageUpload" class="upload-btn">+</label>
+    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
     <textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
     <button id="sendBtn">보내기</button>
   </div>

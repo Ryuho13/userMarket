@@ -17,6 +17,21 @@
     </servlet-mapping>
 
 
+    <!-- ✅ 이미지 업로드 서블릿 -->
+    <servlet>
+        <servlet-name>ImageUploadServlet</servlet-name>
+        <servlet-class>web.ImageUploadServlet</servlet-class>
+        <multipart-config>
+            <file-size-threshold>1024</file-size-threshold>
+        </multipart-config>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ImageUploadServlet</servlet-name>
+        <url-pattern>/uploadImage</url-pattern>
+    </servlet-mapping>
+
+
     <!-- ✅ 기본 시작 페이지 -->
     <welcome-file-list>
         <welcome-file>register.jsp</welcome-file>
