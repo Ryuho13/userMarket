@@ -87,7 +87,7 @@
         <div class="d-flex gap-2 mt-3">
           <c:choose>
             <c:when test="${not empty sessionScope.loginUserId}">
-              <a href="${pageContext.request.contextPath}/chat/?sellerId=${product.sellerId}" 
+              <a href="${pageContext.request.contextPath}/chatRoom?productId=${product.id}&buyerId=${sessionScope.loginUserId}" 
                  class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
                 채팅하기
               </a>

@@ -13,16 +13,16 @@ public class ChatDAO {
         this.conn = conn;
     }
 
-    public ChatRoom findChatRoomById(long roomId) throws SQLException {
-        String sql = "SELECT id, products_id, buyer_id, created_at FROM chat_room WHERE id = ?";
+    public ChatRoom findChatRoomById(int roomId) throws SQLException {
+        String sql = "SELECT id, product_id, buyer_id, created_at FROM chat_room WHERE id = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
+            pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return new ChatRoom(
-                        rs.getLong("id"),
-                        rs.getLong("products_id"),
-                        rs.getLong("buyer_id"),
+                        rs.getInt("id"),
+                        rs.getInt("product_id"),
+                        rs.getInt("buyer_id"),
                         rs.getTimestamp("created_at")
                     );
                 }
@@ -32,18 +32,18 @@ public class ChatDAO {
     }
 
     // 채팅방 찾거나 생성
-    public ChatRoom findOrCreateRoom(long productId, long buyerId) {
-        String checkSql = "SELECT * FROM chat_room WHERE products_id = ? AND buyer_id = ?";
+    public ChatRoom findOrCreateRoom(int productId, int buyerId) {
+        String checkSql = "SELECT * FROM chat_room WHERE product_id = ? AND buyer_id = ?";
         try (PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
-            pstmtCheck.setLong(1, productId);
-            pstmtCheck.setLong(2, buyerId);
+            pstmtCheck.setInt(1, productId);
+            pstmtCheck.setInt(2, buyerId);
             try (ResultSet rs = pstmtCheck.executeQuery()) {
                 if (rs.next()) {
                     System.out.println("[DEBUG] 기존 채팅방 존재 ");
                     return new ChatRoom(
-                        rs.getLong("id"),
-                        rs.getLong("products_id"),
-                        rs.getLong("buyer_id"),
+                        rs.getInt("id"),
+                        rs.getInt("product_id"),
+                        rs.getInt("buyer_id"),
                         rs.getTimestamp("created_at")
                     );
                 }
@@ -55,10 +55,10 @@ public class ChatDAO {
         }
 
         // 없으면 새로 생성
-        String insertSql = "INSERT INTO chat_room (products_id, buyer_id, created_at) VALUES (?, ?, NOW())";
+        String insertSql = "INSERT INTO chat_room (product_id, buyer_id, created_at) VALUES (?, ?, NOW())";
         try (PreparedStatement pstmtInsert = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmtInsert.setLong(1, productId);
-            pstmtInsert.setLong(2, buyerId);
+            pstmtInsert.setInt(1, productId);
+            pstmtInsert.setInt(2, buyerId);
 
             int result = pstmtInsert.executeUpdate();
             if (result == 0) {
@@ -68,7 +68,7 @@ public class ChatDAO {
 
             try (ResultSet rs = pstmtInsert.getGeneratedKeys()) {
                 if (rs.next()) {
-                    long newId = rs.getLong(1);
+                    int newId = rs.getInt(1);
                     System.out.println("[DEBUG] 새 채팅방 생성 성공 ID=" + newId);
                     return new ChatRoom(newId, productId, buyerId);
                 }
@@ -81,17 +81,17 @@ public class ChatDAO {
     }
 
     // 메시지 목록 불러오기
-    public List<Message> getMessages(long roomId) {
+    public List<Message> getMessages(int roomId) {
         List<Message> list = new ArrayList<>();
         String sql = "SELECT * FROM chat_messages WHERE chat_room_id = ? ORDER BY created_at ASC";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
+            pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     list.add(new Message(
-                        rs.getLong("id"),
-                        rs.getLong("chat_room_id"),
-                        rs.getLong("sender_id"),
+                        rs.getInt("id"),
+                        rs.getInt("chat_room_id"),
+                        rs.getInt("sender_id"),
                         rs.getString("message"),
                         rs.getTimestamp("created_at")
                     ));
@@ -105,11 +105,11 @@ public class ChatDAO {
     }
 
     // 메시지 저장
-    public void saveMessage(long roomId, long senderId, String message) {
+    public void saveMessage(int roomId, int senderId, String message) {
         String sql = "INSERT INTO chat_messages (chat_room_id, sender_id, message, created_at) VALUES (?, ?, ?, NOW())";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
-            pstmt.setLong(2, senderId);
+            pstmt.setInt(1, roomId);
+            pstmt.setInt(2, senderId);
             pstmt.setString(3, message);
             pstmt.executeUpdate();
             System.out.println("[DB] 메시지를 저장했습니다.");
@@ -119,30 +119,30 @@ public class ChatDAO {
         }
     }
 
-    public long[] getChatRoomParticipantIds(long roomId) throws SQLException {
+    public int[] getChatRoomParticipantIds(int roomId) throws SQLException {
         String sql = """
             SELECT cr.buyer_id, p.seller_id
             FROM chat_room cr
-            JOIN products p ON cr.products_id = p.id
+            JOIN products p ON cr.product_id = p.id
             WHERE cr.id = ?
         """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, roomId);
+            pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new long[]{rs.getLong("buyer_id"), rs.getLong("seller_id")};
+                    return new int[]{rs.getInt("buyer_id"), rs.getInt("seller_id")};
                 }
             }
         }
         return null; // Chat room not found
     }
 
-    public List<ChatRoomDisplayDTO> getChatRoomsByUserId(long userId) {
+    public List<ChatRoomDisplayDTO> getChatRoomsByUserId(int userId) {
         List<ChatRoomDisplayDTO> list = new ArrayList<>();
         String sql = """
             SELECT
                 cr.id,
-                cr.products_id,
+                cr.product_id,
                 cr.buyer_id,
                 cr.created_at,
                 p.title AS productTitle,
@@ -150,28 +150,28 @@ public class ChatDAO {
                 ui_buyer.nickname AS buyerNickname,
                 ui_seller.nickname AS sellerNickname
             FROM chat_room cr
-            JOIN products p ON cr.products_id = p.id
-            JOIN user_info ui_buyer ON cr.buyer_id = ui_buyer.u_id
-            JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
+            JOIN products p ON cr.product_id = p.id
+            LEFT JOIN user_info ui_buyer ON cr.buyer_id = ui_buyer.u_id
+            LEFT JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
             WHERE cr.buyer_id = ? OR p.seller_id = ?
             ORDER BY cr.created_at DESC
         """;
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, userId);
-            pstmt.setLong(2, userId);
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    long roomId = rs.getLong("id");
-                    long productId = rs.getLong("products_id");
-                    long buyerId = rs.getLong("buyer_id");
+                    int roomId = rs.getInt("id");
+                    int productId = rs.getInt("product_id");
+                    int buyerId = rs.getInt("buyer_id");
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     String productTitle = rs.getString("productTitle");
-                    long sellerId = rs.getLong("seller_id");
+                    int sellerId = rs.getInt("seller_id");
                     String buyerNickname = rs.getString("buyerNickname");
                     String sellerNickname = rs.getString("sellerNickname");
 
                     String otherUserNickname;
-                    long otherUserId;
+                    int otherUserId;
 
                     if (userId == buyerId) { // Current user is the buyer, so the other user is the seller
                         otherUserNickname = sellerNickname;

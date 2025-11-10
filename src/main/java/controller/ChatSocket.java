@@ -19,20 +19,20 @@ import model.UserProfile;
 @ServerEndpoint("/chatSocket/{roomId}/{userId}")
 public class ChatSocket {
 
-    private static final Map<Long, Set<Session>> roomSessions = new HashMap<>();
+    private static final Map<Integer, Set<Session>> roomSessions = new HashMap<>();
 
     @OnOpen
     public void onOpen(Session session,
-                       @PathParam("roomId") long roomId,
-                       @PathParam("userId") long userId) {
+                       @PathParam("roomId") int roomId,
+                       @PathParam("userId") int userId) {
         roomSessions.computeIfAbsent(roomId, k -> new HashSet<>()).add(session);
         System.out.println("▶ 입장 : room=" + roomId + ", user=" + userId + ", session=" + session.getId());
     }
 
     @OnMessage
     public void onMessage(String messageJson, // 이제 JSON 형태의 문자열을 받음
-                          @PathParam("roomId") long roomId,
-                          @PathParam("userId") long userId) {
+                          @PathParam("roomId") int roomId,
+                          @PathParam("userId") int userId) {
 
         // 클라이언트가 보낸 JSON에서 실제 메시지 추출 (정규식 사용으로 안정성 향상)
         String message = "";
@@ -77,19 +77,19 @@ public class ChatSocket {
         try (Connection conn = DBConnection.getConnection()) {
             if (conn != null) {
                 ChatDAO chatDAO = new ChatDAO(conn);
-                long[] participantIds = chatDAO.getChatRoomParticipantIds(roomId); // [buyerId, sellerId]
+                int[] participantIds = chatDAO.getChatRoomParticipantIds(roomId); // [buyerId, sellerId]
 
                 if (participantIds != null) {
-                    long buyerId = participantIds[0];
-                    long sellerId = participantIds[1];
+                    int buyerId = participantIds[0];
+                    int sellerId = participantIds[1];
 
-                    long recipientId = (userId == buyerId) ? sellerId : buyerId; // 메시지 보낸 사람이 아니면 수신자
+                    int recipientId = (userId == buyerId) ? sellerId : buyerId; // 메시지 보낸 사람이 아니면 수신자
 
                     // 수신자가 현재 채팅방에 없는 경우에만 알림을 보냄 (선택 사항, UX에 따라 조절)
                     // 현재는 그냥 보냄. NotificationSocket에서 세션이 없으면 안 보냄.
 
                     UserDAO userDAO = new UserDAO(); // UserDAO는 Connection을 받지 않는 기본 생성자 사용 가정
-                    UserProfile senderProfile = userDAO.findProfileByUserId((int) userId);
+                    UserProfile senderProfile = userDAO.findProfileByUserId(userId);
                     String senderNickname = (senderProfile != null) ? senderProfile.getNickname() : "알 수 없음";
 
                     String notificationJson = String.format(
@@ -109,7 +109,7 @@ public class ChatSocket {
         }
     }
 
-    private void broadcastMessage(long roomId, Message message) {
+    private void broadcastMessage(int roomId, Message message) {
         Set<Session> sessions = roomSessions.get(roomId);
         if (sessions == null) return;
 
@@ -136,8 +136,8 @@ public class ChatSocket {
 
     @OnClose
     public void onClose(Session session,
-                        @PathParam("roomId") long roomId,
-                        @PathParam("userId") long userId) {
+                        @PathParam("roomId") int roomId,
+                        @PathParam("userId") int userId) {
         Set<Session> sessions = roomSessions.get(roomId);
         if (sessions != null) sessions.remove(session);
         System.out.println("■ 퇴장 : room=" + roomId + ", user=" + userId + ", session=" + session.getId());

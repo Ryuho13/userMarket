@@ -46,8 +46,8 @@ public class ChatRoomServlet extends HttpServlet {
 
             if (roomIdParam != null && !roomIdParam.isEmpty() && currentUserIdParam != null && !currentUserIdParam.isEmpty()) {
                 // Scenario 1: Viewing an existing chat room (from myPage.jsp)
-                long roomId = Long.parseLong(roomIdParam);
-                long currentUserId = Long.parseLong(currentUserIdParam);
+                int roomId = Integer.parseInt(roomIdParam);
+                int currentUserId = Integer.parseInt(currentUserIdParam);
 
                 room = chatDAO.findChatRoomById(roomId);
                 if (room == null) {
@@ -55,7 +55,7 @@ public class ChatRoomServlet extends HttpServlet {
                     return;
                 }
 
-                ProductDetail product = productDetailDAO.findById((int) room.getProductId());
+                ProductDetail product = productDetailDAO.findById(room.getProductId());
                 if (product == null) {
                     sendErrorResponse(response, "채팅방과 연결된 상품을 찾을 수 없습니다.");
                     return;
@@ -71,10 +71,10 @@ public class ChatRoomServlet extends HttpServlet {
 
             } else if (productIdParam != null && !productIdParam.isEmpty() && buyerIdParam != null && !buyerIdParam.isEmpty()) {
                 // Scenario 2: Initiating a new chat (from product_detail.jsp)
-                long productId = Long.parseLong(productIdParam);
-                long buyerId = Long.parseLong(buyerIdParam);
+                int productId = Integer.parseInt(productIdParam);
+                int buyerId = Integer.parseInt(buyerIdParam);
 
-                ProductDetail product = productDetailDAO.findById((int) productId);
+                ProductDetail product = productDetailDAO.findById(productId);
                 if (product == null) {
                     sendErrorResponse(response, "상품을 찾을 수 없습니다.");
                     return;
@@ -100,12 +100,12 @@ public class ChatRoomServlet extends HttpServlet {
             }
 
             // Determine other user's nickname and add to request
-            long finalCurrentUserId = (currentUserIdParam != null) ? Long.parseLong(currentUserIdParam) : Long.parseLong(buyerIdParam);
-            ProductDetail finalProduct = productDetailDAO.findById((int) room.getProductId());
-            long otherUserId = (finalCurrentUserId == room.getBuyerId()) ? finalProduct.getSellerId() : room.getBuyerId();
+            int finalCurrentUserId = (currentUserIdParam != null) ? Integer.parseInt(currentUserIdParam) : Integer.parseInt(buyerIdParam);
+            ProductDetail finalProduct = productDetailDAO.findById(room.getProductId());
+            int otherUserId = (finalCurrentUserId == room.getBuyerId()) ? finalProduct.getSellerId() : room.getBuyerId();
 
             dao.UserDAO userDAO = new dao.UserDAO();
-            model.UserProfile otherUserProfile = userDAO.findProfileByUserId((int) otherUserId);
+            model.UserProfile otherUserProfile = userDAO.findProfileByUserId(otherUserId);
             String otherUserNickname = (otherUserProfile != null) ? otherUserProfile.getNickname() : "(알 수 없음)";
             request.setAttribute("otherUserNickname", otherUserNickname);
 
