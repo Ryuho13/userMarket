@@ -120,9 +120,38 @@
 						<!-- 3. 채팅 목록 -->
 						<div id="content-chats" class="tab-content hidden">
 							<div class="space-y-3">
-								<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-									<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
-								</div>
+								<c:choose>
+									<c:when test="${not empty chatRooms}">
+										<c:forEach var="chatRoom" items="${chatRooms}">
+											<a href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${sessionScope.loginUserId}"
+											   class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
+												<div class="flex justify-between items-center">
+													<div>
+														<p class="font-bold text-gray-800">
+															<c:if test="${not empty chatRoom.otherUserNickname}">${chatRoom.otherUserNickname}님과의 채팅</c:if>
+															<c:if test="${empty chatRoom.otherUserNickname}">알 수 없는 사용자와의 채팅</c:if>
+														</p>
+														<p class="text-sm text-gray-600">
+															<c:if test="${not empty chatRoom.productTitle}">상품: ${chatRoom.productTitle}</c:if>
+															<c:if test="${empty chatRoom.productTitle}">상품 정보 없음</c:if>
+														</p>
+													</div>
+													<div class="text-right">
+														<span class="text-xs text-gray-400">
+															<c:if test="${not empty chatRoom.createdAt}">${chatRoom.createdAt}</c:if>
+															<c:if test="${empty chatRoom.createdAt}">날짜 정보 없음</c:if>
+														</span>
+													</div>
+												</div>
+											</a>
+										</c:forEach>
+									</c:when>
+									<c:otherwise>
+										<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+											<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
+										</div>
+									</c:otherwise>
+								</c:choose>
 							</div>
 						</div>
 					</div>
