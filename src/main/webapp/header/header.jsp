@@ -186,13 +186,13 @@
         <nav class="user-menu">
             <c:choose>
                 <c:when test="${not empty sessionScope.member}">
-                    <a href="${pageContext.request.contextPath}/member/myPage.jsp" class="menu-item menu-mypage">마이페이지</a>
-                    <a href="${pageContext.request.contextPath}/member/logout.do" class="menu-item menu-logout">로그아웃</a>
+                    <a href="${pageContext.request.contextPath}/user/myPage.jsp" class="menu-item menu-mypage">마이페이지</a>
+                    <a href="${pageContext.request.contextPath}/user/logout.do" class="menu-item menu-logout">로그아웃</a>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/member/loginMember.jsp" class="menu-item menu-login">로그인</a>
+                    <a href="${pageContext.request.contextPath}/user/login.jsp" class="menu-item menu-login">로그인</a>
                     <span class="menu-divider">/</span> 
-                    <a href="${pageContext.request.contextPath}/member/addMember.jsp" class="menu-item menu-signup">회원가입</a>
+                    <a href="${pageContext.request.contextPath}/user/addUser.jsp" class="menu-item menu-signup">회원가입</a>
                 </c:otherwise>
             </c:choose>
         </nav>

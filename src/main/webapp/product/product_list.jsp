@@ -25,6 +25,7 @@
 
 <body class="bg-light">
 
+	<jsp:include page="/header/header.jsp" />
 <!-- 🔧 페이징 시 검색/필터 파라미터 유지용 쿼리스트링 생성 -->
 <c:set var="preserveParams" value=""/>
 <c:if test="${not empty param.q}">
@@ -313,5 +314,7 @@
     siggArea: "${fn:escapeXml(param.sigg_area)}"
   };
 </script>
+
+<jsp:include page="/footer/footer.jsp" />
 </body>
 </html>
