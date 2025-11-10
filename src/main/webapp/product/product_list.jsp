@@ -10,7 +10,7 @@
 <title>상품 목록</title>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
-
+<script src="https://cdn.tailwindcss.com"></script>
 <!-- 구글 아이콘 + 부트스트랩 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 <link
@@ -49,7 +49,7 @@
 
 <!-- 🔍 검색 영역 -->
 <div class="select_container container py-4 d-flex flex-column align-items-center">
-
+<%-- 
   <!-- 검색 폼 -->
   <form action="${ctx}/product" method="get"
         class="w-100 d-flex justify-content-center">
@@ -67,7 +67,7 @@
       </button>
     </div>
   </form>
-
+ --%>
   <!-- 현재 검색어 표시 -->
   <c:if test="${not empty param.q}">
     <div class="mt-2 text-secondary small text-center"

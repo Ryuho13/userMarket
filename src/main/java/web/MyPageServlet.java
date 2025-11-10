@@ -9,7 +9,6 @@ import jakarta.servlet.RequestDispatcher;
 import dao.UserDAO;
 import model.User;
 import model.UserProfile;
-import model.ChatRoomDisplayDTO;
 
 @WebServlet("/user/myPage")
 public class MyPageServlet extends HttpServlet {
