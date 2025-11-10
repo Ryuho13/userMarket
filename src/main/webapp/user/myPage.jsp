@@ -16,7 +16,7 @@
 	crossorigin="anonymous">
 </head>
 <body class="min-h-screen p-4 sm:p-8">
-	<%-- <jsp:include page="/header/header.jsp" /> --%>
+	<jsp:include page="/header/header.jsp" />
 
 	<div
 		class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
@@ -96,7 +96,7 @@
 					<div id="content-products" class="tab-content">
 						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
 							<p class="text-gray-600">등록된 상품이 없습니다.</p>
-							<a href="${pageContext.request.contextPath}/product/product_form"
+							<a href="${pageContext.request.contextPath}/product/list"
 								class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품
 								등록하러 가기 &rarr;</a>
 						</div>
@@ -128,6 +128,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-
+<jsp:include page="/footer/footer.jsp" />
 </body>
 </html>

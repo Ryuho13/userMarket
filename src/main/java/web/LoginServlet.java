@@ -51,7 +51,7 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = req.getSession(true);
             session.setAttribute("loginUser", user);
             session.setAttribute("loginProfile", profile);
-            
+            session.setAttribute("loginUserId", user.getId());
             // PRG: 마이페이지 등으로 이동 (프로젝트에 맞게 경로만 조정)
             resp.sendRedirect(req.getContextPath() + "/user/myPage");
             // 만약 MyPageServlet이 있다면: resp.sendRedirect(req.getContextPath()+"/user/mypage");
