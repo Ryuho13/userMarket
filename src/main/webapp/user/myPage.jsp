@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,11 +17,9 @@
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 	<%-- <jsp:include page="/header/header.jsp" /> --%>
-	<c:if test="${empty user}">
-		<c:redirect url="${pageContext.request.contextPath}/user/myPage" />
-	</c:if>
 
-	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+	<div
+		class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
 		<!-- 헤더 및 제목 -->
 		<header class="p-6 border-b border-gray-100">
@@ -44,15 +42,35 @@
 							alt="프로필 이미지" class="w-full h-full object-cover">
 					</div>
 
-					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4"> ${user.nickname}</h2>
-					<p id="user-region" class="text-gray-500 text-sm">${user.addrDetail}</p>
+					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">${profile.nickname}</h2>
+					<p id="user-region" class="text-gray-500 text-sm break-words whitespace-pre-line"> ${profile.addrDetail}</p>
 				</div>
 
-				<!-- 프로필 수정 버튼 -->
-				<a href="updateMyPage.jsp"
-					class="block w-full text-center py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition duration-150">
-					프로필 수정 (탈퇴 포함) </a>
+				<!-- 프로필 수정, 탈퇴 버튼 -->
+				<div class="space-y-3">
+				  <a href="${pageContext.request.contextPath}/user/mypage/update"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-green-500 text-green-600 hover:bg-green-50 
+				            transition duration-150 shadow-sm">
+				    프로필 수정
+				  </a>
+				  <a href="${pageContext.request.contextPath}/user/delete"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-red-400 text-red-500 hover:bg-red-50 
+				            transition duration-150 shadow-sm" onclick="confirmDelete()">
+				    회원 탈퇴
+				  </a>
+				</div>
 			</div>
+			
+			<script>
+				function confirmDelete() {
+					event.preventDefault();
+					if (confirm("정말 탈퇴하시겠습니까?\n\n회원님의 모든 거래 기록과 정보가 완전히 삭제됩니다.")) {
+						window.location.href = `${event.currentTarget.getAttribute("href")}`;
+					}
+				}
+			</script>
 
 			<!-- 2. 우측 콘텐츠 영역: 목록 탭 -->
 			<div class="md:w-2/3">
@@ -97,9 +115,9 @@
 					<!-- 3. 채팅 목록 -->
 					<div id="content-chats" class="tab-content hidden">
 						<div class="space-y-3">
-						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-							<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
-						</div>
+							<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+								<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -110,6 +128,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-	
+
 </body>
 </html>
