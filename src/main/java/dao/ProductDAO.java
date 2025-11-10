@@ -8,11 +8,7 @@ import java.util.List;
 
 public class ProductDAO {
 
-    // ─────────────────────────────
-    // 공통 헬퍼
-    // ─────────────────────────────
 
-    // 이미지 경로 보정(중복 로직 통일)
     private static String normalizeDisplayImg(String imgName) {
         if (imgName == null || imgName.isEmpty()) {
             return "/product/resources/images/noimage.jpg";
@@ -24,7 +20,6 @@ public class ProductDAO {
         return display;
     }
 
-    // LIKE 검색어 이스케이프 (% _ \)
     private static String escapeLike(String s) {
         return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
@@ -35,11 +30,6 @@ public class ProductDAO {
         }
     }
 
-    // ─────────────────────────────
-    // 단건 조회
-    // ─────────────────────────────
-
-    // ✅ 특정 상품 상세 조회
     public Product getProductById(int id) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -77,7 +67,6 @@ public class ProductDAO {
         return null;
     }
 
-    // ✅ 조회수 1 증가
     public void increaseViewCount(int id) throws SQLException {
         String sql = "UPDATE products SET view_count = view_count + 1 WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
@@ -87,11 +76,6 @@ public class ProductDAO {
         }
     }
 
-    // ─────────────────────────────
-    // 목록/카운트
-    // ─────────────────────────────
-
-    // ✅ 상품 개수 카운트
     public int countProducts() throws SQLException {
         String sql = "SELECT COUNT(*) AS cnt FROM products";
         try (Connection conn = DBUtil.getConnection();
@@ -101,7 +85,6 @@ public class ProductDAO {
         }
     }
 
-    // ✅ 상품 목록 조회
     public List<Product> listProducts(int offset, int size) throws SQLException {
         List<Product> list = new ArrayList<>();
 
@@ -143,16 +126,10 @@ public class ProductDAO {
         return list;
     }
 
-    // ─────────────────────────────
-    // 검색(문자열 기반 + 페이징 오버로드)
-    // ─────────────────────────────
-
-    // ✅ 기존 시그니처 유지(전부 반환). 내부적으로 페이징 오버로드 호출
     public List<Product> searchProducts(String q, String sigg, String category) throws SQLException {
         return searchProducts(q, sigg, category, 0, Integer.MAX_VALUE);
     }
 
-    // ✅ 검색(문자열 기반, 페이징 가능, LIKE ESCAPE 적용)
     public List<Product> searchProducts(String q, String sigg, String category,
                                         int offset, int size) throws SQLException {
 
@@ -217,7 +194,6 @@ public class ProductDAO {
         return list;
     }
 
-    // ✅ 검색 총 개수 (문자열 기반)
     public int countSearchProducts(String q, String sigg, String category) throws SQLException {
         StringBuilder sql = new StringBuilder("""
             SELECT COUNT(DISTINCT p.id) AS cnt
@@ -255,11 +231,7 @@ public class ProductDAO {
         }
     }
 
-    // ─────────────────────────────
-    // 필터(문자열 기반)
-    // ─────────────────────────────
 
-    // ✅ 가격/지역/카테고리 필터 기능
     public List<Product> getFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice,
                                              int offset, int size) throws Exception {
         List<Product> list = new ArrayList<>();
@@ -326,7 +298,6 @@ public class ProductDAO {
         return list;
     }
 
-    // ✅ 필터된 상품 개수 카운트
     public int countFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice) throws Exception {
         StringBuilder sql = new StringBuilder("""
             SELECT COUNT(DISTINCT p.id) AS cnt
@@ -368,11 +339,7 @@ public class ProductDAO {
         }
     }
 
-    // ─────────────────────────────
-    // 연관 상품
-    // ─────────────────────────────
 
-    // ✅ 같은 카테고리의 다른 상품 (현재 상품 제외)
     public List<Product> getProductsByCategory(int categoryId, int excludeId) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -413,7 +380,6 @@ public class ProductDAO {
         return list;
     }
 
-    // ✅ 같은 판매자의 다른 상품 (현재 상품 제외)
     public List<Product> getProductsBySeller(int sellerId, int excludeId) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -454,11 +420,6 @@ public class ProductDAO {
         return list;
     }
 
-    // ─────────────────────────────
-    // ✅ (수정완료) ID 기반 오버로드 2개
-    // ─────────────────────────────
-
-    // 총 개수 (ESCAPE + description 검색)
     public int countSearchProducts(String q, Integer categoryId, Integer siggAreaId) throws SQLException {
         StringBuilder sql = new StringBuilder("""
             SELECT COUNT(DISTINCT p.id) AS cnt
@@ -492,7 +453,6 @@ public class ProductDAO {
         }
     }
 
-    // 목록 (ESCAPE + description 검색 + 이미지 경로 정규화)
     public List<Product> searchProducts(String q, Integer categoryId, Integer siggAreaId,
                                         int offset, int size) throws SQLException {
         StringBuilder sql = new StringBuilder("""
@@ -555,8 +515,6 @@ public class ProductDAO {
             }
         }
     }
- // ProductDAO.java
-
     public List<String> getPopularKeywords(int limit) throws SQLException {
         List<String> list = new ArrayList<>();
 

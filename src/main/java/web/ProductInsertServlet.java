@@ -34,20 +34,18 @@ public class ProductInsertServlet extends HttpServlet {
             return;
         }
 
-        // ✅ 폼 입력값
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String sellPriceStr = req.getParameter("sellPrice");
         String categoryIdStr = req.getParameter("categoryId");
-        String siggAreaIdStr = req.getParameter("regionId");  // 시군구 선택 값
-        String sidoAreaIdStr = req.getParameter("sidoId");    // 시도 선택 값
+        String siggAreaIdStr = req.getParameter("regionId"); 
+        String sidoAreaIdStr = req.getParameter("sidoId");   
 
         int sellPrice = (sellPriceStr != null && !sellPriceStr.isEmpty())
                 ? Integer.parseInt(sellPriceStr) : 0;
         int categoryId = Integer.parseInt(categoryIdStr);
         String status = "SALE";
 
-        // ✅ D드라이브에 이미지 저장
         String uploadPath = "D:/upload/product_images";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
@@ -55,7 +53,6 @@ public class ProductInsertServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection()) {
             conn.setAutoCommit(false);
 
-            // ✅ 유저의 activity_areas 등록 (없을 때만)
             if (siggAreaIdStr != null && !siggAreaIdStr.isEmpty()) {
                 int siggAreaId = Integer.parseInt(siggAreaIdStr);
 
@@ -79,7 +76,6 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
-            // ✅ 상품 등록
             String sql = """
                 INSERT INTO products (seller_id, category_id, title, status, sell_price, description, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, NOW())
@@ -101,7 +97,6 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
-            // ✅ 이미지 업로드
             for (Part part : req.getParts()) {
                 if (part.getName().equals("images") && part.getSize() > 0) {
                     String fileName = UUID.randomUUID() + "_" + part.getSubmittedFileName();

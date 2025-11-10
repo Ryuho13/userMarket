@@ -182,10 +182,8 @@
 
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- 🔹 분리된 JS 파일 -->
 <script src="<c:url value='/user/js/product_detail.js'/>"></script>
 <script src="<c:url value='/user/js/wish_list.js'/>"></script>
 <script>

@@ -1,22 +1,21 @@
 package model;
 
 public class Product {
-    private int id;             // 상품 ID
-    private String title;       // 상품명
-    private int sellPrice;      // 판매가
-    private String siggName;    // 시군구 이름
-    private String imgName;     // 원본 이미지 파일명
-    private String displayImg;  // 화면 표시용 이미지 경로
-    private int viewCount;      // 조회수
-    private String status;      // 상품 상태 (SALE / RESERVED / SOLD_OUT)
-    private String description;   // 상품 설명
-    private int categoryId;       // 카테고리 ID
-    private int sidoId;      // 시/도 ID
-    private int regionId;    // 시/군/구 ID
-    private String imgSrc;   // 이미지 경로 (대표 이미지 표시용)
+    private int id;            
+    private String title;      
+    private int sellPrice;     
+    private String siggName;   
+    private String imgName;    
+    private String displayImg;  
+    private int viewCount;     
+    private String status;      
+    private String description; 
+    private int categoryId;    
+    private int sidoId;      
+    private int regionId; 
+    private String imgSrc;  
     private int sellerId;
     
-    // ✅ 상세 조회용 생성자 (DAO의 getProductById에서 사용)
     public Product(int id, String title, int sellPrice,
                    String siggName, String displayImg,
                    int viewCount, String status) {
@@ -29,7 +28,6 @@ public class Product {
         this.status = status;
     }
 
-    // ✅ 목록/검색용 생성자 (DAO의 listProducts, searchProducts에서 사용)
     public Product(int id, String title, int sellPrice,
                    String siggName, String displayImg, String status) {
         this.id = id;
@@ -40,10 +38,8 @@ public class Product {
         this.status = status;
     }
 
-    // ✅ 기본 생성자 (MyBatis, JSP Bean 등에서 사용)
     public Product() {}
 
-    // ✅ 게터/세터
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

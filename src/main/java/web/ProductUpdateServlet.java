@@ -13,11 +13,10 @@ import jakarta.servlet.http.*;
 import model.Product;
 
 @WebServlet("/product/update")
-@MultipartConfig(maxFileSize = 1024 * 1024 * 10) // 10MB
+@MultipartConfig(maxFileSize = 1024 * 1024 * 10) 
 public class ProductUpdateServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    /** ✅ [GET] 수정 폼 로드 */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -32,7 +31,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
         try (Connection conn = DBUtil.getConnection()) {
 
-            // ✅ 상품 조회 (지역 포함)
             String sql = """
                 SELECT id, title, description, sell_price, category_id, status, seller_id, sido_id, region_id
                 FROM products
@@ -64,7 +62,6 @@ public class ProductUpdateServlet extends HttpServlet {
                 return;
             }
 
-            // ✅ 시/도 목록
             List<Map<String, Object>> sidoList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM sido_areas ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
@@ -77,7 +74,6 @@ public class ProductUpdateServlet extends HttpServlet {
             }
             req.setAttribute("sidoList", sidoList);
 
-            // ✅ 시군구 목록
             List<Map<String, Object>> siggList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM sigg_areas ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
@@ -90,7 +86,6 @@ public class ProductUpdateServlet extends HttpServlet {
             }
             req.setAttribute("siggList", siggList);
 
-            // ✅ 카테고리 목록
             List<Map<String, Object>> categoryList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement("SELECT id, name FROM categories ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
@@ -104,8 +99,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
             req.setAttribute("categoryList", categoryList);
             req.setAttribute("product", product);
-
-            // ✅ 수정 폼으로 포워딩
             req.getRequestDispatcher("/product/product_form.jsp").forward(req, resp);
 
         } catch (Exception e) {
@@ -114,7 +107,6 @@ public class ProductUpdateServlet extends HttpServlet {
         }
     }
 
-    /** ✅ [POST] 수정 처리 */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -143,12 +135,8 @@ public class ProductUpdateServlet extends HttpServlet {
         int sellPrice = parseInt(req.getParameter("sellPrice"), 0);
         int categoryId = parseInt(req.getParameter("categoryId"), 0);
         String status = req.getParameter("status");
-
-        // ✅ 지역 정보
         int sidoId = parseInt(req.getParameter("sidoId"), 0);
         int regionId = parseInt(req.getParameter("regionId"), 0);
-
-        // ✅ 이미지 업로드 경로
         String uploadPath = "D:/upload/product_images";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
@@ -156,7 +144,6 @@ public class ProductUpdateServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection()) {
             conn.setAutoCommit(false);
 
-            // ✅ 상품 존재 여부 확인
             try (PreparedStatement ps = conn.prepareStatement("SELECT id FROM products WHERE id = ?")) {
                 ps.setInt(1, productId);
                 try (ResultSet rs = ps.executeQuery()) {
@@ -166,7 +153,6 @@ public class ProductUpdateServlet extends HttpServlet {
                 }
             }
 
-            // ✅ 상품 정보 + 지역 정보 수정
             String sql = """
                 UPDATE products
                    SET title = ?, category_id = ?, sell_price = ?, description = ?, status = ?, sido_id = ?, region_id = ?
@@ -186,10 +172,8 @@ public class ProductUpdateServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            // ✅ 기존 이미지 파일 및 DB 삭제
             deleteOldImages(conn, productId, uploadPath);
 
-            // ✅ 새 이미지 등록
             for (Part part : req.getParts()) {
                 if ("images".equals(part.getName()) && part.getSize() > 0) {
                     String submittedFileName = part.getSubmittedFileName();
@@ -222,7 +206,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
     /** ✅ 기존 이미지 실제 파일 + DB 매핑 삭제 */
     private void deleteOldImages(Connection conn, int productId, String uploadPath) throws SQLException {
-        // 1️⃣ 기존 이미지 파일명 조회
         String selectImgSql = """
             SELECT i.name
               FROM images i
@@ -240,7 +223,6 @@ public class ProductUpdateServlet extends HttpServlet {
             }
         }
 
-        // 2️⃣ 실제 파일 삭제
         for (String fileName : oldFiles) {
             File f = new File(uploadPath, fileName);
             if (f.exists() && f.delete()) {
@@ -250,20 +232,17 @@ public class ProductUpdateServlet extends HttpServlet {
             }
         }
 
-        // 3️⃣ product_images 매핑 삭제
         try (PreparedStatement ps = conn.prepareStatement("DELETE FROM product_images WHERE product_id = ?")) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         }
 
-        // 4️⃣ 고아 이미지 제거
         try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM images WHERE id NOT IN (SELECT image_id FROM product_images)")) {
             ps.executeUpdate();
         }
     }
 
-    /** ✅ 새 이미지 DB 등록 */
     private void saveImageRecord(Connection conn, int productId, int uploaderId, String imgSrc) throws SQLException {
         String insertImg = "INSERT INTO images (uploader_id, name) VALUES (?, ?)";
         String insertMap = "INSERT INTO product_images (product_id, image_id) VALUES (?, ?)";

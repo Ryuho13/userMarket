@@ -1,13 +1,21 @@
 package web;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+import dao.DBUtil;
 import dao.ProductDAO;
 import dao.ProductDetailDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.Product;
 import model.ProductDetail;
 
@@ -35,44 +43,79 @@ public class ProductDetailServlet extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id format");
             return;
         }
+
         if (id <= 0) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id value");
             return;
         }
 
         try {
-            // ✅ 매 요청마다 증가 + 최신 상세 조회 (한 트랜잭션)
             ProductDetail pd = detailDao.incrementAndFindById(id);
             if (pd == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                 return;
             }
 
-            // ✅ 이미지 경로 정리
             for (int i = 0; i < pd.getImages().size(); i++) {
                 String img = pd.getImages().get(i);
                 if (img != null && !img.isBlank()) {
                     if (!img.startsWith("http")) {
-                        pd.getImages().set(i, req.getContextPath() + "/upload/product_images/" + img);
+                        pd.getImages().set(i,
+                                req.getContextPath() + "/upload/product_images/" + img);
                     }
                 } else {
-                    pd.getImages().set(i, req.getContextPath() + "/resources/images/noimage.jpg");
+                    pd.getImages().set(i,
+                            req.getContextPath() + "/resources/images/noimage.jpg");
                 }
             }
 
-            // ✅ 같은 카테고리 & 같은 판매자 상품 조회
-            List<Product> sameCategory = productDao.getProductsByCategory(pd.getCategoryId(), pd.getId());
-            List<Product> sameSeller   = productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
+     
+            List<Product> sameCategory =
+                    productDao.getProductsByCategory(pd.getCategoryId(), pd.getId());
+            List<Product> sameSeller =
+                    productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
 
-            // ✅ JSP로 전달
+         
+            HttpSession session = req.getSession(false);
+            Integer loginUserId = (session != null)
+                    ? (Integer) session.getAttribute("loginUserId")
+                    : null;
+
+            boolean isWished = false;
+            if (loginUserId != null) {
+                isWished = checkWish(loginUserId, pd.getId());
+            }
+
+            
             req.setAttribute("product", pd);
             req.setAttribute("sameCategory", sameCategory);
             req.setAttribute("sameSeller", sameSeller);
+            req.setAttribute("isWished", isWished);   
 
-            req.getRequestDispatcher("/product/product_detail.jsp").forward(req, resp);
+            req.getRequestDispatcher("/product/product_detail.jsp")
+               .forward(req, resp);
 
         } catch (Exception e) {
             throw new ServletException("상품 상세 조회 중 오류 발생", e);
+        }
+    }
+
+
+    private boolean checkWish(int userId, int productId) {
+        String sql = "SELECT 1 FROM wish_lists WHERE register_id = ? AND product_id = ?";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);    
+            ps.setInt(2, productId);  
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();      
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;          
         }
     }
 }

@@ -7,7 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.util.List;
-import com.google.gson.Gson; // ✅ Gson으로 변경
+import com.google.gson.Gson;
 
 @WebServlet("/area/sigg")
 public class AreaServlet extends HttpServlet {
@@ -28,7 +28,6 @@ public class AreaServlet extends HttpServlet {
             AreaDAO dao = new AreaDAO();
             List<SiggArea> siggs = dao.getSiggsBySido(sidoId);
 
-            // ✅ Gson 사용
             String json = new Gson().toJson(siggs);
             resp.getWriter().write(json);
 

@@ -13,10 +13,7 @@ public class ProductDetail {
     private int sellPrice;
     private String description;
     private Timestamp createdAt;
-
-    // ✅ 추가: 조회수
     private int viewCount;
-
     private String sidoName;
     private String regionName;
     private String sellerName;
@@ -24,7 +21,6 @@ public class ProductDetail {
     private Double sellerRating;
     private List<String> images = new ArrayList<>();
 
-    // ✅ Getter / Setter
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -49,7 +45,6 @@ public class ProductDetail {
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    // ✅ viewCount
     public int getViewCount() { return viewCount; }
     public void setViewCount(int viewCount) { this.viewCount = viewCount; }
 

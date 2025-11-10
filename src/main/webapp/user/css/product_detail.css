@@ -1,8 +1,4 @@
-/* ===========================
-   product_detail.css
-   =========================== */
 
-/* 공통 테마 (이 페이지 전용) */
 :root {
   --color-bg: #f3f5f7;
   --color-primary: #10B981;
@@ -14,13 +10,11 @@
   --shadow-card: 0 10px 25px rgba(15, 23, 42, 0.12);
 }
 
-/* 전체 배경 톤 */
 body {
   background-color: var(--color-bg);
   color: var(--color-text-main);
 }
 
-/* 이 페이지에서 primary 계열 통일 */
 .btn-primary {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -46,24 +40,20 @@ body {
   border-color: var(--color-primary);
 }
 
-/* 공통 액션 버튼(채팅/찜 등) */
 .btn-action {
   min-width: 110px;
 }
 
-/* 메인 컨테이너 */
 .container {
   max-width: 1100px;
 }
 
-/* 상품 영역 레이아웃 */
 .product-container {
   display: flex;
   align-items: flex-start;
   gap: 1.8rem;
 }
 
-/* 이미지 캐러셀 영역 */
 #productCarousel {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
@@ -81,7 +71,6 @@ body {
   object-fit: cover;
 }
 
-/* 상품 정보 영역 */
 .product-info h3 {
   font-size: 1.4rem;
 }
@@ -90,7 +79,6 @@ body {
   font-size: 0.95rem;
 }
 
-/* 판매자 박스 */
 .seller-box {
   background-color: #fff;
   border-radius: var(--radius-card);
@@ -107,7 +95,6 @@ body {
   margin-bottom: 0.2rem;
 }
 
-/* 섹션 박스 (비슷한 상품 / 이 판매자의 다른 상품) */
 .section-box {
   margin-top: 2rem;
   padding: 1.1rem 1.2rem 1.3rem;
@@ -125,7 +112,6 @@ body {
   gap: 0.45rem;
 }
 
-/* 섹션 내 카드 */
 .section-box .card {
   border-radius: 14px;
   overflow: hidden;
@@ -142,13 +128,11 @@ body {
   object-fit: cover;
 }
 
-/* 더보기 버튼 */
 .section-box .btn.btn-outline-secondary.btn-sm {
   border-radius: 999px;
   font-size: 0.82rem;
 }
 
-/* 반응형 */
 @media (max-width: 992px) {
   #productCarousel .carousel-item img {
     height: 320px;
