@@ -10,7 +10,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-
+<link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/updateMyPage.css">
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 	<div class="max-w-xl mx-auto bg-white p-6 sm:p-8 shadow-xl rounded-2xl">
@@ -28,8 +28,8 @@
 
 		<!-- 프로필 이미지 섹션 (마이페이지 디자인 재활용) -->
 		<div class="flex flex-col items-center mb-10">
-			<input type="file" id="profile-upload" class="hidden"
-				accept="image/*" onchange="previewImage(event)">
+			<input type="file" id="profile-upload" **name="profile-upload"** class="hidden"
+    		accept="image/*" onchange="previewImage(event)">
 
 			<!-- 이미지 컨테이너 (클릭 가능) -->
 			<div id="profile-container"
@@ -50,8 +50,8 @@
 
 		<!-- 본문 영역 -->
 		<form name="updateMyPage" action="${pageContext.request.contextPath}/user/mypage/update"
-			method="post" onsubmit="return checkForm(event)" class="space-y-4">
-
+			method="post" onsubmit="return checkForm(event)" class="space-y-4"
+			enctype="multipart/form-data">
 			<!-- 아이디 (수정 불가 필드 - 순서 변경 없음) -->
 			<div class="space-y-1">
 				<label for="id" class="text-sm font-medium text-gray-700 block">아이디

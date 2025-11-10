@@ -160,76 +160,93 @@ public class UserDAO {
 	
 	/* 마이페이지 수정 */
 	public void updateUserAndInfo(int userId, String name, String phn, String emNullable, String newPwNullable,
-			String nickname, String addrDetail, String profileImgNullable) throws SQLException {
+	        String nickname, String addrDetail, String profileImgNullable) throws SQLException {
 
-		String sqlUser = """
-				UPDATE user
-				SET name = ?,
-				phn  = ?,
-				em   = ?,
-				pw   = CASE WHEN ? IS NULL OR ? = '' THEN pw ELSE ? END
-				WHERE id = ?
-				""";
+	    // --- (sqlUser 쿼리 생략, 기존과 동일하게 유지) ---
+	    String sqlUser = """
+	            UPDATE user
+	            SET name = ?,
+	            phn  = ?,
+	            em   = ?,
+	            pw   = CASE WHEN ? IS NULL OR ? = '' THEN pw ELSE ? END
+	            WHERE id = ?
+	            """;
 
-		String sqlInfo = """
-				UPDATE user_info
-				SET nickname    = ?,
-				addr_detail = ?,
-				profile_img = COALESCE(?, profile_img)
-				WHERE u_id = ?
-				""";
+	    // ✅ 수정된 sqlInfo: 프로필 이미지가 NULL이 아닌 경우에만 업데이트하도록 동적 쿼리 구성
+	    StringBuilder sqlInfoBuilder = new StringBuilder("""
+	            UPDATE user_info
+	            SET nickname = ?,
+	            addr_detail = ?
+	            """);
 
-		try (Connection conn = DBUtil.getConnection()) {
-			try {
-				conn.setAutoCommit(false);
+	    // profileImgNullable이 null이 아닐 경우에만 profile_img 컬럼을 업데이트 목록에 추가
+	    boolean updateProfileImg = (profileImgNullable != null && !profileImgNullable.isBlank());
+	    if (updateProfileImg) {
+	        sqlInfoBuilder.append(", profile_img = ?");
+	    }
+	    
+	    // 주소 (region_id) 업데이트 로직이 필요하다면 여기에 추가
+	    
+	    sqlInfoBuilder.append(" WHERE u_id = ?");
+	    String sqlInfo = sqlInfoBuilder.toString();
 
-				// user 업데이트
-				try (PreparedStatement ps = conn.prepareStatement(sqlUser)) {
-					ps.setString(1, name);
-					ps.setString(2, phn);
 
-					if (emNullable == null || emNullable.isBlank())
-						ps.setNull(3, Types.VARCHAR);
-					else
-						ps.setString(3, emNullable);
+	    try (Connection conn = DBUtil.getConnection()) {
+	        try {
+	            conn.setAutoCommit(false);
 
-					// pw 업데이트
-					if (newPwNullable == null) {
-						ps.setNull(4, Types.VARCHAR);
-						ps.setNull(5, Types.VARCHAR);
-						ps.setNull(6, Types.VARCHAR);
-					} else {
-						ps.setString(4, newPwNullable);
-						ps.setString(5, newPwNullable);
-						ps.setString(6, newPwNullable);
-					}
+	            // 1. user 업데이트 (기존 로직 유지)
+	            try (PreparedStatement ps = conn.prepareStatement(sqlUser)) {
+	                ps.setString(1, name);
+	                ps.setString(2, phn);
 
-					ps.setInt(7, userId);
-					ps.executeUpdate();
-				}
+	                if (emNullable == null || emNullable.isBlank())
+	                    ps.setNull(3, Types.VARCHAR);
+	                else
+	                    ps.setString(3, emNullable);
 
-				// user_info 업데이트
-				try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
-					ps.setString(1, nickname);
-					ps.setString(2, addrDetail);
+	                // pw 업데이트
+	                if (newPwNullable == null) {
+	                    ps.setNull(4, Types.VARCHAR);
+	                    ps.setNull(5, Types.VARCHAR);
+	                    ps.setNull(6, Types.VARCHAR);
+	                } else {
+	                    ps.setString(4, newPwNullable);
+	                    ps.setString(5, newPwNullable);
+	                    ps.setString(6, newPwNullable);
+	                }
 
-					if (profileImgNullable == null || profileImgNullable.isBlank())
-						ps.setNull(3, Types.VARCHAR);
-					else
-						ps.setString(3, profileImgNullable);
+	                ps.setInt(7, userId);
+	                ps.executeUpdate();
+	            }
 
-					ps.setInt(4, userId);
-					ps.executeUpdate();
-				}
+	            // 2. user_info 업데이트 (수정된 로직)
+	            try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
+	                int paramIndex = 1;
 
-				conn.commit();
-			} catch (SQLException e) {
-				conn.rollback();
-				throw e;
-			} finally {
-				conn.setAutoCommit(true);
-			}
-		}
+	                ps.setString(paramIndex++, nickname);
+	                ps.setString(paramIndex++, addrDetail);
+	                
+	                // profileImg가 업데이트 대상일 경우에만 바인딩
+	                if (updateProfileImg) {
+	                    ps.setString(paramIndex++, profileImgNullable);
+	                } else {
+	                    // 이미지를 삭제하라는 요청이 있을 경우 (예: "delete" 플래그)는 
+	                    // 별도 처리되어야 하지만, 현재는 '전송된 새로운 이미지가 없으면 유지'가 목표
+	                }
+
+	                ps.setInt(paramIndex++, userId);
+	                ps.executeUpdate();
+	            }
+
+	            conn.commit();
+	        } catch (SQLException e) {
+	            conn.rollback();
+	            throw e;
+	        } finally {
+	            conn.setAutoCommit(true);
+	        }
+	    }
 	}
 	
 	/* 회원 탈퇴 */

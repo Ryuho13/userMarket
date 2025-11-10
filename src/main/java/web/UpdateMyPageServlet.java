@@ -1,6 +1,8 @@
-	package web;
+package web;
 
+import java.io.File; // File 처리를 위해 추가
 import java.io.IOException;
+import java.nio.file.Paths; // 파일명 처리를 위해 추가
 import java.sql.SQLException;
 
 import dao.UserDAO;
@@ -9,9 +11,17 @@ import model.UserProfile;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.annotation.MultipartConfig; // ✅ 파일 업로드 설정을 위해 추가
 import jakarta.servlet.http.*;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.Part; // ✅ 파일 데이터를 처리하기 위해 추가
 
+// 파일 업로드 설정 추가 (최대 크기 등)
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024, // 1MB
+    maxFileSize = 1024 * 1024 * 5,   // 5MB
+    maxRequestSize = 1024 * 1024 * 10 // 10MB
+)
 @WebServlet("/user/mypage/update")
 public class UpdateMyPageServlet extends HttpServlet {
 
@@ -20,7 +30,8 @@ public class UpdateMyPageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
+        
+        // ... (기존 doGet 로직 유지) ...
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             resp.sendRedirect(req.getContextPath() + "/user/login.jsp");
@@ -58,7 +69,9 @@ public class UpdateMyPageServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        req.setCharacterEncoding("UTF-8");
+        // Multipart 요청에서는 이 인코딩 설정이 일반 파라미터 로드에 직접 영향을 주지 않을 수 있습니다.
+        // req.setCharacterEncoding("UTF-8"); 
+        
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             resp.sendRedirect(req.getContextPath() + "/user/login.jsp");
@@ -68,24 +81,77 @@ public class UpdateMyPageServlet extends HttpServlet {
         User loginUser = (User) session.getAttribute("loginUser");
         int userId = loginUser.getId();
 
+        // 1. ==================== 파일 업로드 처리 로직 ====================
+        String profileImgPath = null;
+        Part filePart = null;
+        
+        try {
+            // JSP에서 설정한 name="profile-upload"로 Part를 가져옵니다.
+            filePart = req.getPart("profile-upload"); 
+        } catch (Exception e) {
+            // 파일 파트가 없거나 오류 발생 시 무시하고 진행 (null로 유지)
+        }
+
+        // 파일이 존재하고, 사이즈가 0보다 크며, 파일명이 있는 경우에만 처리
+        if (filePart != null && filePart.getSize() > 0 && filePart.getSubmittedFileName() != null && !filePart.getSubmittedFileName().isEmpty()) {
+            
+            // 1) 파일 저장 경로 설정 (웹에서 접근 가능한 폴더)
+            String uploadDir = "/profile_images"; // DB에 저장할 웹 경로
+            String savePath = getServletContext().getRealPath(uploadDir); // 실제 서버 물리적 경로
+            
+            // 2) 저장 폴더 생성 (없을 경우)
+            File saveDir = new File(savePath);
+            if (!saveDir.exists()) {
+                saveDir.mkdirs();
+            }
+
+            // 3) 고유한 파일 이름 생성 (중복 방지: user ID와 시간 조합)
+            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+            String ext = "";
+            if (fileName.contains(".")) {
+                 ext = fileName.substring(fileName.lastIndexOf("."));
+            }
+            String uniqueFileName = "user_" + userId + "_" + System.currentTimeMillis() + ext;
+            
+            // 4) 파일 저장 및 DB 경로 설정
+            try {
+                filePart.write(savePath + File.separator + uniqueFileName); // 파일 저장
+                profileImgPath = uploadDir + "/" + uniqueFileName; // DB에 저장할 웹 경로 설정
+            } catch (IOException e) {
+                e.printStackTrace();
+                // 파일 저장 실패 시 에러 처리 후 반환
+                req.setAttribute("error", "프로필 이미지 저장 중 오류가 발생했습니다.");
+                try { req.setAttribute("profile", userDAO.findProfileByUserId(userId)); } catch (SQLException ignored) {}
+                // 필요한 경우 mail1/mail2/domain 설정 로직 추가 필요
+                req.getRequestDispatcher("/user/updateMyPage.jsp").forward(req, resp);
+                return;
+            }
+        }
+        // =============================================================
+        
+        // 2. ==================== 일반 파라미터 처리 (기존 로직 유지) ====================
+        
+        // 파일 업로드 시에는 파라미터 추출 전에 인코딩 설정을 다시 확인하는 것이 안전합니다.
+        // 하지만 getParameter()는 Part 처리 후에도 대부분의 컨테이너에서 정상 작동합니다.
+        
         String name     = trim(req.getParameter("name"));
         String nickname = trim(req.getParameter("nickname"));
         String pw       = trim(req.getParameter("password"));            // 비우면 유지
         String pw2      = trim(req.getParameter("password_confirm"));
 
-        // --- 이메일: mail3-input(직접입력)이 있으면 그것을 도메인으로 사용 ---
+        // --- 이메일 처리 ---
         String mail1    = trim(req.getParameter("mail1"));
-        String mail2Sel = trim(req.getParameter("mail2"));               // select 값 (직접입력 선택 시 빈 문자열일 수 있음)
-        String mail2Dir = trim(req.getParameter("mail3-input"));         // 직접입력 input (존재할 수도)
-        String domain   = !isBlank(mail2Dir) ? mail2Dir : mail2Sel;      // 우선순위: 직접입력 > 선택값
+        String mail2Sel = trim(req.getParameter("mail2"));               
+        String mail2Dir = trim(req.getParameter("mail3-input"));         
+        String domain   = !isBlank(mail2Dir) ? mail2Dir : mail2Sel;      
         String em       = (!isBlank(mail1) && !isBlank(domain)) ? (mail1 + "@" + domain) : null;
 
         // --- 전화번호 ---
         String phn      = trim(req.getParameter("phone"));
 
-        // --- 주소: addr1/addr2/addr3를 공백으로 합쳐 addrDet로 저장 ---
+        // --- 주소 처리 ---
         String addr1 = trim(req.getParameter("addr1"));
-        String addr2 = trim(req.getParameter("addr2")); // 주의: 클라이언트에서 disabled면 아예 안 넘어올 수 있음
+        String addr2 = trim(req.getParameter("addr2")); 
         String addr3 = trim(req.getParameter("addr3"));
 
         String addrDet = null;
@@ -97,7 +163,7 @@ public class UpdateMyPageServlet extends HttpServlet {
             addrDet = sb.toString();
         }
 
-        // --- 기본 검증 ---
+        // 3. ==================== 유효성 검증 (기존 로직 유지) ====================
         if (isBlank(name) || isBlank(nickname)) {
             req.setAttribute("error", "성명과 닉네임은 필수입니다.");
             try { req.setAttribute("profile", userDAO.findProfileByUserId(userId)); } catch (SQLException ignored) {}
@@ -117,16 +183,17 @@ public class UpdateMyPageServlet extends HttpServlet {
 
         String newPwNullable = isBlank(pw) ? null : pw;
 
+        // 4. ==================== DB 업데이트 (파일 경로 포함) ====================
         try {
             userDAO.updateUserAndInfo(
                     userId,
                     name,
                     phn,
-                    em,             // null이면 이메일 NULL 처리 (원하면 기존 유지 정책으로 바꿔도 됨)
-                    newPwNullable,  // null이면 비밀번호 유지
+                    em,             // 이메일
+                    newPwNullable,  // 비밀번호 (null이면 유지)
                     nickname,
-                    addrDet,        // ✅ 합쳐진 주소 문자열
-                    null            // profile_img (추후)
+                    addrDet,        // 합쳐진 주소 문자열
+                    profileImgPath  // ✅ 파일 업로드 성공 시 경로, 실패 시 null (기존 유지)
             );
 
             // 세션 표시값도 갱신
