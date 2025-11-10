@@ -159,3 +159,7 @@ padding: 0;
         margin-top: 0.5rem;
     }
 }
+.user-menu .text-primary-color {
+    color: #1E9447; /* 부트스트랩 프라이머리 블루 */
+    font-weight: bold; /* 닉네임이 눈에 잘 띄도록 굵게 */
+}

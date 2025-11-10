@@ -163,5 +163,6 @@
 	<%-- 푸터 포함 --%>
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
 	<jsp:include page="/footer/footer.jsp" />
+	<jsp:include page="../resources/alarm.jsp" />
 </body>
 </html>
