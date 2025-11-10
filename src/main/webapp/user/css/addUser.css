@@ -1,26 +1,32 @@
+/* 사용자 요청에 따른 커스텀 스타일 정의 */
 body { 
     font-family: 'Inter', sans-serif; 
-    background-color: #f3f5f7; 
+    background-color: #f3f5f7 !important; 
 }
 
+/* Primary Green Button Styles */
 .primary-green { 
     background-color: #1E9447; 
-    border-color: #1E9447; 
+    border-color: #1E9447 !important; 
 }
 .primary-green:hover { 
-    background-color: #177a39; 
-    border-color: #177a39; 
+    background-color: #177a39 !important; 
+    border-color: #177a39 !important; 
 }
+
+/* Text Color Utility */
 .text-green-500 { 
-    color: #1E9447; 
+    color: #1E9447 !important; 
 }
 
+/* Focus Ring/Shadow for Buttons */
 .focus-ring { 
-    box-shadow: 0 0 0 4px rgba(30, 148, 71, 0.5);
+    box-shadow: 0 0 0 4px rgba(30, 148, 71, 0.5) !important;
 }
 
+/* Main Form Card Styles (max-width 수정: 400px -> 800px) */
 .login-card {
-    max-width: 400px;
+    max-width: 800px; /* 가로폭을 약 2배로 확장 */
     padding: 40px;
     margin: auto;
     margin-top: 80px;
@@ -28,8 +34,25 @@ body {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
     background-color: #fff;
 }
+
+/* Heading Style */
 .form-signin-heading {
     margin-bottom: 25px;
     font-weight: 700;
-    color: #28a745;
+    color: #28a745 !important;
+}
+
+/* Heading Border Color (Primary Green) */
+.form-signin-border {
+    border-bottom-color: #1E9447;
+}
+
+/* Input/Select Focus Border Style - Replaces Tailwind's focus:border-[#1E9447] */
+.input-field:focus {
+    border-color: #1E9447; /* Primary Green */
+    outline: none; 
+}
+select.input-field:focus {
+    border-color: #1E9447; 
+    outline: none; 
 }
