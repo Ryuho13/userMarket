@@ -16,7 +16,7 @@
 	crossorigin="anonymous">
 </head>
 <body class="min-h-screen p-4 sm:p-8">
-	<%-- <jsp:include page="/header/header.jsp" /> --%>
+	<jsp:include page="/header/header.jsp" />
 
 	<div
 		class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
@@ -128,6 +128,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-
+<jsp:include page="/footer/footer.jsp" />
 </body>
 </html>
