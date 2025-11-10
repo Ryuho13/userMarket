@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
+<%@ page language="java" contentType="text/html; charset=UTF-UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -14,16 +14,22 @@
 	rel="stylesheet"
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
+<!-- [수정]: 파일 구조(/webapp/user/css/)에 맞춰 경로를 /user/css/header.css로 지정합니다. -->
+<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/header.css"> 
+<link rel="stylesheet" href="${pageContext.request.contextPath}/user/css/footer.css"> 
+	
 </head>
-<body class="min-h-screen p-4 sm:p-8">
-	<%-- <jsp:include page="/header/header.jsp" /> --%>
-	<c:if test="${empty user}">
-		<c:redirect url="${pageContext.request.contextPath}/user/myPage" />
-	</c:if>
+<%-- 
+    [수정]: body의 pb-4와 sm:pb-8 (하단 패딩) 클래스를 완전히 제거하여 
+    푸터가 화면의 맨 아래 모서리에 빈틈없이 붙도록 수정합니다. 
+--%>
+<body class="min-h-screen">
+<!-- 헤더의 HTML 구조 (header.jsp) 포함: Context Root를 사용하는 동적 포함 방식이 가장 안정적입니다. -->
+<jsp:include page="/header/header.jsp" />
 
 	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
-		<!-- 헤더 및 제목 -->
+		<!-- 페이지 제목 섹션 -->
 		<header class="p-6 border-b border-gray-100">
 			<h1 class="text-3xl font-bold text-gray-800 text-center">나의 마켓활동</h1>
 		</header>
@@ -44,8 +50,8 @@
 							alt="프로필 이미지" class="w-full h-full object-cover">
 					</div>
 
-					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4"> ${user.nickname}</h2>
-					<p id="user-region" class="text-gray-500 text-sm">${user.addrDetail}</p>
+					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">나의닉네임</h2>
+					<p id="user-region" class="text-gray-500 text-sm">서울 강남구 역삼동</p>
 				</div>
 
 				<!-- 프로필 수정 버튼 -->
@@ -78,7 +84,7 @@
 					<div id="content-products" class="tab-content">
 						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
 							<p class="text-gray-600">등록된 상품이 없습니다.</p>
-							<a href="${pageContext.request.contextPath}/product/product_form"
+							<a href="#"
 								class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품
 								등록하러 가기 &rarr;</a>
 						</div>
@@ -110,6 +116,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-	
+	<jsp:include page="/footer/footer.jsp"></jsp:include>
 </body>
 </html>
