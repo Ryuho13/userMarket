@@ -114,7 +114,19 @@ function uploadImage(file) {
     method: "POST",
     body: formData
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+        throw new Error(`서버 응답 오류: ${response.status} ${response.statusText}`);
+    }
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      return response.text().then(text => {
+        console.error("서버가 JSON이 아닌 응답을 반환했습니다:", text);
+        throw new TypeError("서버가 JSON이 아닌 응답을 반환했습니다. 서버 로그를 확인하세요.");
+      });
+    }
+    return response.json();
+  })
   .then(data => {
     if (data.success && data.imageUrl) {
       sendImageMessage(data.imageUrl);
@@ -124,7 +136,7 @@ function uploadImage(file) {
   })
   .catch(error => {
     console.error("이미지 업로드 중 오류 발생:", error);
-    alert("이미지 업로드 중 오류가 발생했습니다.");
+    alert("이미지 업로드 중 오류가 발생했습니다. 개발자 콘솔을 확인하세요.");
   });
 }
 

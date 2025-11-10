@@ -14,67 +14,98 @@ import model.Category;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet("/product/list")
+@WebServlet(urlPatterns = {"/product/list", "/product", "/product/"})
 public class ProductListServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        int page = 1;
-        int size = 12;
+        req.setCharacterEncoding("UTF-8");
 
-        try {
-            // ✅ 페이지 번호 파라미터 처리
-            String pageParam = req.getParameter("page");
-            if (pageParam != null && !pageParam.isEmpty()) {
-                page = Math.max(1, Integer.parseInt(pageParam));
-            }
-        } catch (NumberFormatException ignored) {}
-
+        int size   = 20;
+        int page   = parseIntOrDefault(req.getParameter("page"), 1);
         int offset = (page - 1) * size;
 
+        String q            = trimToNull(req.getParameter("q"));
+        String categoryParam = trimToNull(req.getParameter("category"));   
+        String siggParam     = trimToNull(req.getParameter("sigg_area"));  
+
+        Integer categoryId = parseIntOrNull(categoryParam); 
+        Integer siggAreaId = parseIntOrNull(siggParam);     
+
+        Integer minPrice   = parseIntOrNull(req.getParameter("minPrice"));
+        Integer maxPrice   = parseIntOrNull(req.getParameter("maxPrice"));
+
         try {
-            // ✅ DAO 초기화
-            ProductDAO productDAO = new ProductDAO();
-            AreaDAO areaDAO = new AreaDAO();
+            ProductDAO  productDAO  = new ProductDAO();
+            AreaDAO     areaDAO     = new AreaDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
 
-            // ✅ 상품 목록
-            List<Product> products = productDAO.listProducts(offset, size);
-            int totalCount = productDAO.countProducts();
-            int totalPages = (int) Math.ceil(totalCount / (double) size);
+            List<SidoArea>  sidoList     = areaDAO.getAllSidoAreas();
+            List<SiggArea>  siggList     = areaDAO.getAllSiggAreas();
+            List<Category>  categoryList = categoryDAO.getAllCategories();
 
-            // ✅ 이미지 경로 보정 (상대경로 → 절대경로)
-            String contextPath = req.getContextPath();
-            for (Product p : products) {
-                String img = p.getDisplayImg();
-                if (img != null && !img.startsWith("http")) {
-                    p.setDisplayImg(contextPath + img);
-                }
+            List<Product> products;
+            int totalCount;
+
+            if (q != null || categoryId != null || siggAreaId != null) {
+                totalCount = productDAO.countSearchProducts(q, categoryId, siggAreaId);
+                products   = productDAO.searchProducts(q, categoryId, siggAreaId, offset, size);
+            } else {
+                products   = productDAO.getFilteredProducts(categoryParam, siggParam, minPrice, maxPrice, offset, size);
+                totalCount = productDAO.countFilteredProducts(categoryParam, siggParam, minPrice, maxPrice);
             }
 
-            // ✅ 필터용 데이터 로드
-            List<SidoArea> sidoList = areaDAO.getAllSidoAreas();
-            List<SiggArea> siggList = areaDAO.getAllSiggAreas();
-            List<Category> categoryList = categoryDAO.getAllCategories();
+            int totalPages = (int) Math.ceil(totalCount / (double) size);
+            String selectedCategoryName = null;
+            if (categoryId != null) { 
+                for (Category c : categoryList) {
+                    if (c.getId() == categoryId) {
+                        selectedCategoryName = c.getName();
+                        break;
+                    }
+                }
+            } else {
+                selectedCategoryName = categoryParam; 
+            }
 
-            // ✅ JSP에 전달할 속성 설정
+            String selectedSiggName = null;
+            if (siggAreaId != null) { 
+                for (SiggArea s : siggList) {
+                    if (s.getId() == siggAreaId) {
+                        selectedSiggName = s.getName();
+                        break;
+                    }
+                }
+            } else {
+                selectedSiggName = siggParam; 
+            }
+
             req.setAttribute("products", products);
             req.setAttribute("page", page);
             req.setAttribute("totalPages", totalPages);
             req.setAttribute("totalCount", totalCount);
-
             req.setAttribute("userSidos", sidoList);
             req.setAttribute("userSiggs", siggList);
             req.setAttribute("categories", categoryList);
+            req.setAttribute("q", q);
+            req.setAttribute("category", categoryParam);
+            req.setAttribute("sigg_area", siggParam);
+            req.setAttribute("minPrice", minPrice);
+            req.setAttribute("maxPrice", maxPrice);
+            req.setAttribute("selectedCategoryName", selectedCategoryName);
+            req.setAttribute("selectedSiggName", selectedSiggName);
 
-            // ✅ JSP로 포워딩
             req.getRequestDispatcher("/product/product_list.jsp").forward(req, resp);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServletException("상품 목록 불러오기 실패", e);
+            throw new ServletException("상품 목록/검색 처리 실패", e);
         }
     }
+
+    private static String  trimToNull(String s){ if(s==null) return null; s=s.trim(); return s.isEmpty()?null:s; }
+    private static Integer parseIntOrNull(String s){ try{ if(s==null||s.isBlank()) return null; return Integer.valueOf(s.trim()); }catch(Exception e){ return null; } }
+    private static int     parseIntOrDefault(String s,int def){ try{ return Integer.parseInt(s); }catch(Exception e){ return def; } }
 }

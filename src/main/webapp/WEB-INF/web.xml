@@ -16,20 +16,18 @@
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
 
-
-    <!-- ✅ 이미지 업로드 서블릿 -->
+    <!-- ✅ D:/upload/product_images 에 있는 이미지를 URL로 서빙 -->
     <servlet>
-        <servlet-name>ImageUploadServlet</servlet-name>
-        <servlet-class>web.ImageUploadServlet</servlet-class>
-        <multipart-config>
-            <file-size-threshold>1024</file-size-threshold>
-        </multipart-config>
+        <servlet-name>ImageServlet</servlet-name>
+        <servlet-class>web.ImageServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>ImageUploadServlet</servlet-name>
-        <url-pattern>/uploadImage</url-pattern>
+        <servlet-name>ImageServlet</servlet-name>
+        <url-pattern>/upload/product_images/*</url-pattern>
     </servlet-mapping>
+
+
 
 
     <!-- ✅ 기본 시작 페이지 -->

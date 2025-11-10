@@ -41,9 +41,11 @@
 
     <div class="p-8">
       <form id="productForm" method="post" enctype="multipart/form-data"
-            action="${pageContext.request.contextPath}/product/insert"
+            action="${pageContext.request.contextPath}/product/${empty product.id ? 'insert' : 'update'}"
             class="space-y-6">
-
+		
+		  <input type="hidden" name="id" value="${product.id}">
+		
         <!-- 상품명 -->
         <div>
           <label for="title" class="form-label fw-bold text-gray-700">상품명</label>

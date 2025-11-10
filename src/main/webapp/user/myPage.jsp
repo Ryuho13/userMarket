@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,12 +16,10 @@
 	crossorigin="anonymous">
 </head>
 <body class="min-h-screen p-4 sm:p-8">
-	<%-- <jsp:include page="/header/header.jsp" /> --%>
-	<c:if test="${empty user}">
-		<c:redirect url="${pageContext.request.contextPath}/user/myPage" />
-	</c:if>
+	<jsp:include page="/header/header.jsp" />
 
-	<div class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+	<div
+		class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
 
 		<!-- 헤더 및 제목 -->
 		<header class="p-6 border-b border-gray-100">
@@ -45,15 +42,35 @@
 							alt="프로필 이미지" class="w-full h-full object-cover">
 					</div>
 
-					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4"> ${user.nickname}</h2>
-					<p id="user-region" class="text-gray-500 text-sm">${user.addrDetail}</p>
+					<h2 id="user-nickname" class="text-2xl font-bold text-gray-800 mt-4">${profile.nickname}</h2>
+					<p id="user-region" class="text-gray-500 text-sm break-words whitespace-pre-line"> ${profile.addrDetail}</p>
 				</div>
 
-				<!-- 프로필 수정 버튼 -->
-				<a href="updateMyPage.jsp"
-					class="block w-full text-center py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition duration-150">
-					프로필 수정 (탈퇴 포함) </a>
+				<!-- 프로필 수정, 탈퇴 버튼 -->
+				<div class="space-y-3">
+				  <a href="${pageContext.request.contextPath}/user/mypage/update"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-green-500 text-green-600 hover:bg-green-50 
+				            transition duration-150 shadow-sm">
+				    프로필 수정
+				  </a>
+				  <a href="${pageContext.request.contextPath}/user/delete"
+				     class="block w-full text-center py-2 font-semibold rounded-lg 
+				            border border-red-400 text-red-500 hover:bg-red-50 
+				            transition duration-150 shadow-sm" onclick="confirmDelete()">
+				    회원 탈퇴
+				  </a>
+				</div>
 			</div>
+			
+			<script>
+				function confirmDelete() {
+					event.preventDefault();
+					if (confirm("정말 탈퇴하시겠습니까?\n\n회원님의 모든 거래 기록과 정보가 완전히 삭제됩니다.")) {
+						window.location.href = `${event.currentTarget.getAttribute("href")}`;
+					}
+				}
+			</script>
 
 			<!-- 2. 우측 콘텐츠 영역: 목록 탭 -->
 			<div class="md:w-2/3">
@@ -79,7 +96,7 @@
 					<div id="content-products" class="tab-content">
 						<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
 							<p class="text-gray-600">등록된 상품이 없습니다.</p>
-							<a href="${pageContext.request.contextPath}/product/product_form"
+							<a href="${pageContext.request.contextPath}/product/list"
 								class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품
 								등록하러 가기 &rarr;</a>
 						</div>
@@ -101,7 +118,7 @@
 							<c:choose>
 								<c:when test="${not empty chatRooms}">
 									<c:forEach var="chatRoom" items="${chatRooms}">
-										<a href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${user.id}" 
+										<a href="${pageContext.request.contextPath}/chatRoom?productId=${chatRoom.productId}" 
 										   class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
 											<div class="flex justify-between items-center">
 												<div>
@@ -121,6 +138,7 @@
 									</div>
 								</c:otherwise>
 							</c:choose>
+							
 						</div>
 					</div>
 				</div>
@@ -131,6 +149,6 @@
 	</div>
 
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
-	
+<jsp:include page="/footer/footer.jsp" />
 </body>
 </html>
