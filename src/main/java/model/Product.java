@@ -15,7 +15,7 @@ public class Product {
     private int regionId; 
     private String imgSrc;  
     private int sellerId;
-    
+    public Product() {}
     public Product(int id, String title, int sellPrice,
                    String siggName, String displayImg,
                    int viewCount, String status) {
