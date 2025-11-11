@@ -107,5 +107,24 @@ public class AreaDAO {
             }
         }
     }
+    
+    public SiggArea getSiggAreaById(int id) throws Exception {
+        String sql = "SELECT id, name, sido_area_id FROM sigg_areas WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new SiggArea(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getInt("sido_area_id")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
 
 }
