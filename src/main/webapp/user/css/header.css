@@ -2,6 +2,8 @@
 html, body {
 margin: 0;
 padding: 0;
+/* [수정]: Inter 폰트 적용 */
+font-family: 'Inter', sans-serif;
 }
 
 /* 기본 컨테이너 (화면 전체 너비 100%) */

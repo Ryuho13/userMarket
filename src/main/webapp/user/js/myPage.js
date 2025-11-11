@@ -1,6 +1,6 @@
 // ---------------- 마이페이지 ----------------
 
-// 탭 변경 
+// 탭 변경
 function changeTab(tabName) {
 	// 모든 탭 버튼 스타일 초기화
 	document.querySelectorAll('.tab-button').forEach(button => {
@@ -25,8 +25,110 @@ function changeTab(tabName) {
 	if (selectedContent) {
 		selectedContent.classList.remove('hidden');
 	}
+    
+    // ⭐ 추가: 찜 목록 탭 선택 시 데이터 로드
+    if (tabName === 'wishlist') {
+        loadWishlist();
+    }
+    // TODO: 'products' 탭 선택 시 등록 상품 목록을 불러오는 loadProducts() 함수도 필요할 수 있습니다.
 }
 
+
+// ---------------- 찜 목록 로직 (추가) ----------------
+
+/**
+ * 찜 목록 데이터를 AJAX로 불러와 화면에 렌더링하는 함수
+ */
+function loadWishlist() {
+    // myPage.jsp 파일에서 window.contextPath가 설정되어 있어야 합니다.
+    const contextPath = window.contextPath || '';
+    const wishlistContainer = document.getElementById('content-wishlist');
+    const apiUrl = contextPath + '/user/mypage/wishlist/list'; 
+
+    // 로딩 표시
+    wishlistContainer.innerHTML = `
+        <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-center">
+            <p class="text-gray-600">찜 목록을 불러오는 중...</p>
+        </div>
+    `;
+
+    fetch(apiUrl)
+        .then(response => {
+            if (response.status === 401) {
+                // 로그인 필요 (서블릿에서 401 반환 시 처리)
+                alert("세션이 만료되었거나 로그인이 필요합니다.");
+                window.location.href = contextPath + "/user/login"; 
+                return Promise.reject("로그인 필요");
+            }
+            if (!response.ok) {
+                // 서버 오류 또는 400 Bad Request 등의 처리
+                return response.json().then(err => { 
+                    throw new Error(err.error || '목록 로드에 실패했습니다.'); 
+                });
+            }
+            return response.json();
+        })
+        .then(products => {
+            renderWishlist(products, wishlistContainer, contextPath);
+        })
+        .catch(error => {
+            console.error("Error loading wishlist:", error);
+            if (error.message !== "로그인 필요") {
+                wishlistContainer.innerHTML = `
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+                        <p class="text-red-600">오류 발생: ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+}
+
+/**
+ * 받은 상품 목록 데이터를 HTML로 변환하여 컨테이너에 삽입합니다.
+ */
+function renderWishlist(products, container, contextPath) {
+    if (products.length === 0) {
+        // 찜 목록이 없을 때의 기본 메시지 (myPage.jsp의 원래 메시지 구조와 유사하게 유지)
+        container.innerHTML = `
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <p class="text-gray-600">찜한 상품이 없습니다.</p>
+                <a href="${contextPath}/product/list"
+                    class="text-green-500 font-semibold hover:underline mt-2 inline-block">상품 구경가기 &rarr;</a>
+            </div>
+        `;
+        return;
+    }
+
+    // 상품 목록 그리드 HTML 생성 (myPage.jsp의 디자인을 참고하여 카드 형식으로 생성)
+    let productHtml = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">'; 
+
+    products.forEach(product => {
+        // 가격 포맷팅 (예: 10000 -> 10,000)
+        const formattedPrice = product.sellPrice.toLocaleString();
+        
+        productHtml += `
+            <a href="${contextPath}/product/detail?id=${product.id}" class="block">
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-150 overflow-hidden flex">
+                    <img src="${contextPath}${product.displayImg}" 
+                         alt="${product.title}" 
+                         class="w-24 h-24 object-cover flex-shrink-0 rounded-l-lg">
+                    
+                    <div class="p-3 flex-grow min-w-0">
+                        <h3 class="text-md font-bold text-gray-800 truncate">${product.title}</h3>
+                        <p class="text-sm text-red-500 font-semibold mt-1">${formattedPrice}원</p>
+                        <p class="text-xs text-gray-500 mt-1">${product.siggName || '지역 정보 없음'}</p>
+                    </div>
+                </div>
+            </a>
+        `;
+    });
+    
+    productHtml += '</div>';
+    container.innerHTML = productHtml;
+}
+
+
+// ---------------- 기존 로직 유지 ----------------
 
 // 전역 이벤트 리스너: 페이지 로드 후 실행
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,13 +138,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // initializeIcons가 없다면 직접 아이콘 초기화
     lucide.createIcons();
   }
-});
+  
+  // 마이페이지의 경우 기본 탭 설정 (DOMContentLoaded 시점에 호출되어야 합니다.)
+  // 탭 클릭 이벤트가 없으므로, 초기 로드 시 'products' 탭 내용이 보입니다.
+  if (document.getElementById('tab-products')) {
+      changeTab('products');
+  }
 
-	// 마이페이지의 경우 기본 탭 설정
-	if (document.getElementById('tab-products')) {
-		changeTab('products');
-	}
-
+  // TODO: myPage.jsp에 탭 버튼에 이벤트 리스너를 명시적으로 추가하여 changeTab을 호출하도록 수정해야 합니다.
+  // 예: document.getElementById('tab-wishlist').addEventListener('click', () => changeTab('wishlist'));
+  
 	// 회원가입 폼의 경우 onSubmit 이벤트 재연결
 	const addForm = document.querySelector('form[name="newUser"]');
 	if (addForm) {
@@ -54,3 +159,4 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (updateForm) {
 		updateForm.onsubmit = checkUpdateForm;
 	};
+});

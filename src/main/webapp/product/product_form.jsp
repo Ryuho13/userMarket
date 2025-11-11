@@ -124,38 +124,56 @@
           </select>
         </div>
 
-        <!-- 이미지 업로드 -->
-        <div>
-          <label for="images" class="form-label fw-bold text-gray-700">이미지 업로드</label>
-          <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
+            <!-- 이미지 업로드 -->
+    <div>
+      <label for="images" class="form-label fw-bold text-gray-700">이미지 업로드</label>
+      <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
 
-          <!-- 현재 이미지 -->
-          <c:if test="${not empty product.imgSrc}">
-            <div class="mt-3 border p-3 rounded-lg bg-gray-50">
-              <p class="text-sm text-gray-600 mb-2">현재 이미지</p>
-              <img src="${product.imgSrc}" alt="product" class="rounded-lg shadow-md max-w-xs">
-            </div>
-          </c:if>
-
-          <!-- 🔹 새 이미지 미리보기 -->
-          <div id="previewContainer" class="mt-3 flex flex-wrap gap-3"></div>
+      <!-- 현재 이미지 -->
+      <c:if test="${not empty product.imgSrc}">
+        <div class="mt-3 border p-3 rounded-lg bg-gray-50">
+          <p class="text-sm text-gray-600 mb-2">현재 이미지</p>
+          <img src="${product.imgSrc}" alt="product" class="rounded-lg shadow-md max-w-xs">
         </div>
+      </c:if>
 
-        <!-- 버튼 -->
-        <div class="flex justify-end gap-3 mt-6">
-          <button type="submit" class="btn btn-success px-4 py-2">
-            <c:choose>
-              <c:when test="${empty product.id}">등록</c:when>
-              <c:otherwise>수정</c:otherwise>
-            </c:choose>
-          </button>
-          <a href="${pageContext.request.contextPath}/product/list"
-             class="btn btn-outline-secondary px-4 py-2">취소</a>
-        </div>
+      <!-- 🔹 새 이미지 미리보기 -->
+      <div id="previewContainer" class="mt-3 flex flex-wrap gap-3"></div>
+    </div>
+
+    <!-- 🔴 여기서 등록/수정 form을 닫아줌!! -->
+  </form>
+
+  <!-- 🔵 이제 여기부터는 등록/수정 폼 밖이므로, 삭제용 폼이 완전히 분리됨 -->
+  <c:if test="${not empty product.id}">
+ 	<div class="flex justify-content-between">
+   </c:if>
+
+    <!-- 삭제 버튼: 상품이 있을 때만 -->
+    <c:if test="${not empty product.id}">
+      <form method="post"
+            action="${pageContext.request.contextPath}/product/delete"
+            onsubmit="return confirm('정말로 이 상품과 관련된 모든 데이터를 삭제하시겠습니까?');">
+        <input type="hidden" name="id" value="${product.id}">
+        <button type="submit" class="btn btn-danger px-4 py-2">삭제</button>
       </form>
+    </c:if>
+
+    <!-- 수정 / 목록으로 -->
+    <div class="flex justify-end gap-3">
+      <button type="submit" form="productForm"
+              class="btn btn-success px-4 py-2">
+        <c:choose>
+          <c:when test="${empty product.id}">등록</c:when>
+          <c:otherwise>수정</c:otherwise>
+        </c:choose>
+      </button>
+
+      <a href="${pageContext.request.contextPath}/product/list"
+         class="btn btn-outline-secondary px-4 py-2">목록</a>
     </div>
   </div>
-  
+
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>

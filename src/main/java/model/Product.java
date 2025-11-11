@@ -27,6 +27,11 @@ public class Product {
         this.viewCount = viewCount;
         this.status = status;
     }
+    
+    public Product(int id, String displayImg) {
+        this.id = id;
+        this.displayImg = displayImg;
+    }
 
     public Product(int id, String title, int sellPrice,
                    String siggName, String displayImg, String status) {
@@ -38,7 +43,6 @@ public class Product {
         this.status = status;
     }
 
-    public Product() {}
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
