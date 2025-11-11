@@ -168,3 +168,40 @@ h2 {
   border-radius: 8px; /* 이미지 모서리를 둥글게 */
   cursor: pointer; /* 클릭 가능함을 표시 */
 }
+
+/* ===== 상단 고정 상품 정보 UI ===== */
+.product-info-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.product-info-bar .product-image img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 12px;
+}
+
+.product-info-bar .product-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-info-bar .product-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.product-info-bar .product-price {
+    font-size: 13px;
+    color: #555;
+}

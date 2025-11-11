@@ -33,6 +33,7 @@ public class ChatRoomServlet extends HttpServlet {
 
         ChatRoom room = null;
         List<Message> messages = null;
+        ProductDetail product = null;
 
         try {
             ChatDAO chatDAO = new ChatDAO();
@@ -49,7 +50,7 @@ public class ChatRoomServlet extends HttpServlet {
                     return;
                 }
 
-                ProductDetail product = productDetailDAO.findById(room.getProductId());
+                product = productDetailDAO.findById(room.getProductId());
                 if (product == null) {
                     sendErrorResponse(response, "채팅방과 연결된 상품을 찾을 수 없습니다.");
                     return;
@@ -68,7 +69,7 @@ public class ChatRoomServlet extends HttpServlet {
                 int productId = Integer.parseInt(productIdParam);
                 int buyerId = Integer.parseInt(buyerIdParam);
 
-                ProductDetail product = productDetailDAO.findById(productId);
+                product = productDetailDAO.findById(productId);
                 if (product == null) {
                     sendErrorResponse(response, "상품을 찾을 수 없습니다.");
                     return;
@@ -95,13 +96,16 @@ public class ChatRoomServlet extends HttpServlet {
 
             // Determine other user's nickname and add to request
             int finalCurrentUserId = (currentUserIdParam != null) ? Integer.parseInt(currentUserIdParam) : Integer.parseInt(buyerIdParam);
-            ProductDetail finalProduct = productDetailDAO.findById(room.getProductId());
-            int otherUserId = (finalCurrentUserId == room.getBuyerId()) ? finalProduct.getSellerId() : room.getBuyerId();
+            int otherUserId = (finalCurrentUserId == room.getBuyerId()) ? product.getSellerId() : room.getBuyerId();
 
             dao.UserDAO userDAO = new dao.UserDAO();
             model.UserProfile otherUserProfile = userDAO.findProfileByUserId(otherUserId);
             String otherUserNickname = (otherUserProfile != null) ? otherUserProfile.getNickname() : "(알 수 없음)";
             request.setAttribute("otherUserNickname", otherUserNickname);
+            
+            // --- 상품 정보 request에 추가 ---
+            request.setAttribute("product", product);
+            // --------------------------------
 
             // Forward to chat room JSP
             forwardToChatRoom(request, response, room, messages);
