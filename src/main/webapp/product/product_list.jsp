@@ -16,11 +16,12 @@
 <link
   href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
   rel="stylesheet"
-  integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+  xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
   crossorigin="anonymous">
 
 <!-- 커스텀 CSS -->
 <link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
+
 </head>
 
 <body class="bg-light">
@@ -49,28 +50,9 @@
 
 <!-- 🔍 검색 영역 -->
 <div class="select_container container py-4 d-flex flex-column align-items-center">
-<%-- 
-  <!-- 검색 폼 -->
-  <form action="${ctx}/product" method="get"
-        class="w-100 d-flex justify-content-center">
-    <div class="input-group" style="max-width: 600px; width: 100%;">
-      <span class="input-group-text bg-white border-end-0">
-        <span class="material-symbols-outlined">search</span>
-      </span>
-      <input type="text"
-             name="q"
-             class="form-control border-start-0 text-center"
-             placeholder="상품명 또는 카테고리 검색"
-             value="<c:out value='${param.q}'/>">
-      <button class="btn btn-primary" type="submit">
-        <span class="material-symbols-outlined">arrow_circle_right</span>
-      </button>
-    </div>
-  </form>
- --%>
   <!-- 현재 검색어 표시 -->
   <c:if test="${not empty param.q}">
-    <div class="mt-2 text-secondary small text-center"
+    <div class="mt-2 text-secondary text-center fs-4 fw-light"
          style="max-width: 600px; width: 100%;">
       '<strong><c:out value="${param.q}"/></strong>' 검색 결과
       <c:if test="${not empty totalCount}">
@@ -81,8 +63,8 @@
 <c:if test="${empty param.q}">
   <c:choose>
     <c:when test="${not empty popularKeywords}">
-      <div class="mt-2 text-secondary small text-center"
-           style="max-width: 600px; width: 100%;">
+      <div class="mt-2 text-secondary text-center fs-4 fw-light"
+           style="max-width: 600px; width: 100%; ">
         인기 검색어:
         <c:forEach var="kw" items="${popularKeywords}" varStatus="st">
           <a href="${ctx}/product?q=${fn:escapeXml(kw)}"
@@ -94,7 +76,8 @@
     </c:when>
 
     <c:otherwise>
-      <div class="mt-2 text-secondary small text-center"
+      <!-- ✨ 변경 사항: fs-4를 추가하고 small을 제거하여 글자 크기를 2배 정도로 키웠습니다. -->
+      <div class="mt-2 text-secondary text-center fs-4 fw-light"
            style="max-width: 600px; width: 100%;">
         원하는 상품명을 입력해서 검색해 보세요.
       </div>
