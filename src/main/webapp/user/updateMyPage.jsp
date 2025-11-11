@@ -10,13 +10,15 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="<%=request.getContextPath()%>/user/css/updateMyPage.css">
+<link rel="stylesheet"
+	href="<%=request.getContextPath()%>/user/css/updateMyPage.css">
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 	<div class="max-w-xl mx-auto bg-white p-6 sm:p-8 shadow-xl rounded-2xl">
 
 		<!-- 페이지 제목 -->
-		<h1 class="text-3xl font-bold text-gray-800 text-center mb-8 text-green-500">
+		<h1
+			class="text-3xl font-bold text-gray-800 text-center mb-8 text-green-500">
 			회원 정보 수정</h1>
 
 		<!-- 커스텀 에러 메시지 표시 영역 -->
@@ -28,8 +30,8 @@
 
 		<!-- 프로필 이미지 섹션 (마이페이지 디자인 재활용) -->
 		<div class="flex flex-col items-center mb-10">
-			<input type="file" id="profile-upload" **name="profile-upload"** class="hidden"
-    		accept="image/*" onchange="previewImage(event)">
+			<input type="file" id="profile-upload" name="profile-upload" **
+				class="hidden" accept="image/*" onchange="previewImage(event)">
 
 			<!-- 이미지 컨테이너 (클릭 가능) -->
 			<div id="profile-container"
@@ -49,7 +51,8 @@
 		</div>
 
 		<!-- 본문 영역 -->
-		<form name="updateMyPage" action="${pageContext.request.contextPath}/user/mypage/update"
+		<form name="updateMyPage"
+			action="${pageContext.request.contextPath}/user/mypage/update"
 			method="post" onsubmit="return checkForm(event)" class="space-y-4"
 			enctype="multipart/form-data">
 			<!-- 아이디 (수정 불가 필드 - 순서 변경 없음) -->
@@ -110,14 +113,17 @@
 					<input type="text" name="mail1" value="${mail1}" maxlength="50"
 						class="form-input px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-full md:w-5/12"
 						placeholder="email" value="usermail"> <span
-						class="text-gray-500">@</span>
-					<select name="mail2"
+						class="text-gray-500">@</span> <select name="mail2"
 						class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-full md:w-5/12">
-					  <option value="naver.com" <c:if test="${mail2 eq 'naver.com'}">selected</c:if>>naver.com</option>
-					  <option value="daum.net" <c:if test="${mail2 eq 'daum.net'}">selected</c:if>>daum.net</option>
-					  <option value="gmail.com" <c:if test="${mail2 eq 'gmail.com'}">selected</c:if>>gmail.com</option>
-					  <option value="nate.com" <c:if test="${mail2 eq 'nate.com'}">selected</c:if>>nate.com</option>
-					  <option value="">직접입력</option>
+						<option value="naver.com"
+							<c:if test="${mail2 eq 'naver.com'}">selected</c:if>>naver.com</option>
+						<option value="daum.net"
+							<c:if test="${mail2 eq 'daum.net'}">selected</c:if>>daum.net</option>
+						<option value="gmail.com"
+							<c:if test="${mail2 eq 'gmail.com'}">selected</c:if>>gmail.com</option>
+						<option value="nate.com"
+							<c:if test="${mail2 eq 'nate.com'}">selected</c:if>>nate.com</option>
+						<option value="">직접입력</option>
 					</select>
 				</div>
 			</div>
@@ -132,68 +138,61 @@
 					placeholder="'-' 없이 입력" value="${profile.phn}">
 			</div>
 
-			<!-- 주소 (Address) - **수정된 부분: 3단계 선택 기능 통합** -->
-         <div class="space-y-1">
-            <label class="text-sm font-medium text-gray-700 block mb-1">주소
-               (Address)</label>
-            <div class="space-y-3">
-               
-               <!-- 1. 도/시 선택 및 2. 시/군/구 선택 -->
-               <div class="flex space-x-2">
-                  <select name="addr1" id="addr1-select"
-                     class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
-                     required>
-                     <option value="">도/시 선택</option>
-                     <option value="서울특별시">서울특별시</option>
-                     <option value="부산광역시">부산광역시</option>
-                     <option value="대구광역시">대구광역시</option>
-                     <option value="인천광역시">인천광역시</option>
-                     <option value="광주광역시">광주광역시</option>
-                     <option value="대전광역시">대전광역시</option>
-                     <option value="울산광역시">울산광역시</option>
-                     <option value="세종특별자치시">세종특별자치시</option>
-                     <option value="경기도">경기도</option>
-                     <option value="강원특별자치도">강원특별자치도</option>
-                     <option value="충청북도">충청북도</option>
-                     <option value="충청남도">충청남도</option>
-                     <option value="전라북도">전라북도</option>
-                     <option value="전라남도">전라남도</option>
-                     <option value="경상북도">경상북도</option>
-                     <option value="경상남도">경상남도</option>
-                     <option value="제주특별자치도">제주특별자치도</option>
-                  </select>
-                  
-                  <!-- 2. 시/군/구 선택 -->
-                  <select name="addr2" id="addr2-select"
-                     class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
-                     required disabled>
-                     <option value="">시/군/구 선택</option>
-                  </select>
-               </div>
-               
-                <!-- 3. 상세 주소 입력 -->
-               <input name="addr3" type="text"
-                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
-                  placeholder="도로명, 지번, 건물명 등 상세 주소" value="${profile.addrDetail}" required>
-            </div>
-         </div>
+			<div class="space-y-1">
+				<label class="text-sm font-medium text-gray-700 block mb-1">주소
+					(Address)</label>
+				<div class="w-full md:w-3/4 space-y-3">
+					<!-- 시/도 + 시/군/구 선택 -->
+					<div class="flex space-x-2">
+						<!-- 시/도 -->
+						<select id="sido" name="sidoId"
+							class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
+							required>
+							<option value="">도/시 선택</option>
+							<c:forEach var="sido" items="${sidoList}">
+								<option value="${sido.id}"
+									<c:if test="${sido.id == sidoId}">selected</c:if>>
+									${sido.name}</option>
+							</c:forEach>
+						</select>
+
+						<!-- 시/군/구 -->
+						<select id="sigg" name="regionId"
+							class="form-select px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 w-1/2"
+							required>
+							<option value="">시/군/구 선택</option>
+							<c:if test="${not empty siggList}">
+								<c:forEach var="sigg" items="${siggList}">
+									<option value="${sigg.id}"
+										<c:if test="${sigg.id == regionId}">selected</c:if>>
+										${sigg.name}</option>
+								</c:forEach>
+							</c:if>
+						</select>
+					</div>
+
+					<!-- 상세 주소 -->
+					<input name="addr3" type="text"
+						class="w-full p-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+						placeholder="도로명, 지번, 건물명 등 상세 주소" value="${addr3}" required>
+				</div>
+			</div>
+
 
 			<!-- 버튼 영역 -->
 			<div class="pt-4 flex justify-between space-x-4">
 				<button type="submit"
 					class="w-full py-2 primary-green text-white font-semibold rounded-lg shadow-md transition duration-150">
-					정보 수정 완료
-				</button>
-			  <button type="button"
-			    onclick="location.href='${pageContext.request.contextPath}/user/myPage'"
-			    class="w-full py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-150">
-			    수정 취소
-			  </button>
+					정보 수정 완료</button>
+				<button type="button"
+					onclick="location.href='${pageContext.request.contextPath}/user/myPage'"
+					class="w-full py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition duration-150">
+					수정 취소</button>
 			</div>
 		</form>
 	</div>
-	<script
-		src="<%=request.getContextPath()%>/user/js/updateMyPage.js">
+	<script src="<%=request.getContextPath()%>/user/js/updateMyPage.js">
+		
 	</script>
 </body>
 </html>
