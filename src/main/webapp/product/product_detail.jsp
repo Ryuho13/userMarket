@@ -36,6 +36,7 @@
       </button>
     </div>
 
+    <!-- 📦 상품 정보 -->
     <div class="product-info flex-grow-1">
       <div class="d-flex align-items-center justify-content-between">
         <h3 class="fw-bold mb-0">
@@ -53,23 +54,24 @@
           </c:choose>
         </h3>
 
+        <!-- ✏️ 판매자 본인일 경우 수정 버튼 -->
         <c:if test="${sessionScope.loginUserId == product.sellerId}">
           <a href="${pageContext.request.contextPath}/product/update?id=${product.id}" class="btn btn-outline-primary btn-sm">수정하기</a>
         </c:if>
       </div>
 
-		<p class="text-muted mt-1 mb-3">
-		  지역:
-		  <c:choose>
-		    <c:when test="${not empty product.sidoName}">
-		      ${product.sidoName}
-		      <c:if test="${not empty product.regionName}">
-		        ${product.regionName}
-		      </c:if>
-		    </c:when>
-		    <c:otherwise>등록된 지역 없음</c:otherwise>
-		  </c:choose>
-		</p>
+      <p class="text-muted mt-1 mb-3">
+        지역:
+        <c:choose>
+          <c:when test="${not empty product.sidoName}">
+            ${product.sidoName}
+            <c:if test="${not empty product.regionName}">
+              ${product.regionName}
+            </c:if>
+          </c:when>
+          <c:otherwise>등록된 지역 없음</c:otherwise>
+        </c:choose>
+      </p>
 
       <h4 class="text-danger fw-bold mb-3">${product.sellPrice}원</h4>
       <p>${product.description}</p>
@@ -83,36 +85,38 @@
         <div class="d-flex gap-2 mt-3">
           <c:choose>
             <c:when test="${not empty sessionScope.loginUserId}">
-              <a href="${pageContext.request.contextPath}/chatRoom?productId=${product.id}&buyerId=${sessionScope.loginUserId}" 
-                 class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
-                채팅하기
-              </a>
-              <c:choose>
-				  <c:when test="${sessionScope.loginUserId != null}">
-				    <button 
-					  id="wishBtn"
-					  class="btn btn-outline-secondary btn-action"
-					  data-product-id="${product.id}"
-					  data-wish="${isWished}">
-					  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
-					</button>
+              
+              <c:if test="${sessionScope.loginUserId == product.sellerId}">
+                <button class="btn btn-secondary btn-action" disabled>
+                  <i class="bi bi-chat-left-dots"></i> 내 상품입니다
+                </button>
+                <button class="btn btn-outline-secondary btn-action" disabled>
+                  <i class="bi bi-heart"></i> 찜 불가
+                </button>
+              </c:if>
 
-				  </c:when>
-				  <c:otherwise>
-				    <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
-  					 class="btn btn-outline-secondary btn-action">
- 					 찜하려면 로그인
-					</a>
-				  </c:otherwise>
-				</c:choose>
+              <c:if test="${sessionScope.loginUserId != product.sellerId}">
+                <a href="${pageContext.request.contextPath}/chatRoom?productId=${product.id}&buyerId=${sessionScope.loginUserId}" 
+                   class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
+                  채팅하기
+                </a>
+                <button 
+                  id="wishBtn"
+                  class="btn btn-outline-secondary btn-action"
+                  data-product-id="${product.id}"
+                  data-wish="${isWished}">
+                  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
+                </button>
+              </c:if>
 
             </c:when>
+
             <c:otherwise>
-			  <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
-  				 class="btn btn-outline-primary btn-action">
-  				로그인 후 채팅하기
-				</a>
-			</c:otherwise>
+              <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
+                 class="btn btn-outline-primary btn-action">
+                로그인 후 채팅하기
+              </a>
+            </c:otherwise>
           </c:choose>
         </div>
       </div>
@@ -177,13 +181,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="<c:url value='/user/js/product_detail.js'/>"></script>
 <script src="<c:url value='/user/js/wish_list.js'/>"></script>
 
 <script>
   window.contextPath = '${pageContext.request.contextPath}';
 </script>
+
 <jsp:include page="../resources/alarm.jsp" />
 </body>
 </html>
