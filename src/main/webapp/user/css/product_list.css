@@ -18,8 +18,7 @@
 body.bg-light {
   background-color: var(--color-bg) !important;
   color: var(--color-text-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Noto Sans KR", sans-serif;
+  /* [수정] header.css에서 전역 폰트를 설정하도록 이 설정을 제거하여 충돌을 방지합니다. */
 }
 
 /* 이 페이지에서 text-primary는 주황 */

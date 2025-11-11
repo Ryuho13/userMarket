@@ -5,6 +5,8 @@ body {
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
+    /* [추가] Inter 폰트 적용 */
+    font-family: 'Inter', sans-serif;
 }
 
 .main-logo {
