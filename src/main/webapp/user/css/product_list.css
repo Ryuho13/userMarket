@@ -47,7 +47,7 @@ body.bg-light {
 /* ----------------- 상단 검색 바 ----------------- */
 
 .select_container {
-  max-width: 1120px;
+  max-width: 1000px;
   margin: 1.6rem auto 0.7rem;
   padding-inline: 0.75rem;
 }
@@ -81,8 +81,8 @@ body.bg-light {
 /* ----------------- 본문 레이아웃 ----------------- */
 
 .main_container {
-  max-width: 1200px;
-  margin: 0 auto 2.5rem;
+  max-width: 1100px;
+  margin: 0 auto 2rem;
   padding: 0 0.75rem;
 }
 
@@ -96,7 +96,7 @@ body.bg-light {
 /* ----------------- 필터 패널 (왼쪽) ----------------- */
 
 .product_filter {
-  width: 250px;
+  width: 300px;
   flex-shrink: 0;
   background-color: #ffffff;
   border-radius: var(--radius-card);
@@ -279,7 +279,7 @@ a.disabled-link {
 
 /* 가운데 고정된 캡슐형 페이지네이션 */
 .pagination {
-  margin: 1.8rem 55 0px 0;          /* 좌우 auto => 화면 가운데 정렬 */
+  margin: 1.8rem 55 0px 0;          
   padding: 0.25rem 0.3rem;
   border-radius: 999px;
   background-color: #ffffff;

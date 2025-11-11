@@ -10,7 +10,6 @@ import model.*;
 import java.io.IOException;
 import java.util.List;
 
-
 @WebServlet(urlPatterns = {"/product/list", "/product", "/product/"})
 public class ProductListServlet extends HttpServlet {
 
@@ -22,49 +21,50 @@ public class ProductListServlet extends HttpServlet {
 
         int size = 21;
         int page = parseIntOrDefault(req.getParameter("page"), 1);
+        if (page < 1) page = 1;
         int offset = (page - 1) * size;
 
-        String q = trimToNull(req.getParameter("q"));
+        String q            = trimToNull(req.getParameter("q"));
         String categoryParam = trimToNull(req.getParameter("category"));
-        String siggParam = trimToNull(req.getParameter("sigg_area"));
-        String sidoParam = trimToNull(req.getParameter("sidoId"));
+        String siggParam     = trimToNull(req.getParameter("sigg_area"));
+        String sidoParam     = trimToNull(req.getParameter("sidoId"));
 
         Integer categoryId = parseIntOrNull(categoryParam);
         Integer siggAreaId = parseIntOrNull(siggParam);
-        Integer sidoId = parseIntOrNull(sidoParam);
+        Integer sidoId     = parseIntOrNull(sidoParam); // 지금은 안 쓰지만 남겨둠
 
         Integer minPrice = parseIntOrNull(req.getParameter("minPrice"));
         Integer maxPrice = parseIntOrNull(req.getParameter("maxPrice"));
 
-        // ✅ 정렬 기본값 설정
+        // 정렬 기본값
         String sort = req.getParameter("sort");
-        if (sort == null) sort = "latest";
+        if (sort == null || sort.isBlank()) sort = "latest";
 
         try {
-            ProductDAO productDAO = new ProductDAO();
-            AreaDAO areaDAO = new AreaDAO();
+            ProductDAO productDAO   = new ProductDAO();
+            AreaDAO areaDAO         = new AreaDAO();
             CategoryDAO categoryDAO = new CategoryDAO();
 
-            // ✅ 지역/카테고리 목록
-            List<SidoArea> sidoList = areaDAO.getAllSidoAreas();
-            List<SiggArea> siggList = areaDAO.getAllSiggAreas();
+            // 지역/카테고리 목록
+            List<SidoArea> sidoList     = areaDAO.getAllSidoAreas();
+            List<SiggArea> siggList     = areaDAO.getAllSiggAreas();
             List<Category> categoryList = categoryDAO.getAllCategories();
 
-            // ✅ 상품 목록 불러오기
+            // 🔥 검색 + 필터 전부 한 번에 처리 (분기 X)
             List<Product> products;
             int totalCount;
 
-            if (q != null || categoryId != null || siggAreaId != null) {
-                totalCount = productDAO.countSearchProducts(q, categoryId, siggAreaId);
-                products = productDAO.searchProducts(q, categoryId, siggAreaId, offset, size, sort);
-            } else {
-                products = productDAO.getFilteredProducts(categoryParam, siggParam, minPrice, maxPrice, offset, size, sort);
-                totalCount = productDAO.countFilteredProducts(categoryParam, siggParam, minPrice, maxPrice);
-            }
+            totalCount = productDAO.countSearchProducts(
+                    q, categoryId, siggAreaId, minPrice, maxPrice
+            );
+            products = productDAO.searchProducts(
+                    q, categoryId, siggAreaId, minPrice, maxPrice,
+                    offset, size, sort
+            );
 
             int totalPages = (int) Math.ceil(totalCount / (double) size);
 
-            // ✅ 선택된 필터 이름 표시용
+            // 선택된 필터 이름 표시
             if (categoryId != null) {
                 Category selectedCategory = categoryDAO.getCategoryById(categoryId);
                 if (selectedCategory != null) {
@@ -78,7 +78,7 @@ public class ProductListServlet extends HttpServlet {
                 }
             }
 
-            // ✅ JSP로 전달
+            // JSP로 전달
             req.setAttribute("products", products);
             req.setAttribute("page", page);
             req.setAttribute("totalPages", totalPages);

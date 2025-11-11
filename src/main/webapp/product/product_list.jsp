@@ -52,7 +52,7 @@
 
   <!-- 현재 검색어 표시 -->
   <c:if test="${not empty param.q}">
-    <div class="mt-2 text-secondary small text-center"
+    <div class="mt-2 text-secondary fs-5 text-center"
          style="max-width: 600px; width: 100%;">
       '<strong><c:out value="${param.q}"/></strong>' 검색 결과
       <c:if test="${not empty totalCount}">
@@ -63,7 +63,7 @@
 <c:if test="${empty param.q}">
   <c:choose>
     <c:when test="${not empty popularKeywords}">
-      <div class="mt-2 text-secondary small text-center"
+      <div class="mt-2 text-secondary fs-5 text-center"
            style="max-width: 600px; width: 100%;">
         인기 검색어:
         <c:forEach var="kw" items="${popularKeywords}" varStatus="st">
@@ -76,7 +76,7 @@
     </c:when>
 
     <c:otherwise>
-      <div class="mt-2 text-secondary small text-center"
+      <div class="mt-2 text-secondary fs-5 text-center"
            style="max-width: 600px; width: 100%;">
         원하는 상품명을 입력해서 검색해 보세요.
       </div>
@@ -308,7 +308,7 @@
       <c:otherwise>
         <div class="row g-3">
           <c:forEach var="p" items="${products}">
-            <div class="col-6 col-md-4 col-lg-4 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
+            <div class="col-5 col-md-5 col-lg-3 product_item ${p.status eq 'SOLD_OUT' ? 'soldout' : ''}">
               <a href="${ctx}/product/detail?id=${p.id}" class="text-decoration-none ${p.status eq 'SOLD_OUT' ? 'disabled-link' : ''}">
                 <div class="card border-0 shadow-sm position-relative">
 
