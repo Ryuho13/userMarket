@@ -9,8 +9,6 @@ public class UserProfile {
     private String nickname;
     private Integer regionId;
     private String addrDetail;
-    private String sidoName;
-    private String siggName;
     private String profileImg;
 
     public int getUserId() { return userId; }
@@ -36,12 +34,6 @@ public class UserProfile {
 
     public String getAddrDetail() { return addrDetail; }
     public void setAddrDetail(String addrDetail) { this.addrDetail = addrDetail; }
-    
-    public String getSidoName(){ return sidoName; }
-    public void setSidoName(String s){ this.sidoName = s; }
-    
-    public String getSiggName(){ return siggName; }
-    public void setSiggName(String s){ this.siggName = s; }
 
     public String getProfileImg() { return profileImg; }
     public void setProfileImg(String profileImg) { this.profileImg = profileImg; }

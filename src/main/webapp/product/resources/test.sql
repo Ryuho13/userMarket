@@ -133,6 +133,7 @@ CREATE TABLE products (
   FOREIGN KEY (region_id) REFERENCES sigg_areas(id)
     ON DELETE SET NULL ON UPDATE CASCADE,
 
+  -- 🔍 검색/필터용 인덱스
   KEY idx_products_category (category_id),
   KEY idx_products_region   (region_id),
   KEY idx_products_sido     (sido_id),
@@ -533,6 +534,3 @@ select * from categories;
 SELECT * FROM activity_areas;
 SELECT * FROM wish_lists;
 DESC sigg_areas;
-
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'qwe123';
-FLUSH PRIVILEGES;

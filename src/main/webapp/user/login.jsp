@@ -64,7 +64,7 @@
 				<button type="submit" class="btn btn-lg btn-success w-100 mt-2">로그인</button>
 
 				<p class="mt-4 mb-0 text-center text-muted">
-					계정이 없으신가요?<a href="<c:url value='/user/add'/>"
+					계정이 없으신가요?<a href="addUser.jsp"
 						class="text-decoration-none text-success"> 회원가입</a>
 				</p>
 			</form>
