@@ -351,21 +351,6 @@ VALUES
 ('기타');
 
 
--- ==========================
--- ✅ 확인용 쿼리
--- ==========================
-
-
-SELECT * from user;
-select * from products;
-select * from product_images;
-select * from images;
-select * from user_info;
-select * from categories;
-select * from sido_areas;
-select * from sigg_areas;
-select * from categories;
-SELECT * FROM activity_areas;
 
 -- ==========================================
 -- 👤 회원 (6명)
@@ -521,6 +506,7 @@ INSERT INTO product_images (product_id, image_id) VALUES
 -- ✅ 확인용 쿼리
 -- ==========================
 
+USE usermarketdb;
 
 SELECT * from user;
 select * from products;

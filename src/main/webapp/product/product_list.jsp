@@ -174,9 +174,9 @@
 
         <div class="d-flex flex-wrap gap-2 mb-3">
           <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="0">나눔</button>
-          <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="5000">5천 이하</button>
           <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="10000">1만 이하</button>
-          <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="20000">2만 이하</button>
+          <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="50000">5만 이하</button>
+          <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="100000">10만 이하</button>
         </div>
 
         <div class="d-flex align-items-center gap-2 mb-2">
