@@ -378,4 +378,95 @@ return rs.next() ? rs.getInt("cnt") : 0;
             }
         }
     }
+
+
+	/**
+	 * ✅ 특정 사용자가 찜한 상품 목록 조회
+	 * @param userId 찜 목록을 조회할 사용자 ID
+	 * @return 찜한 상품들의 List<Product>
+	 */
+	public List<Product> getWishedProductsByUserId(int userId) throws SQLException {
+	    // 찜 목록(wish_lists)과 상품 정보(products, sigg_areas, images)를 JOIN하여 조회
+	    String sql = """
+	        SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
+	               COALESCE(sa.name, '지역정보없음') AS sigg_name,
+	               (SELECT i.name FROM product_images pi
+	                JOIN images i ON pi.image_id = i.id
+	                WHERE pi.product_id = p.id
+	                ORDER BY pi.image_id LIMIT 1) AS img_name,
+	               p.view_count
+	        FROM wish_lists wl
+	        JOIN products p ON wl.product_id = p.id
+	        LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+	        WHERE wl.register_id = ?
+	        ORDER BY wl.registered_at DESC
+	    """;
+	
+	    List<Product> list = new ArrayList<>();
+	    
+	    // DBUtil.getConnection()은 제공된 파일을 통해 사용 가능
+	    try (Connection conn = DBUtil.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	         
+	        ps.setInt(1, userId);
+	        
+	        try (ResultSet rs = ps.executeQuery()) {
+	            while (rs.next()) {
+	                // 이미지 경로 정규화 (ProductDAO 내의 normalizeDisplayImg 메서드 사용)
+	                String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+	                
+	                list.add(new Product(
+	                        rs.getInt("product_id"),
+	                        rs.getString("product_name"),
+	                        rs.getInt("sell_price"),
+	                        rs.getString("sigg_name"),
+	                        displayImg,
+	                        rs.getInt("view_count"),
+	                        rs.getString("status")
+	                ));
+	            }
+	        }
+	    }
+	    return list;
+	}
+	
+	/** ✅ 특정 판매자의 모든 상품 목록 조회 (마이페이지용) */
+    public List<Product> getProductsBySellerId(int sellerId) throws SQLException {
+        String sql = """
+            SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
+                   p.view_count, p.created_at, 
+                   COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                   (SELECT i.name FROM product_images pi
+                    JOIN images i ON pi.image_id = i.id
+                    WHERE pi.product_id = p.id
+                    ORDER BY pi.image_id LIMIT 1) AS img_name
+            FROM products p
+            LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+            WHERE p.seller_id = ?
+            GROUP BY p.id, p.title, p.sell_price, p.status, p.view_count, p.created_at, sa.name
+            ORDER BY p.created_at DESC -- 최신 등록순으로 정렬
+        """;
+
+        List<Product> list = new ArrayList<>();
+        
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getInt("view_count"), 
+                            rs.getString("status")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
 }
