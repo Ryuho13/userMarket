@@ -52,7 +52,7 @@
 
   <!-- 현재 검색어 표시 -->
   <c:if test="${not empty param.q}">
-    <div class="mt-2 text-secondary fs-5 text-center"
+    <div class="mt-2 text-secondary fs-4 text-center"
          style="max-width: 600px; width: 100%;">
       '<strong><c:out value="${param.q}"/></strong>' 검색 결과
       <c:if test="${not empty totalCount}">
@@ -63,7 +63,7 @@
 <c:if test="${empty param.q}">
   <c:choose>
     <c:when test="${not empty popularKeywords}">
-      <div class="mt-2 text-secondary fs-5 text-center"
+      <div class="mt-2 text-secondary fs-4 text-center"
            style="max-width: 600px; width: 100%;">
         인기 검색어:
         <c:forEach var="kw" items="${popularKeywords}" varStatus="st">
@@ -76,7 +76,7 @@
     </c:when>
 
     <c:otherwise>
-      <div class="mt-2 text-secondary fs-5 text-center"
+      <div class="mt-2 text-secondary fs-4 text-center"
            style="max-width: 600px; width: 100%;">
         원하는 상품명을 입력해서 검색해 보세요.
       </div>
