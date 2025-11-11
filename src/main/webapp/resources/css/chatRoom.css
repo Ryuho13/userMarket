@@ -190,18 +190,74 @@ h2 {
     margin-right: 12px;
 }
 
-.product-info-bar .product-details {
+.product-info-bar .product-details {                                        
     display: flex;
-    flex-direction: column;
+    flex-direction: row !important; /* 명시적으로 row 설정 및 강제 적용 */
+    align-items: center; /* 수직 중앙 정렬 */
+    gap: 10px; /* 상품명과 가격 사이 간격 */
 }
-
-.product-info-bar .product-title {
-    font-weight: bold;
-    font-size: 14px;
+.product-info-bar .product-title {                                          
+    font-weight: bold;                                                      
+    font-size: 14px;                                                        
     color: #333;
+    margin-right: auto; /* 가격을 우측으로 밀어냄 */
+}
+.product-info-bar .product-price {                                          
+    font-size: 13px;                                                        
+    color: #555;                                                            
 }
 
-.product-info-bar .product-price {
-    font-size: 13px;
-    color: #555;
+/* ===== 채팅방 헤더 (뒤로가기, 닉네임) ===== */
+/* .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
 }
+
+.chat-header h2 {
+    margin: 5px; h2의 기본 마진 제거
+    font-size: 35px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+} */
+
+.chat-header {
+		width: 85%;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 양 끝 정렬 */
+}
+
+.chat-header h2 {
+    flex: 1;
+    text-align: center; /* 중앙 정렬 */
+    margin: 0;
+    font-size: 35px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 35px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+}
+
+.spacer {
+    width: 40px; /* 버튼과 균형 맞추기용 (버튼 너비 정도로 설정) */
+}
+
