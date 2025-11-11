@@ -10,6 +10,7 @@ pageEncoding="UTF-8"%>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>마이페이지</title>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = {
@@ -235,10 +236,11 @@ onclick="changeTab('chats')">채팅 목록</button>
 						   class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden relative hover:opacity-75 transition duration-200">
 							
 							<%-- ✅ 이미지 로딩 태그 복구: 서블릿에서 설정된 URL 사용 --%>
-							<img src="${ctx}${p.displayImg}"
-								 class="w-full h-full object-cover"
-								 onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/resources/images" />
-						
+							<img src="${ctx}${product.displayImg}"
+						     class="card-img-top product_img"
+						     alt="상품 이미지"
+						     onerror="this.src='${ctx}/product/resources/images/noimage.jpg'">
+
 							<!-- 상태 뱃지 -->
 							<div class="absolute bottom-1 right-1 px-2 py-0.5 text-xs font-semibold rounded-full
 								<c:choose>
@@ -351,5 +353,7 @@ onclick="changeTab('chats')">채팅 목록</button>
 <script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
 <jsp:include page="/footer/footer.jsp" />
 <jsp:include page="../resources/alarm.jsp" />
+<script src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
+
 </body>
 </html>
