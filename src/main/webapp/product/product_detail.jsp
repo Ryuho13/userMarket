@@ -180,9 +180,10 @@
 
 <script src="<c:url value='/user/js/product_detail.js'/>"></script>
 <script src="<c:url value='/user/js/wish_list.js'/>"></script>
+
 <script>
   window.contextPath = '${pageContext.request.contextPath}';
 </script>
-
+<jsp:include page="../resources/alarm.jsp" />
 </body>
 </html>
