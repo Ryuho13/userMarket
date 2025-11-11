@@ -255,29 +255,62 @@ font-family: 'Inter', sans-serif;
 								<c:choose>
 									<c:when test="${not empty chatRooms}">
 										<c:forEach var="chatRoom" items="${chatRooms}">
-											<a
-												href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${sessionScope.loginUserId}"
-												class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
-												<div class="flex justify-between items-center">
-													<div>
-														<p class="font-bold text-gray-800">
-															<c:if test="${not empty chatRoom.otherUserNickname}">${chatRoom.otherUserNickname}님과의 채팅</c:if>
-															<c:if test="${empty chatRoom.otherUserNickname}">알 수 없는 사용자와의 채팅</c:if>
-														</p>
-														<p class="text-sm text-gray-600">
-															<c:if test="${not empty chatRoom.productTitle}">상품: ${chatRoom.productTitle}</c:if>
-															<c:if test="${empty chatRoom.productTitle}">상품 정보 없음</c:if>
-														</p>
-													</div>
-													<div class="text-right">
-														<span class="text-xs text-gray-400"> <c:if
-																test="${not empty chatRoom.createdAt}">${chatRoom.createdAt}</c:if>
-															<c:if test="${empty chatRoom.createdAt}">날짜 정보 없음</c:if>
-														</span>
-													</div>
-												</div>
-											</a>
+										  <a
+										    href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${sessionScope.loginUserId}"
+										    class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
+										
+										    <div class="flex justify-between items-center">
+										      <div>
+										        <p class="font-bold text-gray-800">
+										          <c:if test="${not empty chatRoom.otherUserNickname}">${chatRoom.otherUserNickname}님과의 채팅</c:if>
+										          <c:if test="${empty chatRoom.otherUserNickname}">알 수 없는 사용자와의 채팅</c:if>
+										        </p>
+										        <p class="text-sm text-gray-600">
+										          <c:if test="${not empty chatRoom.productTitle}">상품: ${chatRoom.productTitle}</c:if>
+										          <c:if test="${empty chatRoom.productTitle}">상품 정보 없음</c:if>
+										        </p>
+										      </div>
+										      <div class="text-right">
+										        <span class="text-xs text-gray-400">
+										          <c:if test="${not empty chatRoom.createdAt}">${chatRoom.createdAt}</c:if>
+										          <c:if test="${empty chatRoom.createdAt}">날짜 정보 없음</c:if>
+										        </span>
+										      </div>
+										    </div>
+										
+										    <%-- 🌟 내 상품일 때만 거래 완료 버튼 노출 --%>
+										    <c:if test="${chatRoom.sellerId == sessionScope.loginUserId}">
+										      <div class="mt-3 flex justify-end">
+										        <form action="${pageContext.request.contextPath}/product/complete" 
+										              method="post"
+										              onClick="event.stopPropagation()"> <%-- a 클릭 막기 --%>
+										          <input type="hidden" name="productId" value="${chatRoom.productId}" />
+										          <input type="hidden" name="roomId" value="${chatRoom.id}" />
+										
+										          <c:choose>
+										            <%-- 이미 거래 완료 상태면 disabled 버튼 --%>
+										            <c:when test="${chatRoom.productStatus == 'SOLD_OUT'}">
+										              <button type="button"
+										                class="px-3 py-1 text-sm rounded-md bg-gray-200 text-gray-500 cursor-not-allowed"
+										                disabled>
+										                거래 완료됨
+										              </button>
+										            </c:when>
+										            <%-- 아직 SALE / RESERVED 이면 거래 완료 가능 --%>
+										            <c:otherwise>
+										              <button type="submit"
+										                class="px-3 py-1 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 transition">
+										                거래 완료
+										              </button>
+										            </c:otherwise>
+										          </c:choose>
+										        </form>
+										      </div>
+										    </c:if>
+										
+										  </a>
 										</c:forEach>
+
 									</c:when>
 									<c:otherwise>
 										<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">

@@ -7,10 +7,9 @@ import java.util.*;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
-
-import model.ChatDAO;
 import model.Message; // Message 클래스를 사용하기 위해 import
 import controller.NotificationSocket;
+import dao.ChatDAO;
 import dao.UserDAO;
 import model.UserProfile;
 

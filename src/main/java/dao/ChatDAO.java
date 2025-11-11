@@ -1,10 +1,11 @@
-package model;
+package dao;
 
 import java.sql.*;
 import java.util.*;
-import dao.DBUtil; // DBUtil 임포트
+
 import model.ChatRoom;
 import model.Message;
+import model.ChatRoomDisplayDTO;
 
 public class ChatDAO {
 
@@ -152,45 +153,54 @@ public class ChatDAO {
                 cr.created_at,
                 p.title AS productTitle,
                 p.seller_id,
-                ui_buyer.nickname AS buyerNickname,
+                p.status AS productStatus,
+                ui_buyer.nickname  AS buyerNickname,
                 ui_seller.nickname AS sellerNickname
             FROM chat_room cr
             JOIN products p ON cr.product_id = p.id
-            LEFT JOIN user_info ui_buyer ON cr.buyer_id = ui_buyer.u_id
-            LEFT JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
+            LEFT JOIN user_info ui_buyer  ON cr.buyer_id   = ui_buyer.u_id
+            LEFT JOIN user_info ui_seller ON p.seller_id   = ui_seller.u_id
             WHERE cr.buyer_id = ? OR p.seller_id = ?
             ORDER BY cr.created_at DESC
         """;
-        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+
+        try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, userId);
             pstmt.setInt(2, userId);
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    int roomId = rs.getInt("id");
-                    int productId = rs.getInt("product_id");
-                    int buyerId = rs.getInt("buyer_id");
+                    int roomId        = rs.getInt("id");
+                    int productId     = rs.getInt("product_id");
+                    int buyerId       = rs.getInt("buyer_id");
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     String productTitle = rs.getString("productTitle");
-                    int sellerId = rs.getInt("seller_id");
-                    String buyerNickname = rs.getString("buyerNickname");
+                    int sellerId        = rs.getInt("seller_id");
+                    String productStatus = rs.getString("productStatus");
+                    String buyerNickname  = rs.getString("buyerNickname");
                     String sellerNickname = rs.getString("sellerNickname");
 
                     String otherUserNickname;
                     int otherUserId;
 
-                    if (userId == buyerId) { // Current user is the buyer, so the other user is the seller
+                    if (userId == buyerId) { 
+                        // 현재 유저가 구매자인 경우 → 상대는 판매자
                         otherUserNickname = sellerNickname;
-                        otherUserId = sellerId;
-                    } else { // Current user is the seller, so the other user is the buyer
+                        otherUserId       = sellerId;
+                    } else {             
+                        // 현재 유저가 판매자인 경우 → 상대는 구매자
                         otherUserNickname = buyerNickname;
-                        otherUserId = buyerId;
+                        otherUserId       = buyerId;
                     }
 
                     ChatRoomDisplayDTO dto = new ChatRoomDisplayDTO(
                         roomId,
                         productId,
                         buyerId,
+                        sellerId,
+                        productStatus,
                         createdAt,
                         productTitle,
                         otherUserNickname,
@@ -205,4 +215,5 @@ public class ChatDAO {
         }
         return list;
     }
+
 }
