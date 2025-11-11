@@ -19,7 +19,7 @@ public class ProductListServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
-        int size = 21;
+        int size = 40;
         int page = parseIntOrDefault(req.getParameter("page"), 1);
         if (page < 1) page = 1;
         int offset = (page - 1) * size;
