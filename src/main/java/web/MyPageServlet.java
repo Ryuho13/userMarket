@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.util.List;
 import model.ChatDAO;
 import model.ChatRoomDisplayDTO;
-import model.DBConnection;
 
 @WebServlet("/user/myPage")
 public class MyPageServlet extends HttpServlet {
@@ -67,14 +66,8 @@ public class MyPageServlet extends HttpServlet {
             }
 
             // 4. 채팅 목록 조회
-            List<ChatRoomDisplayDTO> chatRooms;
-            try (java.sql.Connection conn = model.DBConnection.getConnection()) {
-                if (conn == null) {
-                    throw new SQLException("DB 연결 실패: Chat DAO 인스턴스화 불가"); 
-                }
-                ChatDAO chatDAO = new ChatDAO(conn);
-                chatRooms = chatDAO.getChatRoomsByUserId(userId);
-            }
+            ChatDAO chatDAO = new ChatDAO();
+            List<ChatRoomDisplayDTO> chatRooms = chatDAO.getChatRoomsByUserId(userId);
 
             req.setAttribute("profile", profile);
             req.setAttribute("products", products);

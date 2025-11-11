@@ -2,20 +2,20 @@ package model;
 
 import java.sql.*;
 import java.util.*;
+import dao.DBUtil; // DBUtil 임포트
 import model.ChatRoom;
 import model.Message;
 
 public class ChatDAO {
 
-    private Connection conn;
-
-    public ChatDAO(Connection conn) {
-        this.conn = conn;
+    // 기본 생성자
+    public ChatDAO() {
     }
 
     public ChatRoom findChatRoomById(int roomId) throws SQLException {
         String sql = "SELECT id, product_id, buyer_id, created_at FROM chat_room WHERE id = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -34,7 +34,8 @@ public class ChatDAO {
     // 채팅방 찾거나 생성
     public ChatRoom findOrCreateRoom(int productId, int buyerId) {
         String checkSql = "SELECT * FROM chat_room WHERE product_id = ? AND buyer_id = ?";
-        try (PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmtCheck = conn.prepareStatement(checkSql)) {
             pstmtCheck.setInt(1, productId);
             pstmtCheck.setInt(2, buyerId);
             try (ResultSet rs = pstmtCheck.executeQuery()) {
@@ -56,7 +57,8 @@ public class ChatDAO {
 
         // 없으면 새로 생성
         String insertSql = "INSERT INTO chat_room (product_id, buyer_id, created_at) VALUES (?, ?, NOW())";
-        try (PreparedStatement pstmtInsert = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmtInsert = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             pstmtInsert.setInt(1, productId);
             pstmtInsert.setInt(2, buyerId);
 
@@ -84,7 +86,8 @@ public class ChatDAO {
     public List<Message> getMessages(int roomId) {
         List<Message> list = new ArrayList<>();
         String sql = "SELECT * FROM chat_messages WHERE chat_room_id = ? ORDER BY created_at ASC";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -107,7 +110,8 @@ public class ChatDAO {
     // 메시지 저장
     public void saveMessage(int roomId, int senderId, String message) {
         String sql = "INSERT INTO chat_messages (chat_room_id, sender_id, message, created_at) VALUES (?, ?, ?, NOW())";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, roomId);
             pstmt.setInt(2, senderId);
             pstmt.setString(3, message);
@@ -126,7 +130,8 @@ public class ChatDAO {
             JOIN products p ON cr.product_id = p.id
             WHERE cr.id = ?
         """;
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, roomId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -156,7 +161,8 @@ public class ChatDAO {
             WHERE cr.buyer_id = ? OR p.seller_id = ?
             ORDER BY cr.created_at DESC
         """;
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, userId);
             try (ResultSet rs = pstmt.executeQuery()) {
