@@ -4,7 +4,7 @@ import java.sql.*;
 import model.User;
 import model.UserInfo;
 import model.UserProfile;
-
+import model.Product;
 public class UserDAO {
 
 	/* 회원가입 (User + UserInfo 저장) */
@@ -248,7 +248,129 @@ public class UserDAO {
 	        }
 	    }
 	}
-	
+	 private static String normalizeDisplayImg(String imgName) {
+	        if (imgName == null || imgName.isEmpty()) {
+	            return "/product/resources/images/noimage.jpg";
+	        }
+	        String display = imgName.replace("/userMarket", "");
+	        if (!display.contains("/upload/product_images/")) {
+	            display = "/upload/product_images/" + display;
+	        }
+	        return display;
+	    }
+	 
+	    public Product getProductById(int id) throws SQLException {
+	        String sql = """
+	            SELECT p.id AS product_id, MIN(i.name) AS img_name
+				FROM products p
+				LEFT JOIN product_images pi ON p.id = pi.product_id
+				LEFT JOIN images i ON pi.image_id = i.id
+				WHERE p.id = ?
+				GROUP BY p.id;
+
+	        """;
+
+	        try (Connection conn = DBUtil.getConnection();
+	        	     PreparedStatement ps = conn.prepareStatement(sql)) {
+	        	    ps.setInt(1, id);
+	        	    try (ResultSet rs = ps.executeQuery()) {
+	        	        if (rs.next()) {
+	        	            String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+	        	            return new Product(
+	        	                    rs.getInt("product_id"),
+	        	                    displayImg
+	        	            );
+	        	        }
+	        	    }
+	        	}
+	        	return null;
+
+	    }
+	    
+	    public void updateUserAndInfo(
+	            int userId,
+	            String name,
+	            String phn,
+	            String emNullable,
+	            String newPwNullable,
+	            String nickname,
+	            String addrDetail,
+	            String profileImgNullable,
+	            Integer regionIdNullable   // ✅ 추가
+	    ) throws SQLException {
+
+	        String sqlUser = """
+	            UPDATE user
+	               SET name = ?,
+	                   phn  = ?,
+	                   em   = ?,
+	                   pw   = CASE WHEN ? IS NULL OR ? = '' THEN pw ELSE ? END
+	             WHERE id = ?
+	        """;
+
+	        // ✅ region_id도 업데이트 (null 가능)
+	        StringBuilder sqlInfoBuilder = new StringBuilder("""
+	            UPDATE user_info
+	               SET nickname    = ?,
+	                   addr_detail = ?,
+	                   region_id   = ?
+	        """);
+
+	        boolean updateProfileImg = (profileImgNullable != null && !profileImgNullable.isBlank());
+	        if (updateProfileImg) {
+	            sqlInfoBuilder.append(", profile_img = ?");
+	        }
+	        sqlInfoBuilder.append(" WHERE u_id = ?");
+	        String sqlInfo = sqlInfoBuilder.toString();
+
+	        try (Connection conn = DBUtil.getConnection()) {
+	            try {
+	                conn.setAutoCommit(false);
+
+	                // user
+	                try (PreparedStatement ps = conn.prepareStatement(sqlUser)) {
+	                    ps.setString(1, name);
+	                    ps.setString(2, phn);
+	                    if (emNullable == null || emNullable.isBlank()) ps.setNull(3, Types.VARCHAR);
+	                    else ps.setString(3, emNullable);
+
+	                    if (newPwNullable == null) {
+	                        ps.setNull(4, Types.VARCHAR);
+	                        ps.setNull(5, Types.VARCHAR);
+	                        ps.setNull(6, Types.VARCHAR);
+	                    } else {
+	                        ps.setString(4, newPwNullable);
+	                        ps.setString(5, newPwNullable);
+	                        ps.setString(6, newPwNullable);
+	                    }
+	                    ps.setInt(7, userId);
+	                    ps.executeUpdate();
+	                }
+
+	                // user_info
+	                try (PreparedStatement ps = conn.prepareStatement(sqlInfo)) {
+	                    int i = 1;
+	                    ps.setString(i++, nickname);
+	                    ps.setString(i++, addrDetail);
+	                    if (regionIdNullable == null) ps.setNull(i++, Types.INTEGER);
+	                    else ps.setInt(i++, regionIdNullable);
+
+	                    if (updateProfileImg) {
+	                        ps.setString(i++, profileImgNullable);
+	                    }
+	                    ps.setInt(i++, userId);
+	                    ps.executeUpdate();
+	                }
+
+	                conn.commit();
+	            } catch (SQLException e) {
+	                conn.rollback();
+	                throw e;
+	            } finally {
+	                conn.setAutoCommit(true);
+	            }
+	        }
+	    }
 	/* 회원 탈퇴 */
 	public boolean deleteUserById(int userId) throws SQLException {
 	    String sqlInfo = "DELETE FROM user_info WHERE u_id = ?";

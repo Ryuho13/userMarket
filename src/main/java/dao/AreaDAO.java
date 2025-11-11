@@ -55,7 +55,7 @@ public class AreaDAO {
         return getAllSidos();
     }
 
-    // ✅ ProductListServlet 호환용 메서드 (getAllSiggAreas)	
+    // ✅ ProductListServlet 호환용 메서드 (getAllSiggAreas)
     public List<SiggArea> getAllSiggAreas() throws Exception {
         List<SiggArea> list = new ArrayList<>();
         String sql = "SELECT id, name, sido_area_id FROM sigg_areas ORDER BY name";
@@ -74,6 +74,40 @@ public class AreaDAO {
         }
         return list;
     }
+    
+    public String getSidoNameById(int sidoId) throws SQLException {
+        String sql = "SELECT name FROM sido_areas WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, sidoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("name") : null;
+            }
+        }
+    }
+
+    public String getSiggNameById(int siggId) throws SQLException {
+        String sql = "SELECT name FROM sigg_areas WHERE id = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, siggId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getString("name") : null;
+            }
+        }
+    }
+    
+    public Integer getSidoIdBySiggId(int siggId) throws SQLException {
+        String sql = "SELECT sido_area_id FROM sigg_areas WHERE id = ?";
+        try (Connection c = DBUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, siggId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : null;
+            }
+        }
+    }
+    
     public SiggArea getSiggAreaById(int id) throws Exception {
         String sql = "SELECT id, name, sido_area_id FROM sigg_areas WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
@@ -91,5 +125,6 @@ public class AreaDAO {
         }
         return null;
     }
+
 
 }

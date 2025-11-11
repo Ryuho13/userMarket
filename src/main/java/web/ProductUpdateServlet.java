@@ -43,7 +43,6 @@ public class ProductUpdateServlet extends HttpServlet {
                 ps.setInt(1, productId);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        product = new Product();
                         product.setId(rs.getInt("id"));
                         product.setTitle(rs.getString("title"));
                         product.setDescription(rs.getString("description"));
