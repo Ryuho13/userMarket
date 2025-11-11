@@ -19,9 +19,31 @@
 </c:if>
 
 <c:if test="${not empty room}">
-  <h2>${otherUserNickname}</h2>
+  <div class="chat-header">
+      <button onclick="history.back()" class="back-button">&lt;</button>
+      <h2>${otherUserNickname}</h2>
+      <div class="spacer"></div>
+  </div>
 
   <div id="chatBox">
+    <c:if test="${not empty product}">
+        <div class="product-info-bar">
+            <div class="product-image">
+                <c:choose>
+                    <c:when test="${not empty product.images}">
+                        <img src="${pageContext.request.contextPath}/upload/product_images/${product.images[0]}" alt="상품 이미지">
+                    </c:when>
+                    <c:otherwise>
+                        <img src="${pageContext.request.contextPath}/product/resources/images/noimage.jpg" alt="이미지 없음">
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <div class="product-details">
+                <div class="product-title">${product.title}</div>
+                <div class="product-price"><fmt:formatNumber value="${product.sellPrice}" type="number"/>원</div>
+            </div>
+        </div>
+    </c:if>
     <c:choose>
       <c:when test="${not empty messages}">
         <c:forEach var="msg" items="${messages}">

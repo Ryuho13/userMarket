@@ -18,6 +18,13 @@ window.onload = function() {
   const msgInput = document.getElementById("msg");
   const sendBtn = document.getElementById("sendBtn");
   const imageUploadInput = document.getElementById("imageUpload");
+  const chatBox = document.getElementById("chatBox"); // chatBox를 여기서 가져옴
+
+  // chatBox가 없으면 이후 로직을 실행하지 않음
+  if (!chatBox) {
+      console.log("chatBox 요소를 찾을 수 없어 일부 기능이 비활성화됩니다.");
+      return; 
+  }
 
   // 엔터 키로 메시지 전송 (Shift+Enter는 줄바꿈)
   msgInput.addEventListener("keydown", function(e) {
@@ -38,15 +45,14 @@ window.onload = function() {
     if (file) {
       uploadImage(file);
     }
-    // 동일한 파일을 다시 선택할 수 있도록 입력 값을 초기화
     e.target.value = null;
   });
 
   // 페이지 로드 시 스크롤을 가장 아래로 이동
-  const chatBox = document.getElementById("chatBox");
-  if (chatBox) {
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // ===== 이미지 확대 모달 기능 초기화 =====
+  initializeImageModal(chatBox);
 };
 
 // WebSocket 서버에 연결하는 함수
@@ -144,6 +150,8 @@ function uploadImage(file) {
 // 채팅창에 새 메시지를 추가하는 함수
 function appendMessage(data) {
   const chatBox = document.getElementById("chatBox");
+  if (!chatBox) return; // chatBox가 없으면 함수 종료
+
   const isMine = data.senderId == currentUserId;
   const message = data.message;
 
@@ -153,7 +161,6 @@ function appendMessage(data) {
   const bubble = document.createElement("div");
   bubble.classList.add("bubble");
 
-  // 메시지 내용 처리 (이미지 또는 텍스트)
   if (message.startsWith("IMG::")) {
     const imageUrl = message.substring(5);
     const contextPath = document.body.dataset.contextPath || '';
@@ -177,4 +184,87 @@ function appendMessage(data) {
   chatBox.appendChild(chatRow);
 
   chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ===== 이미지 확대 모달 기능 =====
+function initializeImageModal(chatBox) {
+    // 모달이 이미 생성되었는지 확인
+    if (document.getElementById('imageModal')) {
+        return;
+    }
+
+    // 1. 모달 HTML 요소를 동적으로 생성하고 body에 추가
+    const modalHTML = `
+        <div id="imageModal" class="image-modal">
+            <span class="image-modal-close">&times;</span>
+            <img class="image-modal-content" id="modalImage">
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // 2. 모달 관련 CSS를 동적으로 생성하고 head에 추가
+    const modalStyle = `
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7); 
+            justify-content: center;
+            align-items: center;
+        }
+        .image-modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+        }
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .image-modal-close:hover,
+        .image-modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+    `;
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = modalStyle;
+    document.head.appendChild(styleSheet);
+
+    // 3. 모달 요소 가져오기
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeModal = document.querySelector('.image-modal-close');
+
+    // 4. 이벤트 리스너 설정 (이벤트 위임 사용)
+    chatBox.addEventListener('click', function(event) {
+        if (event.target.classList.contains('chat-image')) {
+            modal.style.display = 'flex';
+            modalImg.src = event.target.src;
+        }
+    });
+
+    // 5. 모달 닫기 이벤트
+    closeModal.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
 }

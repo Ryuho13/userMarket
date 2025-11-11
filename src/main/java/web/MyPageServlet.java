@@ -1,7 +1,6 @@
 package web;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
@@ -14,7 +13,6 @@ import model.User;
 import model.UserProfile;
 import model.ChatDAO;
 import model.ChatRoomDisplayDTO;
-import model.DBConnection;
 
 @WebServlet("/user/myPage")
 public class MyPageServlet extends HttpServlet {
@@ -31,11 +29,11 @@ public class MyPageServlet extends HttpServlet {
 
         User loginUser = (User) session.getAttribute("loginUser");
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try {
             UserDAO userDAO = new UserDAO();
             UserProfile profile = userDAO.findProfileByUserId(loginUser.getId());
             
-            ChatDAO chatDAO = new ChatDAO(conn);
+            ChatDAO chatDAO = new ChatDAO();
             List<ChatRoomDisplayDTO> chatRooms = chatDAO.getChatRoomsByUserId(loginUser.getId());
 
             req.setAttribute("profile", profile);
