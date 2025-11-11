@@ -316,5 +316,6 @@
 </script>
 
 <jsp:include page="/footer/footer.jsp" />
+<jsp:include page="../resources/alarm.jsp" />
 </body>
 </html>

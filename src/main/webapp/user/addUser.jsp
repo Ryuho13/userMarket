@@ -183,6 +183,10 @@
             <button type="reset"
                class="bg-gray-200 text-gray-700 px-6 py-2 font-bold rounded-lg shadow-md hover:bg-gray-300 transition duration-150 focus:outline-none focus:ring-4 focus:ring-gray-300 w-full sm:w-auto">
                초기화</button>
+            <button type="back"
+            onclick="history.back()"
+               class="bg-gray-200 text-gray-700 px-6 py-2 font-bold rounded-lg shadow-md hover:bg-gray-300 transition duration-150 focus:outline-none focus:ring-4 focus:ring-gray-300 w-full sm:w-auto">
+               뒤로가기</button>
          </div>
       </form>
    </div>

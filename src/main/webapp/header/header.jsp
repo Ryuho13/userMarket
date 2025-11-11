@@ -11,8 +11,9 @@
 <header class="header-container">
     <div class="header-content">
         <div class="site-logo">
+        	<img class="gam" alt="" src="${pageContext.request.contextPath}/user/img/gampic.png">
             <%-- 기본 상품 목록 페이지로 연결 --%>
-            <a href="${pageContext.request.contextPath}/product?q=">
+            <a href="${pageContext.request.contextPath}/product/list">
                 단감나라
             </a>
         </div>
@@ -35,8 +36,12 @@
             <%-- ${sessionScope.member} 대신 ${sessionScope.loginUser}로 변경 (LoginServlet의 세션 속성명 사용) --%>
             <c:choose>
                 <c:when test="${not empty sessionScope.loginUser}">
+                <span class="menu-item user-greeting text-primary-color">
+                        <c:out value="${sessionScope.loginProfile.nickname}"/>님
+                    </span>
                     <%-- 로그인 후: 마이페이지(서블릿 경로)와 로그아웃(서블릿 경로) --%>
                     <a href="${pageContext.request.contextPath}/user/myPage" class="menu-item menu-mypage">마이페이지</a>
+                    <span class="menu-divider">/</span>
                     <a href="${pageContext.request.contextPath}/user/logout" class="menu-item menu-logout">로그아웃</a>
                 </c:when>
                 <c:otherwise>
