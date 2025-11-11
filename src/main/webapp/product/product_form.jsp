@@ -145,7 +145,9 @@
   </form>
 
   <!-- 🔵 이제 여기부터는 등록/수정 폼 밖이므로, 삭제용 폼이 완전히 분리됨 -->
-  <div class="flex justify-content-between">
+  <c:if test="${not empty product.id}">
+ 	<div class="flex justify-content-between">
+   </c:if>
 
     <!-- 삭제 버튼: 상품이 있을 때만 -->
     <c:if test="${not empty product.id}">
