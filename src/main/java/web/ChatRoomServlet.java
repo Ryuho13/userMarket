@@ -1,7 +1,6 @@
 package web;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
@@ -13,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.ChatDAO;
 import model.ChatRoom;
 import model.Message;
-import model.DBConnection;
 import dao.ProductDetailDAO;
 import model.ProductDetail;
 import dao.UserDAO;
@@ -36,12 +34,8 @@ public class ChatRoomServlet extends HttpServlet {
         ChatRoom room = null;
         List<Message> messages = null;
 
-        try (Connection conn = DBConnection.getConnection()) {
-            if (conn == null) {
-                sendErrorResponse(response, "DB 연결에 실패했습니다.");
-                return;
-            }
-            ChatDAO chatDAO = new ChatDAO(conn);
+        try {
+            ChatDAO chatDAO = new ChatDAO();
             ProductDetailDAO productDetailDAO = new ProductDetailDAO();
 
             if (roomIdParam != null && !roomIdParam.isEmpty() && currentUserIdParam != null && !currentUserIdParam.isEmpty()) {
