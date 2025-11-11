@@ -18,7 +18,8 @@ public class ProductDetail {
     private String regionName;
     private String sellerName;
     private String sellerMobile;
-    private Double sellerRating;
+    private Double sellerRating;     
+    private Integer sellerRatingCount;
     private List<String> images = new ArrayList<>();
 
     public int getId() { return id; }
@@ -63,6 +64,8 @@ public class ProductDetail {
     public Double getSellerRating() { return sellerRating; }
     public void setSellerRating(Double sellerRating) { this.sellerRating = sellerRating; }
 
+    public Integer getSellerRatingCount() { return sellerRatingCount; }
+    public void setSellerRatingCount(Integer sellerRatingCount) { this.sellerRatingCount = sellerRatingCount; }
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
 }

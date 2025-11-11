@@ -13,7 +13,9 @@ public class ChatRoomDisplayDTO {
     private String productTitle;
     private String otherUserNickname;
     private int otherUserId;
-
+    private boolean rated; 
+    private Integer ratingId;
+    
     public ChatRoomDisplayDTO(int id,
                               int productId,
                               int buyerId,
@@ -43,7 +45,9 @@ public class ChatRoomDisplayDTO {
     public String getProductTitle() { return productTitle; }
     public String getOtherUserNickname() { return otherUserNickname; }
     public int getOtherUserId() { return otherUserId; }
-
+    public boolean isRated() { return rated; }
+    public Integer getRatingId() { return ratingId; }
+    
     public void setId(int id) { this.id = id; }
     public void setProductId(int productId) { this.productId = productId; }
     public void setBuyerId(int buyerId) { this.buyerId = buyerId; }
@@ -53,4 +57,6 @@ public class ChatRoomDisplayDTO {
     public void setProductTitle(String productTitle) { this.productTitle = productTitle; }
     public void setOtherUserNickname(String otherUserNickname) { this.otherUserNickname = otherUserNickname; }
     public void setOtherUserId(int otherUserId) { this.otherUserId = otherUserId; }
+    public void setRated(boolean rated) { this.rated = rated; }
+    public void setRatingId(Integer ratingId) { this.ratingId = ratingId; }
 }

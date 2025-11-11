@@ -248,78 +248,123 @@ font-family: 'Inter', sans-serif;
 									상품 구경가기 &rarr;</a>
 							</div>
 						</div>
-
 						<!-- 3. 채팅 목록 -->
 						<div id="content-chats" class="tab-content hidden">
-							<div class="space-y-3">
-								<c:choose>
-									<c:when test="${not empty chatRooms}">
-										<c:forEach var="chatRoom" items="${chatRooms}">
-										  <a
-										    href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${sessionScope.loginUserId}"
-										    class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
-										
-										    <div class="flex justify-between items-center">
-										      <div>
-										        <p class="font-bold text-gray-800">
-										          <c:if test="${not empty chatRoom.otherUserNickname}">${chatRoom.otherUserNickname}님과의 채팅</c:if>
-										          <c:if test="${empty chatRoom.otherUserNickname}">알 수 없는 사용자와의 채팅</c:if>
-										        </p>
-										        <p class="text-sm text-gray-600">
-										          <c:if test="${not empty chatRoom.productTitle}">상품: ${chatRoom.productTitle}</c:if>
-										          <c:if test="${empty chatRoom.productTitle}">상품 정보 없음</c:if>
-										        </p>
-										      </div>
-										      <div class="text-right">
-										        <span class="text-xs text-gray-400">
-										          <c:if test="${not empty chatRoom.createdAt}">${chatRoom.createdAt}</c:if>
-										          <c:if test="${empty chatRoom.createdAt}">날짜 정보 없음</c:if>
-										        </span>
-										      </div>
-										    </div>
-										
-										    <%-- 🌟 내 상품일 때만 거래 완료 버튼 노출 --%>
-										    <c:if test="${chatRoom.sellerId == sessionScope.loginUserId}">
-										      <div class="mt-3 flex justify-end">
-										        <form action="${pageContext.request.contextPath}/product/complete" 
-										              method="post"
-										              onClick="event.stopPropagation()"> <%-- a 클릭 막기 --%>
-										          <input type="hidden" name="productId" value="${chatRoom.productId}" />
-										          <input type="hidden" name="roomId" value="${chatRoom.id}" />
-										
-										          <c:choose>
-										            <%-- 이미 거래 완료 상태면 disabled 버튼 --%>
-										            <c:when test="${chatRoom.productStatus == 'SOLD_OUT'}">
-										              <button type="button"
-										                class="px-3 py-1 text-sm rounded-md bg-gray-200 text-gray-500 cursor-not-allowed"
-										                disabled>
-										                거래 완료됨
-										              </button>
-										            </c:when>
-										            <%-- 아직 SALE / RESERVED 이면 거래 완료 가능 --%>
-										            <c:otherwise>
-										              <button type="submit"
-										                class="px-3 py-1 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 transition">
-										                거래 완료
-										              </button>
-										            </c:otherwise>
-										          </c:choose>
-										        </form>
-										      </div>
-										    </c:if>
-										
-										  </a>
-										</c:forEach>
-
-									</c:when>
-									<c:otherwise>
-										<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-											<p class="text-gray-600">진행중인 채팅이 없습니다.</p>
-										</div>
-									</c:otherwise>
-								</c:choose>
-							</div>
+						  <div class="space-y-3">
+						    <c:choose>
+						      <c:when test="${not empty chatRooms}">
+						        <c:forEach var="chatRoom" items="${chatRooms}">
+						          
+						          <!-- 카드 전체 -->
+						          <div class="block p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition duration-150">
+						
+						            <!-- 상단: 채팅 제목 + 상품명 + 날짜 (전체 클릭 시 채팅방으로 이동) -->
+						            <a
+						              href="${pageContext.request.contextPath}/chatRoom?roomId=${chatRoom.id}&currentUserId=${sessionScope.loginUserId}"
+						              class="flex justify-between items-center">
+						              
+						              <div>
+						                <p class="font-bold text-gray-800">
+						                  <c:if test="${not empty chatRoom.otherUserNickname}">
+						                    ${chatRoom.otherUserNickname}님과의 채팅
+						                  </c:if>
+						                  <c:if test="${empty chatRoom.otherUserNickname}">
+						                    알 수 없는 사용자와의 채팅
+						                  </c:if>
+						                </p>
+						                <p class="text-sm text-gray-600">
+						                  <c:if test="${not empty chatRoom.productTitle}">
+						                    상품: ${chatRoom.productTitle}
+						                  </c:if>
+						                  <c:if test="${empty chatRoom.productTitle}">
+						                    상품 정보 없음
+						                  </c:if>
+						                </p>
+						              </div>
+						
+						              <div class="text-right">
+						                <span class="text-xs text-gray-400">
+						                  <c:if test="${not empty chatRoom.createdAt}">${chatRoom.createdAt}</c:if>
+						                  <c:if test="${empty chatRoom.createdAt}">날짜 정보 없음</c:if>
+						                </span>
+						              </div>
+						            </a>
+						
+						            <!-- 하단: 버튼 영역 -->
+						            <div class="mt-3 flex justify-end gap-2">
+						
+						              <%-- 1) 내가 판매자인 경우: 거래 완료 버튼 --%>
+						              <c:if test="${chatRoom.sellerId == sessionScope.loginUserId}">
+						                <form action="${pageContext.request.contextPath}/product/complete"
+						                      method="post"
+						                      onclick="event.stopPropagation()">
+						
+						                  <input type="hidden" name="productId" value="${chatRoom.productId}" />
+						                  <input type="hidden" name="roomId" value="${chatRoom.id}" />
+						
+						                  <c:choose>
+						                    <c:when test="${chatRoom.productStatus == 'SOLD_OUT'}">
+						                      <button type="button"
+						                              class="px-5 py-2 text-sm font-semibold rounded-full bg-gray-200 text-gray-500 cursor-not-allowed"
+						                              disabled>
+						                        거래 완료됨
+						                      </button>
+						                    </c:when>
+						                    <c:otherwise>
+						                      <button type="submit"
+						                              class="px-5 py-2 text-sm font-semibold rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition">
+						                        거래 완료
+						                      </button>
+						                    </c:otherwise>
+						                  </c:choose>
+						                </form>
+						              </c:if>
+						
+						              <%-- 2) 내가 구매자이고, 상품이 이미 판매 완료된 경우: 판매자 평점 버튼 --%>
+						              <c:if test="${chatRoom.buyerId == sessionScope.loginUserId
+						                           && chatRoom.productStatus == 'SOLD_OUT'}">
+						
+						                <c:choose>
+						                  <%-- 이미 평점 남겼으면: 비활성 --%>
+						                  <c:when test="${chatRoom.rated}">
+						                    <button type="button"
+						                            class="px-5 py-2 text-sm font-semibold rounded-full bg-gray-200 text-gray-500 cursor-not-allowed"
+						                            onclick="event.stopPropagation()"
+						                            disabled>
+						                      평가 완료
+						                    </button>
+						                  </c:when>
+						
+						                  <%-- 아직 평점 없으면: 평점 남기기 --%>
+						                  <c:otherwise>
+						                    <form action="${pageContext.request.contextPath}/rating/form"
+						                          method="get"
+						                          onclick="event.stopPropagation()">
+						                      <input type="hidden" name="productId" value="${chatRoom.productId}" />
+						                      <button type="submit"
+						                              class="px-5 py-2 text-sm font-semibold rounded-full bg-blue-500 text-white hover:bg-blue-600 transition">
+						                        판매자 평점 남기기
+						                      </button>
+						                    </form>
+						                  </c:otherwise>
+						                </c:choose>
+						
+						              </c:if>
+						
+						            </div>
+						          </div>
+						
+						        </c:forEach>
+						      </c:when>
+						      <c:otherwise>
+						        <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+						          <p class="text-gray-600">진행중인 채팅이 없습니다.</p>
+						        </div>
+						      </c:otherwise>
+						    </c:choose>
+						  </div>
 						</div>
+
 					</div>
 
 

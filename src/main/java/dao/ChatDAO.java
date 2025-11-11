@@ -145,6 +145,7 @@ public class ChatDAO {
 
     public List<ChatRoomDisplayDTO> getChatRoomsByUserId(int userId) {
         List<ChatRoomDisplayDTO> list = new ArrayList<>();
+
         String sql = """
             SELECT
                 cr.id,
@@ -155,11 +156,15 @@ public class ChatDAO {
                 p.seller_id,
                 p.status AS productStatus,
                 ui_buyer.nickname  AS buyerNickname,
-                ui_seller.nickname AS sellerNickname
+                ui_seller.nickname AS sellerNickname,
+                sr.id AS rating_id
             FROM chat_room cr
             JOIN products p ON cr.product_id = p.id
-            LEFT JOIN user_info ui_buyer  ON cr.buyer_id   = ui_buyer.u_id
-            LEFT JOIN user_info ui_seller ON p.seller_id   = ui_seller.u_id
+            LEFT JOIN user_info ui_buyer  ON cr.buyer_id = ui_buyer.u_id
+            LEFT JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
+            LEFT JOIN seller_ratings sr 
+                   ON sr.product_id = cr.product_id
+                  AND sr.buyer_id   = ?
             WHERE cr.buyer_id = ? OR p.seller_id = ?
             ORDER BY cr.created_at DESC
         """;
@@ -167,8 +172,9 @@ public class ChatDAO {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, userId);
+            pstmt.setInt(1, userId); // sr.buyer_id = ?
+            pstmt.setInt(2, userId); // cr.buyer_id = ?
+            pstmt.setInt(3, userId); // p.seller_id = ?
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -182,15 +188,17 @@ public class ChatDAO {
                     String buyerNickname  = rs.getString("buyerNickname");
                     String sellerNickname = rs.getString("sellerNickname");
 
+                    // ⭐ 이미 평점이 있는지 여부
+                    Integer ratingId = (Integer) rs.getObject("rating_id"); // null 허용
+                    boolean hasRating = (ratingId != null);
+
+                    // 상대방 정보 계산
                     String otherUserNickname;
                     int otherUserId;
-
                     if (userId == buyerId) { 
-                        // 현재 유저가 구매자인 경우 → 상대는 판매자
                         otherUserNickname = sellerNickname;
                         otherUserId       = sellerId;
-                    } else {             
-                        // 현재 유저가 판매자인 경우 → 상대는 구매자
+                    } else {
                         otherUserNickname = buyerNickname;
                         otherUserId       = buyerId;
                     }
@@ -206,6 +214,10 @@ public class ChatDAO {
                         otherUserNickname,
                         otherUserId
                     );
+
+                    dto.setRated(hasRating);    // ⭐ 여기에서 세팅
+                    dto.setRatingId(ratingId);  // (옵션) 필요하면 사용
+
                     list.add(dto);
                 }
             }
@@ -215,5 +227,6 @@ public class ChatDAO {
         }
         return list;
     }
+
 
 }
