@@ -21,23 +21,28 @@
   <a href="${pageContext.request.contextPath}/product/list" class="btn btn-outline-secondary mb-4">← 목록으로</a>
 
   <div class="product-container d-flex gap-4 flex-wrap">
-
-    <div id="productCarousel" class="carousel slide col-12 col-md-5" data-bs-ride="carousel" data-bs-interval="2500">
-      <div class="carousel-inner">
-        <c:forEach var="img" items="${product.images}" varStatus="status">
-          <div class="carousel-item ${status.first ? 'active' : ''}">
-            <img src="${img}" class="d-block mx-auto" alt="상품 이미지">
-          </div>
-        </c:forEach>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-      </button>
-    </div>
-
+	  <div class="col-12 col-md-5">
+	    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2500">
+	      <div class="carousel-inner">
+	        <c:forEach var="img" items="${product.images}" varStatus="status">
+	          <div class="carousel-item ${status.first ? 'active' : ''}">
+	            <img src="${img}" class="d-block w-100 rounded shadow-sm" alt="상품 이미지">
+	          </div>
+	        </c:forEach>
+	      </div>
+	      <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+	        <span class="carousel-control-prev-icon"></span>
+	      </button>
+	      <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+	        <span class="carousel-control-next-icon"></span>
+	      </button>
+	    </div>
+	
+	    <p class="text-muted mt-3 mb-0 text-left">
+	      홈 &gt; ${product.categoryName}
+	    </p>
+	
+	  </div>
     <!-- 📦 상품 정보 -->
     <div class="product-info flex-grow-1">
       <div class="d-flex align-items-center justify-content-between">
@@ -82,6 +87,7 @@
       <div class="seller-box mt-4">
         <h6 class="fw-bold mb-2">판매자 정보</h6>
         <p class="mb-2">
+          판매자: ${product.sellerName} <br>
 		  연락처: <strong>${product.sellerMobile}</strong>
 		</p>
 		

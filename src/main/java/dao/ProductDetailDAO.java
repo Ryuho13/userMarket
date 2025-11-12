@@ -53,11 +53,13 @@ public class ProductDetailDAO {
                    s.name AS sido_name,
                    g.name AS region_name,
                    u.name AS seller_name,
-                   u.phn  AS seller_mobile
+                   u.phn  AS seller_mobile,
+                   c.name AS category_name   
               FROM products p
               LEFT JOIN sido_areas s ON p.sido_id = s.id
               LEFT JOIN sigg_areas g ON p.region_id = g.id
               JOIN user u ON p.seller_id = u.id
+              JOIN categories c ON p.category_id = c.id
              WHERE p.id = ?
         """;
 
@@ -81,6 +83,7 @@ public class ProductDetailDAO {
                 pd.setRegionName(rs.getString("region_name"));
                 pd.setSellerName(rs.getString("seller_name"));
                 pd.setSellerMobile(rs.getString("seller_mobile"));
+                pd.setCategoryName(rs.getString("category_name"));
 
                 // ✅ 상품 이미지 리스트
                 pd.setImages(loadProductImages(conn, productId));

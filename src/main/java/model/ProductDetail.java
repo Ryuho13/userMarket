@@ -20,6 +20,7 @@ public class ProductDetail {
     private String sellerMobile;
     private Double sellerRating;     
     private Integer sellerRatingCount;
+    private String categoryName;
     private List<String> images = new ArrayList<>();
 
     public int getId() { return id; }
@@ -30,7 +31,10 @@ public class ProductDetail {
 
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
-
+    
+    public String getCategoryName() { return categoryName;}
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
