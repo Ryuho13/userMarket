@@ -1,0 +1,395 @@
+/* ===========================
+product_list.css - Autumn x 단감나라
+=========================== */
+
+:root {
+--color-bg: #F4F1EB;         
+--color-primary: #E46F34;   
+--color-primary-dark: #C85B27;
+--color-text-main: #1F2933;  
+--color-text-muted: #7A6A60; 
+--radius-card: 14px;
+}
+
+/* ----------------- 공통 기본 ----------------- */
+
+body.bg-light {
+background-color: var(--color-bg) !important;
+color: var(--color-text-main);
+/* [수정] header.css에서 전역 폰트를 설정하도록 이 설정을 제거하여 충돌을 방지합니다. */
+}
+
+/* 이 페이지에서 text-primary는 주황 */
+.text-primary {
+color: var(--color-primary) !important;
+}
+
+/* 기본 버튼: 단감색, 과하지 않게 */
+.btn-primary {
+background-color: var(--color-primary);
+border-color: var(--color-primary);
+color: #fff;
+font-weight: 600;
+border-radius: 999px;
+padding-inline: 1.1rem;
+box-shadow: 0 4px 10px rgba(196, 101, 47, 0.35);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+background-color: var(--color-primary-dark);
+border-color: var(--color-primary-dark);
+}
+
+/* ----------------- 상단 검색 바 ----------------- */
+
+.select_container {
+max-width: 1000px;
+margin: 1.6rem auto 0.7rem;
+padding-inline: 0.75rem;
+}
+
+.select_container .input-group {
+border-radius: 999px;
+overflow: hidden;
+background-color: #ffffff;
+box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+
+.select_container .input-group-text {
+border: none;
+background-color: #ffffff;
+}
+
+.select_container .form-control {
+border: none;
+font-size: 0.95rem;
+}
+
+.select_container .form-control:focus {
+box-shadow: none;
+}
+
+.select_container .text-secondary {
+color: var(--color-text-muted) !important;
+font-size: 0.85rem;
+}
+
+/* ----------------- 본문 레이아웃 ----------------- */
+
+.main_container {
+max-width: 1100px;
+margin: 0 auto 2rem;
+padding: 0 0.75rem;
+}
+
+/* JSP에서 container + d-flex라서 그대로 활용 */
+.main_container.container {
+display: flex;
+align-items: flex-start;
+gap: 2rem;
+}
+
+/* ----------------- 필터 패널 (왼쪽) ----------------- */
+
+.product_filter {
+width: 300px;
+flex-shrink: 0;
+background-color: #ffffff;
+border-radius: var(--radius-card);
+border: 1px solid #E1D6CA;
+padding: 1.15rem 1rem 1.3rem;
+position: sticky;
+top: 84px;
+}
+
+.product_filter h5 {
+font-size: 1rem;
+font-weight: 700;
+margin-bottom: 0.85rem;
+}
+
+/* 적용된 필터 태그 박스 */
+.filter-tags-box {
+border-radius: 12px;
+border: 1px solid #E6D5C6;
+background-color: #FBF6F0;
+}
+
+.active-filter {
+font-size: 0.78rem;
+border-radius: 999px;
+}
+
+.active-filter .btn-close {
+font-size: 0.55rem;
+}
+
+/* 위치 라디오 리스트 */
+.sigg-radio-list {
+max-height: 210px;
+overflow-y: auto;
+padding-right: 4px;
+font-size: 0.85rem;
+}
+
+/* 카테고리 */
+.categories .form-check {
+margin-bottom: 0.3rem;
+}
+
+.categories .form-check-label {
+font-size: 0.88rem;
+}
+
+/* 가격 간단 버튼 */
+.price-btn {
+border-radius: 999px;
+font-size: 0.8rem;
+padding: 0.2rem 0.7rem;
+}
+
+.price-btn.active {
+background-color: var(--color-primary);
+border-color: var(--color-primary);
+color: #fff;
+}
+
+/* ----------------- 상품 목록 (오른쪽) ----------------- */
+
+.product_items {
+flex: 1;
+min-width: 0;
+}
+
+
+.product_items::before {
+content: "상품 목록";
+display: block;
+font-size: 0.9rem;
+font-weight: 600;
+color: var(--color-text-muted);
+margin-bottom: 0.3rem; 
+}
+
+
+.product_item {
+margin-bottom: 1.3rem;
+}
+
+/* 카드: 흰 카드 + 매우 부드러운 그림자 */
+.product_items .card {
+border-radius: var(--radius-card);
+background-color: #ffffff;
+border: 1px solid #E2DFDA;
+box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+padding: 0.55rem 0.65rem 0.65rem;
+transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.product_items .card:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+border-color: #D7CBBF;
+}
+
+/* 이미지 래퍼 */
+.image-wrapper {
+position: relative;
+border-radius: 12px;
+overflow: hidden;
+background-color: #F7F3EF;
+}
+
+.product_img {
+width: 100%;
+height: 210px;
+object-fit: cover;
+transition: transform 0.18s ease;
+}
+
+.product_item:hover .product_img {
+transform: scale(1.03);
+}
+
+/* 판매완료/예약 오버레이 */
+.soldout-image,
+.reserved-image {
+position: absolute;
+top: 50%;
+left: 50%;
+width: 70%;
+max-width: 170px;
+transform: translate(-50%, -50%);
+pointer-events: none;
+}
+
+.product_img.soldout {
+filter: grayscale(0.88) brightness(0.78);
+}
+
+.product_item.soldout {
+opacity: 0.9;
+}
+
+a.disabled-link {
+pointer-events: none;
+}
+
+/* 카드 텍스트 */
+.product_items .card-body {
+padding: 0.55rem 0.05rem 0;
+}
+
+.product_items .card-title {
+font-size: 0.95rem;
+font-weight: 500;
+color: var(--color-text-main);
+margin-bottom: 0.25rem;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+/* 가격 – 주황 포인트 */
+.price-small {
+font-size: 1rem;
+font-weight: 700;
+color: var(--color-primary);
+margin-bottom: 0.1rem;
+}
+
+/* 지역/부가 정보 */
+.product_items .card-body .text-muted {
+font-size: 0.8rem;
+color: var(--color-text-muted) !important;
+}
+
+/* 상품 없을 때 */
+.product_items .text-secondary.py-5 {
+border-radius: var(--radius-card);
+background-color: #ffffff;
+border: 1px solid #e5e7eb;
+}
+
+/* ----------------- 페이지네이션 ----------------- */
+
+/* 가운데 고정된 캡슐형 페이지네이션 */
+.pagination {
+margin: 1.8rem 55 0px 0;
+padding: 0.25rem 0.3rem;
+border-radius: 999px;
+background-color: #ffffff;
+border: 1px solid #E2DFDA;
+box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+display: flex;  
+gap: 0.15rem;
+}
+
+/* 기본 페이지 버튼 */
+.pagination .page-link {
+border: none;
+background: transparent;
+min-width: 32px;
+height: 32px;
+padding: 0 0.65rem;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border-radius: 999px;
+font-size: 0.84rem;
+color: var(--color-text-muted);
+box-shadow: none;
+}
+
+/* 현재 페이지 */
+.pagination .page-item.active .page-link {
+background-color: var(--color-primary);
+color: #ffffff;
+font-weight: 600;
+}
+
+/* 비활성(처음/이전/다음/마지막 막힌 상태) */
+.pagination .page-item.disabled .page-link {
+opacity: 0.35;
+cursor: default;
+}
+
+/* "처음" / "마지막" 버튼은 조금 더 길게 */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+padding-inline: 0.9rem;
+font-size: 0.8rem;
+}
+
+/* 화살표(« / »)는 숫자보다 살짝 연하게 */
+.pagination .page-item:nth-child(2) .page-link,
+.pagination .page-item:nth-last-child(2) .page-link {
+font-size: 0.8rem;
+}
+
+/* 모바일에서는 '처음' / '마지막' 숨기기 (공간 확보) */
+@media (max-width: 576px) {
+.pagination .page-item:first-child,
+.pagination .page-item:last-child {
+display: none;
+}
+}
+
+/* ----------------- 반응형 ----------------- */
+
+@media (max-width: 992px) {
+.main_container.container {
+flex-direction: column;
+gap: 1.25rem;
+}
+
+.product_filter {
+position: static;
+width: 100%;
+order: -1;
+}
+}
+
+@media (max-width: 576px) {
+.select_container {
+padding-inline: 0.75rem !important;
+}
+
+.main_container {
+padding-inline: 0.75rem !important;
+}
+
+.product_img {
+height: 180px;
+}
+}
+
+/* ----------------- 정렬 바 (Sort Bar) ----------------- */
+
+
+.sort-bar {
+text-align: left !important;
+font-size: 0.85rem;
+color: var(--color-text-muted);
+margin-bottom: 1rem !important;
+}
+
+.sort-bar a {
+/* 비활성화 링크 색상을 '원하는 상품명을...'과 동일한 muted color로 설정 */
+color: var(--color-text-muted);
+text-decoration: none;
+padding: 0 0.4rem;
+font-weight: 500;
+transition: color 0.15s ease;
+}
+
+.sort-bar a.font-bold {
+color: var(--color-primary) !important; 
+font-weight: 700; 
+}
+
+/* 마우스 오버 시 색상 */
+.sort-bar a:hover {
+color: var(--color-primary-dark);
+}

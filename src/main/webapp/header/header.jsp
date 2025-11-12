@@ -40,6 +40,8 @@
                         <c:out value="${sessionScope.loginProfile.nickname}"/>님
                     </span>
                     <%-- 로그인 후: 마이페이지(서블릿 경로)와 로그아웃(서블릿 경로) --%>
+                    <a href="${pageContext.request.contextPath}/product/product_form" class="menu-item add-product">상품등록</a>
+                    <span class="menu-divider">/</span>
                     <a href="${pageContext.request.contextPath}/user/myPage" class="menu-item menu-mypage">마이페이지</a>
                     <span class="menu-divider">/</span>
                     <a href="${pageContext.request.contextPath}/user/logout" class="menu-item menu-logout">로그아웃</a>

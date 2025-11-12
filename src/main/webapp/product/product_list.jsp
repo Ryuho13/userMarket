@@ -20,7 +20,7 @@
   crossorigin="anonymous">
 
 <!-- 커스텀 CSS -->
-<link rel="stylesheet" href="<c:url value='/user/css/product_list.css'/>">
+<link rel="stylesheet" href="<c:url value='/product/css/product_list.css'/>">
 </head>
 
 <body class="bg-light">
@@ -78,7 +78,7 @@
     <c:otherwise>
       <div class="mt-2 text-secondary fs-4 text-center"
            style="max-width: 600px; width: 100%;">
-        원하는 상품명을 입력해서 검색해 보세요.
+        원하는 상품명을 입력해서 검색해 보세요!
       </div>
     </c:otherwise>
   </c:choose>
@@ -392,8 +392,8 @@
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>
-<script src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
-<script src="${pageContext.request.contextPath}/user/js/product_filter.js"></script>
+<script src="${pageContext.request.contextPath}/product/js/image-preview.js"></script>
+<script src="${pageContext.request.contextPath}/product/js/product_filter.js"></script>
 <script>
   window.contextPath = "${pageContext.request.contextPath}";
   window.serverParams = {
