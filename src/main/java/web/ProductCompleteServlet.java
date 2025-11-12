@@ -27,7 +27,6 @@ public class ProductCompleteServlet extends HttpServlet {
             return;
         }
 
-        // loginUserId 또는 loginUser 객체 둘 다 고려
         Integer loginUserId = (Integer) session.getAttribute("loginUserId");
         if (loginUserId == null) {
             User loginUser = (User) session.getAttribute("loginUser");
@@ -69,7 +68,6 @@ public class ProductCompleteServlet extends HttpServlet {
                 int updated = ps.executeUpdate();
 
                 if (updated == 0) {
-                    // 내 상품이 아니거나 존재하지 않는 상품
                     resp.sendError(HttpServletResponse.SC_FORBIDDEN, "해당 상품을 거래 완료로 변경할 수 없습니다.");
                     return;
                 }

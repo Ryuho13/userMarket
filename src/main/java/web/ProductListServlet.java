@@ -31,7 +31,6 @@ public class ProductListServlet extends HttpServlet {
 
         Integer categoryId = parseIntOrNull(categoryParam);
         Integer siggAreaId = parseIntOrNull(siggParam);
-        Integer sidoId     = parseIntOrNull(sidoParam); // 지금은 안 쓰지만 남겨둠
 
         Integer minPrice = parseIntOrNull(req.getParameter("minPrice"));
         Integer maxPrice = parseIntOrNull(req.getParameter("maxPrice"));
@@ -104,7 +103,6 @@ public class ProductListServlet extends HttpServlet {
         }
     }
 
-    // ------------------ 유틸 ------------------
 
     private static String trimToNull(String s) {
         if (s == null) return null;

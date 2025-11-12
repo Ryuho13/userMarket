@@ -29,7 +29,6 @@ public class RatingFormServlet extends HttpServlet {
             return;
         }
 
-        // 일단 productId만 전달, 필요하면 상품 제목/판매자 닉네임도 DAO로 조회해서 setAttribute 해도 됨
         req.setAttribute("productId", productIdParam);
 
         req.getRequestDispatcher("/rating/rating_form.jsp")

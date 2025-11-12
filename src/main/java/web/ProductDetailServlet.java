@@ -93,7 +93,6 @@ public class ProductDetailServlet extends HttpServlet {
             req.setAttribute("sameSeller", sameSeller);
             req.setAttribute("isWished", isWished);   
 
-            // ✅ 최종 복구된 논리적 경로: 파일 구조(/product/)에 맞는 경로입니다.
             req.getRequestDispatcher("/product/product_detail.jsp")
                .forward(req, resp);
 

@@ -34,20 +34,18 @@ public class ProductInsertServlet extends HttpServlet {
             return;
         }
 
-        // 📥 파라미터 수집
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String sellPriceStr = req.getParameter("sellPrice");
         String categoryIdStr = req.getParameter("categoryId");
-        String siggAreaIdStr = req.getParameter("regionId");  // 시군구
-        String sidoAreaIdStr = req.getParameter("sidoId");    // 시도
+        String siggAreaIdStr = req.getParameter("regionId");  
+        String sidoAreaIdStr = req.getParameter("sidoId");   
 
         int sellPrice = (sellPriceStr != null && !sellPriceStr.isEmpty())
                 ? Integer.parseInt(sellPriceStr) : 0;
         int categoryId = Integer.parseInt(categoryIdStr);
         String status = "SALE";
 
-        // 📂 이미지 업로드 경로
         String uploadPath = "D:/upload/product_images";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) uploadDir.mkdirs();
@@ -55,7 +53,6 @@ public class ProductInsertServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection()) {
             conn.setAutoCommit(false);
 
-            // 🗺️ 유저 활동 지역 등록 (최초 등록 시만)
             if (siggAreaIdStr != null && !siggAreaIdStr.isEmpty()) {
                 int siggAreaId = Integer.parseInt(siggAreaIdStr);
 
@@ -72,7 +69,6 @@ public class ProductInsertServlet extends HttpServlet {
                                 psInsert.setInt(1, loginUserId);
                                 psInsert.setInt(2, siggAreaId);
                                 psInsert.executeUpdate();
-                                System.out.println("✅ activity_areas 등록 완료 (user_id=" + loginUserId + ")");
                             }
                         }
                     }
