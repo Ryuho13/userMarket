@@ -1,5 +1,6 @@
 package web;
 
+import dao.ChatDAO;
 import dao.ProductDAO;
 import dao.UserDAO;
 // (중략: 필요한 import 구문들)
@@ -16,7 +17,7 @@ import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import model.ChatDAO;
+
 import model.ChatRoomDisplayDTO;
 
 @WebServlet("/user/myPage")

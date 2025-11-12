@@ -1,10 +1,11 @@
-package model;
+package dao;
 
 import java.sql.*;
 import java.util.*;
-import dao.DBUtil; // DBUtil 임포트
+
 import model.ChatRoom;
 import model.Message;
+import model.ChatRoomDisplayDTO;
 
 public class ChatDAO {
 
@@ -144,6 +145,7 @@ public class ChatDAO {
 
     public List<ChatRoomDisplayDTO> getChatRoomsByUserId(int userId) {
         List<ChatRoomDisplayDTO> list = new ArrayList<>();
+
         String sql = """
             SELECT
                 cr.id,
@@ -152,50 +154,70 @@ public class ChatDAO {
                 cr.created_at,
                 p.title AS productTitle,
                 p.seller_id,
-                ui_buyer.nickname AS buyerNickname,
-                ui_seller.nickname AS sellerNickname
+                p.status AS productStatus,
+                ui_buyer.nickname  AS buyerNickname,
+                ui_seller.nickname AS sellerNickname,
+                sr.id AS rating_id
             FROM chat_room cr
             JOIN products p ON cr.product_id = p.id
-            LEFT JOIN user_info ui_buyer ON cr.buyer_id = ui_buyer.u_id
+            LEFT JOIN user_info ui_buyer  ON cr.buyer_id = ui_buyer.u_id
             LEFT JOIN user_info ui_seller ON p.seller_id = ui_seller.u_id
+            LEFT JOIN seller_ratings sr 
+                   ON sr.product_id = cr.product_id
+                  AND sr.buyer_id   = ?
             WHERE cr.buyer_id = ? OR p.seller_id = ?
             ORDER BY cr.created_at DESC
         """;
-        try (Connection conn = DBUtil.getConnection(); // DBUtil 사용
+
+        try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.setInt(2, userId);
+
+            pstmt.setInt(1, userId); // sr.buyer_id = ?
+            pstmt.setInt(2, userId); // cr.buyer_id = ?
+            pstmt.setInt(3, userId); // p.seller_id = ?
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    int roomId = rs.getInt("id");
-                    int productId = rs.getInt("product_id");
-                    int buyerId = rs.getInt("buyer_id");
+                    int roomId        = rs.getInt("id");
+                    int productId     = rs.getInt("product_id");
+                    int buyerId       = rs.getInt("buyer_id");
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     String productTitle = rs.getString("productTitle");
-                    int sellerId = rs.getInt("seller_id");
-                    String buyerNickname = rs.getString("buyerNickname");
+                    int sellerId        = rs.getInt("seller_id");
+                    String productStatus = rs.getString("productStatus");
+                    String buyerNickname  = rs.getString("buyerNickname");
                     String sellerNickname = rs.getString("sellerNickname");
 
+                    // ⭐ 이미 평점이 있는지 여부
+                    Integer ratingId = (Integer) rs.getObject("rating_id"); // null 허용
+                    boolean hasRating = (ratingId != null);
+
+                    // 상대방 정보 계산
                     String otherUserNickname;
                     int otherUserId;
-
-                    if (userId == buyerId) { // Current user is the buyer, so the other user is the seller
+                    if (userId == buyerId) { 
                         otherUserNickname = sellerNickname;
-                        otherUserId = sellerId;
-                    } else { // Current user is the seller, so the other user is the buyer
+                        otherUserId       = sellerId;
+                    } else {
                         otherUserNickname = buyerNickname;
-                        otherUserId = buyerId;
+                        otherUserId       = buyerId;
                     }
 
                     ChatRoomDisplayDTO dto = new ChatRoomDisplayDTO(
                         roomId,
                         productId,
                         buyerId,
+                        sellerId,
+                        productStatus,
                         createdAt,
                         productTitle,
                         otherUserNickname,
                         otherUserId
                     );
+
+                    dto.setRated(hasRating);    // ⭐ 여기에서 세팅
+                    dto.setRatingId(ratingId);  // (옵션) 필요하면 사용
+
                     list.add(dto);
                 }
             }
@@ -205,4 +227,6 @@ public class ChatDAO {
         }
         return list;
     }
+
+
 }

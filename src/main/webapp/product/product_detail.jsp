@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -79,8 +81,35 @@
 
       <div class="seller-box mt-4">
         <h6 class="fw-bold mb-2">판매자 정보</h6>
-        <p class="mb-1">연락처: <strong>${product.sellerMobile}</strong></p>
-        <p class="mb-2">평점: <c:out value="${product.sellerRating != null ? product.sellerRating : '-'}" /></p>
+        <p class="mb-2">
+		  연락처: <strong>${product.sellerMobile}</strong>
+		</p>
+		
+		<div class="mt-4 border-t pt-4">
+		  <h4 class="text-lg font-semibold mb-2">판매자 평점</h4>
+		  <c:choose>
+		    <c:when test="${product.sellerRating != null}">
+		      <p class="text-yellow-500 text-base">
+				⭐ <fmt:formatNumber value="${product.sellerRating}" pattern="0.0" /> / 5
+		        <span class="text-gray-500 text-sm">(${product.sellerRatingCount}명 참여)</span>
+		      </p>
+		    </c:when>
+		    <c:otherwise>
+		      <p class="text-gray-500 text-sm">아직 등록된 평점이 없습니다.</p>
+		    </c:otherwise>
+		  </c:choose>
+		</div>
+
+		
+		<!-- ⭐ 거래가 완료된 상품이고, 내가 구매자일 때만 평가 버튼 -->
+		<c:if test="${not empty sessionScope.loginUserId
+		             && sessionScope.loginUserId != product.sellerId
+		             && product.status == 'SOLD_OUT'}">
+		  <a href="${pageContext.request.contextPath}/rating/form?productId=${product.id}"
+		     class="btn btn-outline-success btn-sm mt-1">
+		    판매자 평가하기
+		  </a>
+		</c:if>
 
         <div class="d-flex gap-2 mt-3">
           <c:choose>

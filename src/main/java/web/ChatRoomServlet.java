@@ -8,10 +8,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import model.ChatDAO;
 import model.ChatRoom;
 import model.Message;
+import dao.ChatDAO;
 import dao.ProductDetailDAO;
 import model.ProductDetail;
 import dao.UserDAO;

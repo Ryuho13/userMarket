@@ -38,6 +38,7 @@ public class ProductDetailServlet extends HttpServlet {
 
         final int id;
         try {
+        	
             id = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id format");

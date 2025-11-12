@@ -21,12 +21,14 @@ public class ProductDetailDAO {
             boolean old = conn.getAutoCommit();
             conn.setAutoCommit(false);
             try {
+                // 조회수 증가
                 try (PreparedStatement ps = conn.prepareStatement(
                         "UPDATE products SET view_count = view_count + 1 WHERE id = ?")) {
                     ps.setInt(1, productId);
                     ps.executeUpdate();
                 }
 
+                // 상품 + 판매자 정보 + 이미지 + 평점까지 로딩
                 ProductDetail pd = findById(conn, productId);
 
                 conn.commit();
@@ -80,7 +82,12 @@ public class ProductDetailDAO {
                 pd.setSellerName(rs.getString("seller_name"));
                 pd.setSellerMobile(rs.getString("seller_mobile"));
 
+                // ✅ 상품 이미지 리스트
                 pd.setImages(loadProductImages(conn, productId));
+
+                // ✅ 판매자 평점(전체 거래 기준 평균) 조회
+                loadSellerRating(conn, pd);
+
                 return pd;
             }
         }
@@ -105,6 +112,43 @@ public class ProductDetailDAO {
         }
         return images;
     }
+
+    /**
+     * ✅ 판매자 평점 정보 로딩
+     * seller_ratings 테이블에서 해당 판매자의 평균 평점 + 평점 개수를 가져와서
+     * ProductDetail 객체에 세팅한다.
+     */
+    private void loadSellerRating(Connection conn, ProductDetail pd) throws SQLException {
+        String sql = """
+            SELECT AVG(rating) AS avg_rating,
+                   COUNT(*)    AS cnt
+              FROM seller_ratings
+             WHERE seller_id = ?
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, pd.getSellerId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    double avg = rs.getDouble("avg_rating");
+                    int count = rs.getInt("cnt");
+
+                    if (rs.wasNull() || count == 0) {
+                        pd.setSellerRating(null);
+                        pd.setSellerRatingCount(0);
+                    } else {
+                        pd.setSellerRating(avg);
+                        pd.setSellerRatingCount(count);
+                    }
+                } else {
+                    pd.setSellerRating(null);
+                    pd.setSellerRatingCount(0);
+                }
+            }
+        }
+    }
+
 
     public boolean isWished(int userId, int productId) throws SQLException {
         String sql = "SELECT 1 FROM wish_lists WHERE register_id = ? AND product_id = ?";

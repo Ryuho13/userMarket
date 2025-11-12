@@ -201,6 +201,29 @@ CREATE TABLE chat_messages (
       ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ==========================================
+-- 💬 평점 관련 테이블
+-- ==========================================
+CREATE TABLE seller_ratings (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  seller_id   INT NOT NULL,   -- 평가 받는 사람 (판매자: user.id)
+  buyer_id    INT NOT NULL,   -- 평가하는 사람 (구매자: user.id)
+  product_id  INT NOT NULL,   -- 어떤 상품 거래에 대한 평점인지
+  rating      TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5), -- 1~5점
+  comment     VARCHAR(255) NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- 한 구매자가 하나의 상품에 대해 한 번만 평가하게
+  UNIQUE KEY uq_seller_rating (buyer_id, product_id),
+
+  FOREIGN KEY (seller_id) REFERENCES user(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (buyer_id) REFERENCES user(id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ==========================================
 -- 전국 행정구역 데이터 초기화
