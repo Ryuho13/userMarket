@@ -54,7 +54,6 @@ public class RatingSaveServlet extends HttpServlet {
 
         int sellerId;
 
-        // 1) 상품에서 seller_id 가져오기
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                      "SELECT seller_id FROM products WHERE id = ?")) {
@@ -70,9 +69,6 @@ public class RatingSaveServlet extends HttpServlet {
             throw new ServletException("판매자 조회 중 오류", e);
         }
 
-        // (선택) chat_room 테이블을 사용해서 loginUserId가 실제 buyer인지 확인해도 좋음.
-
-        // 2) seller_ratings 에 저장 (이미 있으면 업데이트)
         String sql = """
             INSERT INTO seller_ratings (seller_id, buyer_id, product_id, rating, comment)
             VALUES (?, ?, ?, ?, ?)

@@ -81,14 +81,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const lineHeight = parseFloat(getComputedStyle(p).lineHeight);
     const maxHeight = lineHeight * 3;
 
-    // 3줄 이하라면 더보기 버튼 숨김
+    // 3줄 이하 → 클램프 해제 + 버튼 숨김
     if (p.scrollHeight <= maxHeight + 2) {
+      p.classList.add("no-clamp");
       btn.style.display = "none";
+      return;
     }
 
+    // 긴 리뷰만 토글 가능
     btn.addEventListener("click", () => {
       const expanded = p.classList.toggle("expanded");
-      btn.textContent = expanded ? "접기 ▲" : "더보기 ▼";
+      if (expanded) {
+        p.classList.add("no-clamp");
+        btn.textContent = "접기 ▲";
+      } else {
+        p.classList.remove("no-clamp");
+        btn.textContent = "더보기 ▼";
+      }
     });
   });
 });

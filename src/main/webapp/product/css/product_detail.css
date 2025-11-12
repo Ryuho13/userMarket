@@ -93,7 +93,15 @@ line-clamp-3{
   -webkit-line-clamp: unset;
   max-height: none;
 }
+.review-text.no-clamp {
+  -webkit-line-clamp: unset;
+  max-height: none;
+  display: block;
+}
 
+.review-text.no-clamp::after {
+  display: none;
+}
 .toggle-btn {
   border: none;
   background: none;
