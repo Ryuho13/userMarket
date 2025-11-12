@@ -194,7 +194,7 @@
     </form>
   </aside>
 
-  <!-- 오른쪽 상품 목록 -->
+  <!-- 오른쪽 상품 목록. -->
   <section class="product_items">
 	  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 

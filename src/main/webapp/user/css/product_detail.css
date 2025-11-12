@@ -1,25 +1,179 @@
-  /* 사용자 정의 디자인 시스템 변수 및 기본 스타일 (Tailwind와 함께 사용) */
-  :root {
-    --color-primary: #10B981; /* Tailwind green-500 */
-    --color-primary-dark: #059669; /* Tailwind green-600 */
+:root {
+  --color-bg: #f3f5f7;
+  --color-primary: #10B981;
+  --color-primary-dark: #059669;
+  --color-text-main: #1f2933;
+  --color-text-muted: #6b7280;
+
+  --radius-card: 16px;
+  --shadow-card: 0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  /* [추가] Inter 폰트 적용 */
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.btn-outline-primary {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  color: #fff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-action {
+  min-width: 110px;
+}
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.container {
+  max-width: 1100px;
+}
+
+.product-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.8rem;
+}
+
+#productCarousel {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background-color: #fff;
+  overflow: hidden;
+}
+
+#productCarousel .carousel-inner {
+  border-radius: var(--radius-card);
+}
+
+#productCarousel .carousel-item img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+
+.product-info h3 {
+  font-size: 1.4rem;
+}
+
+.product-info p {
+  font-size: 0.95rem;
+}
+
+.seller-box {
+  background-color: #fff;
+  border-radius: var(--radius-card);
+  padding: 1rem 1.2rem;
+  box-shadow: var(--shadow-card);
+  font-size: 0.93rem;
+}
+
+.seller-box h6 {
+  font-weight: 700;
+}
+
+.seller-box p {
+  margin-bottom: 0.2rem;
+}
+
+.section-box {
+  margin-top: 2rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+  background-color: #fff;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.section-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.section-box .card {
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.section-box .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.18);
+}
+
+.section-box .card-img-top {
+  height: 160px;
+  object-fit: cover;
+}
+
+.section-box .btn.btn-outline-secondary.btn-sm {
+  border-radius: 999px;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 992px) {
+  #productCarousel .carousel-item img {
+    height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-container {
+    flex-direction: column;
   }
 
-  /* 글자 디자인 적용 */
-  body {
-    font-family: 'Inter', sans-serif;
-  }
-
-  /* 폼 컨트롤 기본 스타일 (버튼과 함께 일관된 디자인) */
-  .custom-form-control {
+  #productCarousel {
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db; /* gray-300 */
-    border-radius: 0.5rem; /* rounded-lg */
-    transition: all 0.15s ease-in-out;
   }
 
-  .custom-form-control:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  #productCarousel .carousel-item img {
+    height: 280px;
   }
+
+  .seller-box,
+  .section-box {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 1.5rem !important;
+  }
+
+  .product-info h3 {
+    font-size: 1.2rem;
+  }
+
+  #productCarousel .carousel-item img {
+    height: 240px;
+  }
+}
