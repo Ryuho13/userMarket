@@ -1,159 +1,98 @@
-let ws;
-
-// 페이지 로드 시 실행될 초기화 함수
-window.onload = function() {
-  const roomIdInput = document.getElementById("roomId");
-
-  if (!roomIdInput) {
-    console.error("채팅방 정보를 찾을 수 없습니다. (roomId 요소가 없음)");
-    return;
+document.addEventListener("DOMContentLoaded", () => {
+  const chatBox = document.getElementById("chatBox");
+  if (chatBox) {
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  const roomId = roomIdInput.value;
-  
-  if(roomId && currentUserId) {
-    connect(roomId, currentUserId);
-  }
+  const roomId = document.body.dataset.roomId;
+  const userId = document.body.dataset.userId;
+  const contextPath = document.body.dataset.contextPath;
 
+  // WebSocket 연결
+  const ws = new WebSocket("ws://" + window.location.host + contextPath + "/chatSocket/" + roomId + "/" + userId);
+
+  ws.onopen = function(e) {
+    console.log("WebSocket 연결 성공:", e);
+  };
+
+  ws.onmessage = function(e) {
+    const msg = JSON.parse(e.data);
+    console.log("메시지 수신:", msg);
+
+    if (msg.type === "system") {
+      displaySystemMessage(msg.message);
+    } else if (msg.type === "chat") {
+      displayMessage(msg);
+    }
+  };
+
+  ws.onclose = function(e) {
+    console.log("WebSocket 연결 종료:", e);
+  };
+
+  ws.onerror = function(e) {
+    console.error("WebSocket 오류:", e);
+  };
+
+  // 메시지 전송
   const msgInput = document.getElementById("msg");
   const sendBtn = document.getElementById("sendBtn");
-  const imageUploadInput = document.getElementById("imageUpload");
-  const chatBox = document.getElementById("chatBox"); // chatBox를 여기서 가져옴
 
-  // chatBox가 없으면 이후 로직을 실행하지 않음
-  if (!chatBox) {
-      console.log("chatBox 요소를 찾을 수 없어 일부 기능이 비활성화됩니다.");
-      return; 
-  }
-
-  // 엔터 키로 메시지 전송 (Shift+Enter는 줄바꿈)
-  msgInput.addEventListener("keydown", function(e) {
+  sendBtn.addEventListener("click", sendMessage);
+  msgInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendTextMessage();
+      sendMessage();
     }
   });
 
-  // 보내기 버튼 클릭으로 메시지 전송
-  sendBtn.addEventListener("click", function() {
-    sendTextMessage();
-  });
-
-  // 이미지 파일 선택 시 업로드 처리
-  imageUploadInput.addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      uploadImage(file);
+  function sendMessage() {
+    const message = msgInput.value.trim();
+    if (message) {
+      ws.send(JSON.stringify({ message: message }));
+      msgInput.value = "";
     }
-    e.target.value = null;
-  });
-
-  // 페이지 로드 시 스크롤을 가장 아래로 이동
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  // ===== 이미지 확대 모달 기능 초기화 =====
-  initializeImageModal(chatBox);
-};
-
-// WebSocket 서버에 연결하는 함수
-function connect(roomId, userId) {
-  const contextPath = document.body.dataset.contextPath || '';
-  const wsUrl = `ws://${window.location.host}${contextPath}/chatSocket/${roomId}/${userId}`;
-  console.log("WebSocket 연결 시도:", wsUrl);
-
-  ws = new WebSocket(wsUrl);
-
-  ws.onopen = () => console.log("✅ WebSocket 연결 성공");
-  ws.onclose = () => console.log("🔌 WebSocket 연결 종료");
-  ws.onerror = (e) => console.error("❌ WebSocket 오류:", e);
-  
-  ws.onmessage = (event) => {
-    try {
-      const messageData = JSON.parse(event.data);
-      appendMessage(messageData);
-    } catch (e) {
-      console.error("수신 데이터 파싱 오류:", event.data, e);
-    }
-  };
-}
-
-// 텍스트 메시지를 전송하는 함수
-function sendTextMessage() {
-  const input = document.getElementById("msg");
-  const msg = input.value.trim();
-
-  if (msg === "") return;
-
-  sendMessage(msg);
-  input.value = "";
-  input.focus();
-}
-
-// 이미지 메시지를 전송하는 함수
-function sendImageMessage(imageUrl) {
-    const imageMsg = `IMG::${imageUrl}`;
-    sendMessage(imageMsg);
-}
-
-// 서버에 메시지를 전송하는 공통 함수
-function sendMessage(message) {
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    console.error("⚠ WebSocket이 연결되지 않았습니다.");
-    return;
   }
 
-  const payload = {
-    message: message
-  };
+  // 이미지 업로드 처리
+  const imageUpload = document.getElementById("imageUpload");
+  if (imageUpload) {
+    imageUpload.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
 
-  ws.send(JSON.stringify(payload));
-}
+      const formData = new FormData();
+      formData.append("image", file);
 
-// 이미지를 서버에 업로드하는 함수
-function uploadImage(file) {
-  const formData = new FormData();
-  formData.append("image", file);
-  
-  const contextPath = document.body.dataset.contextPath || '';
+      try {
+        const response = await fetch(contextPath + "/imageUpload", {
+          method: "POST",
+          body: formData,
+        });
 
-  fetch(`${contextPath}/uploadImage`, {
-    method: "POST",
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-        throw new Error(`서버 응답 오류: ${response.status} ${response.statusText}`);
-    }
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return response.text().then(text => {
-        console.error("서버가 JSON이 아닌 응답을 반환했습니다:", text);
-        throw new TypeError("서버가 JSON이 아닌 응답을 반환했습니다. 서버 로그를 확인하세요.");
-      });
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success && data.imageUrl) {
-      sendImageMessage(data.imageUrl);
-    } else {
-      alert("이미지 업로드에 실패했습니다: " + (data.error || "알 수 없는 오류"));
-    }
-  })
-  .catch(error => {
-    console.error("이미지 업로드 중 오류 발생:", error);
-    alert("이미지 업로드 중 오류가 발생했습니다. 개발자 콘솔을 확인하세요.");
-  });
-}
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            const imageUrl = "IMG::" + result.imageUrl;
+            ws.send(JSON.stringify({ message: imageUrl }));
+          } else {
+            alert("이미지 업로드 실패: " + result.message);
+          }
+        } else {
+          alert("이미지 업로드 서버 오류");
+        }
+      } catch (error) {
+        console.error("이미지 업로드 중 오류 발생:", error);
+        alert("이미지 업로드 중 오류 발생");
+      }
+      imageUpload.value = "";
+    });
+  }
+});
 
-
-// 채팅창에 새 메시지를 추가하는 함수
-function appendMessage(data) {
+function displayMessage(data) {
   const chatBox = document.getElementById("chatBox");
-  if (!chatBox) return; // chatBox가 없으면 함수 종료
-
-  const isMine = data.senderId == currentUserId;
-  const message = data.message;
+  const isMine = (data.senderId == document.body.dataset.userId);
 
   const chatRow = document.createElement("div");
   chatRow.classList.add("chat-row", isMine ? "my-message" : "other-message");
@@ -161,110 +100,80 @@ function appendMessage(data) {
   const bubble = document.createElement("div");
   bubble.classList.add("bubble");
 
-  if (message.startsWith("IMG::")) {
-    const imageUrl = message.substring(5);
-    const contextPath = document.body.dataset.contextPath || '';
-    const img = document.createElement("img");
-    img.src = `${contextPath}${imageUrl}`;
-    img.classList.add("chat-image");
-    bubble.appendChild(img);
+  if (data.message.startsWith("IMG::")) {
+    const imageUrl = document.body.dataset.contextPath + data.message.substring(5);
+    const imgElement = document.createElement("img");
+    imgElement.src = imageUrl;
+    imgElement.classList.add("chat-image");
+    imgElement.alt = "채팅 이미지";
+    imgElement.onclick = () => openImageModal(imageUrl);
+    bubble.appendChild(imgElement);
   } else {
     const messageText = document.createElement("span");
     messageText.classList.add("message-text");
-    messageText.textContent = message;
+    messageText.textContent = data.message;
     bubble.appendChild(messageText);
   }
 
   const time = document.createElement("span");
   time.classList.add("time");
-  time.textContent = data.createdAt;
-
+  time.textContent = formatTime(data.createdAt);
   bubble.appendChild(time);
+
   chatRow.appendChild(bubble);
   chatBox.appendChild(chatRow);
-
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// ===== 이미지 확대 모달 기능 =====
-function initializeImageModal(chatBox) {
-    // 모달이 이미 생성되었는지 확인
-    if (document.getElementById('imageModal')) {
-        return;
-    }
-
-    // 1. 모달 HTML 요소를 동적으로 생성하고 body에 추가
-    const modalHTML = `
-        <div id="imageModal" class="image-modal">
-            <span class="image-modal-close">&times;</span>
-            <img class="image-modal-content" id="modalImage">
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // 2. 모달 관련 CSS를 동적으로 생성하고 head에 추가
-    const modalStyle = `
-        .image-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7); 
-            justify-content: center;
-            align-items: center;
-        }
-        .image-modal-content {
-            margin: auto;
-            display: block;
-            max-width: 80%;
-            max-height: 80%;
-        }
-        .image-modal-close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .image-modal-close:hover,
-        .image-modal-close:focus {
-            color: #bbb;
-            text-decoration: none;
-        }
-    `;
-    const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
-    styleSheet.innerText = modalStyle;
-    document.head.appendChild(styleSheet);
-
-    // 3. 모달 요소 가져오기
-    const modal = document.getElementById('imageModal');
-    const modalImg = document.getElementById('modalImage');
-    const closeModal = document.querySelector('.image-modal-close');
-
-    // 4. 이벤트 리스너 설정 (이벤트 위임 사용)
-    chatBox.addEventListener('click', function(event) {
-        if (event.target.classList.contains('chat-image')) {
-            modal.style.display = 'flex';
-            modalImg.src = event.target.src;
-        }
-    });
-
-    // 5. 모달 닫기 이벤트
-    closeModal.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    }
+function displaySystemMessage(message) {
+  const chatBox = document.getElementById("chatBox");
+  const systemMessageDiv = document.createElement("div");
+  systemMessageDiv.classList.add("system-message");
+  systemMessageDiv.textContent = message;
+  chatBox.appendChild(systemMessageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+function formatTime(timestamp) {
+  const date = new Date(Number(timestamp));
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+// 이미지 모달 열기 함수 (전역 스코프)
+window.openImageModal = function(imageUrl) {
+  const modal = document.getElementById("imageModal");
+  const modalImage = document.getElementById("modalImage");
+  if (modal && modalImage) {
+    modalImage.src = imageUrl;
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+};
+
+// 이미지 모달 닫기 함수
+function closeImageModal() {
+  const modal = document.getElementById("imageModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto";
+  }
+}
+
+// 모달 닫기 이벤트 리스너 추가
+document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("imageModal");
+    const closeButton = document.querySelector(".close-button");
+
+    if(modal) {
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                closeImageModal();
+            }
+        });
+    }
+    if(closeButton) {
+        closeButton.addEventListener("click", closeImageModal);
+    }
+});

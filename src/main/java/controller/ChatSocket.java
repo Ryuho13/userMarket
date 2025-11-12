@@ -24,6 +24,16 @@ public class ChatSocket {
                        @PathParam("userId") int userId) {
         roomSessions.computeIfAbsent(roomId, k -> new HashSet<>()).add(session);
         System.out.println("▶ 입장 : room=" + roomId + ", user=" + userId + ", session=" + session.getId());
+
+        try {
+            UserDAO userDAO = new UserDAO();
+            UserProfile userProfile = userDAO.findProfileByUserId(userId);
+            String nickname = (userProfile != null) ? userProfile.getNickname() : "알 수 없음";
+            broadcastSystemMessage(roomId, nickname + "님이 입장했습니다.");
+        } catch (Exception e) {
+            System.err.println("입장 메시지 브로드캐스트 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @OnMessage
@@ -87,13 +97,35 @@ public class ChatSocket {
 
         // 클라이언트에 보낼 JSON 생성
         String jsonMessage = String.format(
-            "{\"senderId\":%d, \"message\":\"%s\", \"createdAt\":\"%s\"}",
+            "{\"type\":\"chat\", \"senderId\":%d, \"message\":\"%s\", \"createdAt\":%d}",
             message.getSenderId(),
             message.getMessage().replace("\"", "\\\""), // 메시지 내 큰따옴표 이스케이프
-            new java.text.SimpleDateFormat("HH:mm").format(message.getCreatedAt())
+            message.getCreatedAt().getTime()
         );
 
         System.out.println("방송 : " + jsonMessage);
+
+        for (Session s : sessions) {
+            if (s.isOpen()) {
+                try {
+                    s.getBasicRemote().sendText(jsonMessage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void broadcastSystemMessage(int roomId, String message) {
+        Set<Session> sessions = roomSessions.get(roomId);
+        if (sessions == null) return;
+
+        String jsonMessage = String.format(
+            "{\"type\":\"system\", \"message\":\"%s\"}",
+            message.replace("\"", "\\\"")
+        );
+
+        System.out.println("시스템 메시지 방송 : " + jsonMessage);
 
         for (Session s : sessions) {
             if (s.isOpen()) {
@@ -113,6 +145,16 @@ public class ChatSocket {
         Set<Session> sessions = roomSessions.get(roomId);
         if (sessions != null) sessions.remove(session);
         System.out.println("■ 퇴장 : room=" + roomId + ", user=" + userId + ", session=" + session.getId());
+
+        try {
+            UserDAO userDAO = new UserDAO();
+            UserProfile userProfile = userDAO.findProfileByUserId(userId);
+            String nickname = (userProfile != null) ? userProfile.getNickname() : "알 수 없음";
+            broadcastSystemMessage(roomId, nickname + "님이 퇴장했습니다.");
+        } catch (Exception e) {
+            System.err.println("퇴장 메시지 브로드캐스트 중 오류 발생: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @OnError
