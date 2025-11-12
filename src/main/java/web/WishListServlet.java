@@ -71,7 +71,7 @@ public class WishListServlet extends HttpServlet {
                 }
             }
 
-            boolean nowWished = !existed; // 토글됐으니까 반대 상태
+            boolean nowWished = !existed; 
 
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write("{\"success\":true,\"isWished\":" + nowWished + "}");

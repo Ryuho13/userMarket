@@ -163,7 +163,7 @@ public class ProductDetailDAO {
                    p.id    AS product_id,
                    p.title AS product_title
               FROM seller_ratings r
-              JOIN `user`   b ON b.id = r.buyer_id      -- 테이블명이 user면 백틱 유지
+              JOIN `user`   b ON b.id = r.buyer_id      
               JOIN products p ON p.id = r.product_id
              WHERE r.seller_id = ?
              ORDER BY r.created_at DESC
@@ -181,7 +181,7 @@ public class ProductDetailDAO {
 
                     // ✅ 어떤 상품에 대한 리뷰인지 세팅
                     int pid = rs.getInt("product_id");
-                    review.setProductId(rs.wasNull() ? null : pid);  // null 안전
+                    review.setProductId(rs.wasNull() ? null : pid);  
                     review.setProductTitle(rs.getString("product_title"));
 
                     reviews.add(review);
