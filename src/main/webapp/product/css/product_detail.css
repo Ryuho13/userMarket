@@ -1,9 +1,9 @@
 :root {
-  --color-bg: #f3f5f7;
-  --color-primary: #10B981;
-  --color-primary-dark: #059669;
-  --color-text-main: #1f2933;
-  --color-text-muted: #6b7280;
+--color-bg: #F4F1EB;         
+--color-primary: #E46F34;   
+--color-primary-dark: #C85B27;
+--color-text-main: #1F2933;  
+--color-text-muted: #7A6A60; 
 
   --radius-card: 16px;
   --shadow-card: 0 10px 25px rgba(15, 23, 42, 0.12);
@@ -133,7 +133,7 @@ line-clamp-3{
 
 #productCarousel .carousel-item img {
   width: 100%;
-  height: 380px;
+  height: 430px;
   object-fit: cover;
 }
 
@@ -201,6 +201,9 @@ line-clamp-3{
 
 @media (max-width: 992px) {
   #productCarousel .carousel-item img {
+  display: flex; /* Flexbox 활성화 */
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center;
     height: 320px;
   }
 }
@@ -238,3 +241,4 @@ line-clamp-3{
     height: 240px;
   }
 }
+

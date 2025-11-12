@@ -22,7 +22,7 @@
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
 <!-- Custom CSS file is included here -->
-<link rel="stylesheet" href="<c:url value='/user/css/product_form.css'/>">
+<link rel="stylesheet" href="<c:url value='/product/css/product_form.css'/>">
 
 </head>
 
@@ -183,8 +183,8 @@
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>
-<script src="${pageContext.request.contextPath}/user/js/area-select.js"></script>
-<script src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
+<script src="${pageContext.request.contextPath}/product/js/area-select.js"></script>
+<script src="${pageContext.request.contextPath}/product/js/image-preview.js"></script>
 
 </body>
 </html>

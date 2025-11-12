@@ -138,7 +138,9 @@ font-family: 'Inter', sans-serif;
 nav.user-menu a.menu-item.menu-mypage:hover {
     color: #1E9447; /* 마이페이지: 초록색 */
 }
-
+nav.user-menu a.menu-item.add-product:hover {
+    color: #E46F34; /* 마이페이지: 초록색 */
+}
 nav.user-menu a.menu-item.menu-logout:hover {
     color: rgba(220, 53, 69,1); /* 로그아웃: 빨간색 */
 }

@@ -11,7 +11,7 @@
 <title>${product.title}</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<c:url value='/user/css/product_detail.css'/>">
+<link rel="stylesheet" href="<c:url value='/product/css/product_detail.css'/>">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
@@ -252,8 +252,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<c:url value='/user/js/product_detail.js'/>"></script>
-<script src="<c:url value='/user/js/wish_list.js'/>"></script>
+<script src="<c:url value='/product/js/product_detail.js'/>"></script>
+<script src="<c:url value='/product/js/wish_list.js'/>"></script>
 
 <script>
   window.contextPath = '${pageContext.request.contextPath}';
