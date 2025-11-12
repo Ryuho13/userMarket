@@ -48,7 +48,7 @@
                     <%-- 로그인 전: 로그인(서블릿 경로)과 회원가입(JSP) --%>
                     <a href="${pageContext.request.contextPath}/user/login" class="menu-item menu-login">로그인</a>
                     <span class="menu-divider">/</span> 
-                    <a href="${pageContext.request.contextPath}/user/addUser.jsp" class="menu-item menu-signup">회원가입</a>
+                    <a href="${pageContext.request.contextPath}/user/add" class="menu-item menu-signup">회원가입</a>
                 </c:otherwise>
             </c:choose>
         </nav>
