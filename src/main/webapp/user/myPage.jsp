@@ -64,6 +64,10 @@ font-family: 'Inter', sans-serif;
 	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
 	crossorigin="anonymous">
 </head>
+
+<% request.setAttribute("now", System.currentTimeMillis()); %>
+
+
 <body class="flex flex-col min-h-screen bg-gray-50">
 	<%-- jsp:include는 그대로 유지 --%>
 	<jsp:include page="/header/header.jsp" />
@@ -112,10 +116,19 @@ font-family: 'Inter', sans-serif;
 						<!-- 이미지 컨테이너 -->
 						<div id="profile-container"
 							class="relative w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-white ring-4 ring-green-100">
-							<!-- ⚠️ 프로필 이미지도 서버에서 가져올 수 있도록 경로를 설정하는 것이 좋습니다. -->
 							<img id="profile-image"
-					src="https://placehold.co/128x128/D1E7DD/1E9447?text=Profile"
-					alt="프로필 이미지" class="w-full h-full object-cover">
+								src="${pageContext.request.contextPath}/profile_images/user_${sessionScope.loginUser.id}.jpg?ts=${now}"
+								onerror="(function(img){
+                    var base='${pageContext.request.contextPath}/profile_images/user_${sessionScope.loginUser.id}';
+                    if(!img.dataset.tried){
+                      img.dataset.tried='png';
+                      img.src=base+'.png?ts=${now}';
+                    } else {
+                      img.onerror=null;
+                      img.src='https://placehold.co/128x128/D1E7DD/1E9447?text=Profile';
+                    }
+                  })(this)"
+								alt="프로필 이미지" class="w-full h-full object-cover">
 						</div>
 
 						<h2 id="user-nickname"
