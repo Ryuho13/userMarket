@@ -31,10 +31,7 @@ function changeTab(tabName) {
 		selectedContent.classList.remove('hidden');
 	}
 
-    // 5. 찜 목록 탭 선택 시 데이터 로드
-    if (tabName === 'wishlist') {
-        loadWishlist();
-    }
+    
     // TODO: 'products' 탭 선택 시 등록 상품 목록을 불러오는 loadProducts() 함수도 필요할 수 있습니다.
 }
 

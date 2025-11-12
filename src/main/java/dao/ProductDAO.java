@@ -399,7 +399,7 @@ public class ProductDAO {
 	        JOIN products p ON wl.product_id = p.id
 	        LEFT JOIN sigg_areas sa ON p.region_id = sa.id
 	        WHERE wl.register_id = ?
-	        ORDER BY wl.registered_at DESC
+	        ORDER BY wl.id DESC
 	    """;
 	
 	    List<Product> list = new ArrayList<>();

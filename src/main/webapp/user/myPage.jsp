@@ -12,9 +12,8 @@
 <title>마이페이지</title>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
+<script>window.contextPath='${pageContext.request.contextPath}';</script>
 
-</script>
 <style>
 /* 폰트 적용 및 기본 스타일 /
 body {
@@ -197,13 +196,13 @@ font-family: 'Inter', sans-serif;
 													<!-- 상태 뱃지 -->
 													<div
 														class="absolute bottom-1 right-1 px-2 py-0.5 text-xs font-semibold rounded-full
-								<c:choose>
-									<c:when test="${product.status eq 'SELLING'}">bg-green-500 text-white</c:when>
-									<c:when test="${product.status eq 'RESERVED'}">bg-yellow-500 text-gray-900</c:when>
-									<c:when test="${product.status eq 'SOLD'}">bg-gray-500 text-white</c:when>
-									<c:otherwise>bg-gray-300 text-gray-700</c:otherwise>
-								</c:choose>
-							">
+															<c:choose>
+																<c:when test="${product.status eq 'SELLING'}">bg-green-500 text-white</c:when>
+																<c:when test="${product.status eq 'RESERVED'}">bg-yellow-500 text-gray-900</c:when>
+																<c:when test="${product.status eq 'SOLD'}">bg-gray-500 text-white</c:when>
+																<c:otherwise>bg-gray-300 text-gray-700</c:otherwise>
+															</c:choose>
+														">
 														<c:choose>
 															<c:when test="${product.status eq 'SELLING'}">판매중</c:when>
 															<c:when test="${product.status eq 'RESERVED'}">예약중</c:when>
@@ -223,12 +222,12 @@ font-family: 'Inter', sans-serif;
 														<c:choose>
 															<c:when
 																test="${product.sellPrice == null || product.sellPrice == 0}">
-										0원
-									</c:when>
+																0원
+															</c:when>
 															<c:otherwise>
 																<fmt:formatNumber value="${product.sellPrice}"
 																	pattern="#,###" groupingUsed="true" />원
-									</c:otherwise>
+															</c:otherwise>
 														</c:choose>
 													</p>
 
@@ -254,13 +253,42 @@ font-family: 'Inter', sans-serif;
 
 						<!-- 2. 찜 목록 -->
 						<div id="content-wishlist" class="tab-content hidden">
-							<div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-								<p class="text-gray-600">찜한 상품이 없습니다.</p>
-								<a href="${pageContext.request.contextPath}/product/list"
-									class="text-green-500 font-semibold hover:underline mt-2 inline-block">인기
-									상품 구경가기 &rarr;</a>
-							</div>
+						  <c:choose>
+						    <c:when test="${not empty wishlist}">
+						      <div class="space-y-4">
+						        <c:forEach var="product" items="${wishlist}">
+						          <div class="block p-4 bg-white rounded-xl border border-gray-200 shadow-sm flex space-x-4">
+						            <a href="${pageContext.request.contextPath}/product/detail?id=${product.id}"
+						               class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden relative hover:opacity-75 transition duration-200">
+						              <img src="${ctx}${product.displayImg}"
+						                   class="card-img-top product_img" alt="상품 이미지"
+						                   onerror="this.src='${ctx}/product/resources/images/noimage.jpg'">
+						            </a>
+						            <div class="flex-grow min-w-0">
+						              <h3 class="text-2xl font-bold text-gray-800 truncate">${product.title}</h3>
+						              <p class="text-base text-gray-600 mt-2">
+						                가격:
+						                <c:choose>
+						                  <c:when test="${product.sellPrice == null || product.sellPrice == 0}">0원</c:when>
+						                  <c:otherwise><fmt:formatNumber value="${product.sellPrice}" pattern="#,###" groupingUsed="true" />원</c:otherwise>
+						                </c:choose>
+						              </p>
+						            </div>
+						          </div>
+						        </c:forEach>
+						      </div>
+						    </c:when>
+						    <c:otherwise>
+						      <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+						        <p class="text-gray-600">찜한 상품이 없습니다.</p>
+						        <a href="${pageContext.request.contextPath}/product/list"
+						           class="text-green-500 font-semibold hover:underline mt-2 inline-block">인기 상품 구경가기 &rarr;</a>
+						      </div>
+						    </c:otherwise>
+						  </c:choose>
 						</div>
+
+						
 						<!-- 3. 채팅 목록 -->
 						<div id="content-chats" class="tab-content hidden">
 						  <div class="space-y-3">
@@ -334,9 +362,7 @@ font-family: 'Inter', sans-serif;
 						              </c:if>
 						
 						              <%-- 2) 내가 구매자이고, 상품이 이미 판매 완료된 경우: 판매자 평점 버튼 --%>
-						              <c:if test="${chatRoom.buyerId == sessionScope.loginUserId
-						                           && chatRoom.productStatus == 'SOLD_OUT'}">
-						
+						              <c:if test="${chatRoom.buyerId == sessionScope.loginUserId && chatRoom.productStatus == 'SOLD_OUT'}">
 						                <c:choose>
 						                  <%-- 이미 평점 남겼으면: 비활성 --%>
 						                  <c:when test="${chatRoom.rated}">

@@ -51,20 +51,7 @@ public class MyPageServlet extends HttpServlet {
             
             // 3. 등록 상품 목록 조회 및 URL 변환 (이 로직은 웹 URL을 정확히 생성합니다.)
             List<Product> products = productDAO.getProductsBySellerId(userId);
-            
-            // ✅ 이미지 경로 변환 로직: 웹 브라우저가 ImageServlet으로 요청할 URL을 완성합니다.
-            for (Product p : products) {
-                String thumb = p.getImgName();
-                if (thumb != null && !thumb.isBlank()) {
-                    if (!thumb.startsWith("http")) {
-                        // ImageServlet을 통해 접근 가능한 경로로 설정
-                        p.setImgName(contextPath + "/upload/product_images/" + thumb); 
-                    }
-                } else {
-                    // 이미지가 없을 경우 기본 이미지 경로 설정
-                    p.setImgName(contextPath + "/resources/images/noimage.jpg"); 
-                }
-            }
+            List<Product> wishlist = productDAO.getWishedProductsByUserId(userId);
 
             // 4. 채팅 목록 조회
             ChatDAO chatDAO = new ChatDAO();
@@ -72,8 +59,9 @@ public class MyPageServlet extends HttpServlet {
 
             req.setAttribute("profile", profile);
             req.setAttribute("products", products);
+            req.setAttribute("wishlist", wishlist);   
             req.setAttribute("chatRooms", chatRooms);
-
+            req.setAttribute("ctx", contextPath);
             RequestDispatcher rd = req.getRequestDispatcher("/user/myPage.jsp");
             rd.forward(req, resp);
 
