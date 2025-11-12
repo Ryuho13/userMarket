@@ -160,10 +160,16 @@
               <c:if test="${sessionScope.loginUserId != product.sellerId}">
                 <a href="${pageContext.request.contextPath}/chatRoom?productId=${product.id}&buyerId=${sessionScope.loginUserId}"
                    class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">채팅하기</a>
-                <button id="wishBtn" class="btn btn-outline-secondary btn-action"
-                        data-product-id="${product.id}" data-wish="${isWished}">
-                  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
-                </button>
+                <button 
+				  id="wishBtn"
+				  class="btn btn-outline-secondary btn-action
+				         ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}"
+				  data-product-id="${product.id}"
+				  data-wish="${isWished}"
+				  ${product.status eq 'SOLD_OUT' ? 'disabled="disabled"' : ''}>
+				  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
+				</button>
+
               </c:if>
             </c:when>
             <c:otherwise>
