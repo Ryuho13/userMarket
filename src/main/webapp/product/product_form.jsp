@@ -16,7 +16,14 @@
 </title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+	crossorigin="anonymous">
+<!-- Custom CSS file is included here -->
+<link rel="stylesheet" href="<c:url value='/user/css/product_form.css'/>">
+
 </head>
 
 <body class="bg-gray-50 min-h-screen py-10">
@@ -155,22 +162,21 @@
             action="${pageContext.request.contextPath}/product/delete"
             onsubmit="return confirm('정말로 이 상품과 관련된 모든 데이터를 삭제하시겠습니까?');">
         <input type="hidden" name="id" value="${product.id}">
-        <button type="submit" class="btn btn-danger px-4 py-2">삭제</button>
+        <!-- APPLIED CUSTOM RED CLASS -->
+        <button type="submit" class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">삭제하기</button>
       </form>
     </c:if>
 
     <!-- 수정 / 목록으로 -->
     <div class="flex justify-end gap-3">
-      <button type="submit" form="productForm"
-              class="btn btn-success px-4 py-2">
+      <button type="submit" form="productForm" class="btn-custom-outline btn-custom-green rounded-lg px-4 py-2">
         <c:choose>
-          <c:when test="${empty product.id}">등록</c:when>
-          <c:otherwise>수정</c:otherwise>
+          <c:when test="${empty product.id}">등록하기</c:when>
+          <c:otherwise>수정하기</c:otherwise>
         </c:choose>
       </button>
 
-      <a href="${pageContext.request.contextPath}/product/list"
-         class="btn btn-outline-secondary px-4 py-2">목록</a>
+      <a href="${pageContext.request.contextPath}/product/list" class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">목록으로</a>
     </div>
   </div>
 

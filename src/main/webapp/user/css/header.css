@@ -134,8 +134,19 @@ font-family: 'Inter', sans-serif;
     transition: color 0.15s ease-in-out;
 }
 
-.menu-item:hover {
-    color: #1E9447; 
+/* 🟢 최종 수정된 부분: nav 태그를 추가하여 우선순위를 극대화했습니다. */
+nav.user-menu a.menu-item.menu-mypage:hover {
+    color: #1E9447; /* 마이페이지: 초록색 */
+}
+
+nav.user-menu a.menu-item.menu-logout:hover {
+    color: rgba(220, 53, 69,1); /* 로그아웃: 빨간색 */
+}
+
+/* 로그인/회원가입에도 일관된 호버 스타일 적용 */
+nav.user-menu a.menu-item.menu-login:hover,
+nav.user-menu a.menu-item.menu-signup:hover {
+    color: #1E9447; /* 로그인/회원가입: 초록색 */
 }
 
 .menu-divider {

@@ -114,8 +114,8 @@ font-family: 'Inter', sans-serif;
 							class="relative w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-white ring-4 ring-green-100">
 							<!-- ⚠️ 프로필 이미지도 서버에서 가져올 수 있도록 경로를 설정하는 것이 좋습니다. -->
 							<img id="profile-image"
-								src="https://placehold.co/160x160/52B788/ffffff?text=PROFILE"
-								alt="프로필 이미지" class="w-full h-full object-cover">
+					src="https://placehold.co/128x128/D1E7DD/1E9447?text=Profile"
+					alt="프로필 이미지" class="w-full h-full object-cover">
 						</div>
 
 						<h2 id="user-nickname"

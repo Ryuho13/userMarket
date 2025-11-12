@@ -371,3 +371,31 @@ a.disabled-link {
     height: 180px;
   }
 }
+/* ----------------- 정렬 바 (Sort Bar) ----------------- */
+.sort-bar {
+  /* 기본적으로 구분선과 전체 영역 색상을 muted color로 설정 */
+  font-size: 0.85rem;
+  color: var(--color-text-muted); 
+  margin-bottom: 1rem !important; /* 아래쪽 여백을 늘려 목록과 분리 */
+}
+
+.sort-bar a {
+  /* 비활성화 링크 색상을 '원하는 상품명을...'과 동일한 muted color로 설정 */
+  color: var(--color-text-muted); 
+  text-decoration: none;
+  padding: 0 0.4rem;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+/* 🚩 활성화된 정렬 항목 타겟 (JSP의 'font-bold' 클래스를 이용) */
+/* font-bold가 붙은 링크에 주황색과 굵기를 적용 */
+.sort-bar a.font-bold {
+  color: var(--color-primary) !important; /* 단감 오렌지 강제 적용 */
+  font-weight: 700; /* 더 굵게 */
+}
+
+/* 마우스 오버 시 색상 */
+.sort-bar a:hover {
+  color: var(--color-primary-dark);
+}

@@ -169,3 +169,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateForm.onsubmit = checkUpdateForm;
     }
 });
+// 회원 탈퇴
+document.addEventListener("DOMContentLoaded", () => {
+   const deleteLink = document.getElementById("delete-link");
+
+   if (deleteLink) {
+      deleteLink.addEventListener("click", function(event) {
+
+         if (confirm("정말 탈퇴하시겠습니까?\n이 탈퇴 시 모든 정보가 삭제되며 이 작업은 되돌릴 수 없습니다.")) {
+            window.location.href = this.href;
+         }
+         event.preventDefault();
+      });
+   }
+});

@@ -1,0 +1,49 @@
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  /* 모든 커스텀 버튼에 공통으로 적용되는 스타일 */
+.btn-custom-outline {
+    /* 기본 Bootstrap 스타일 재정의 및 Tailwind CSS 클래스에 영향받지 않도록 */
+    display: inline-block;
+    font-weight: 600; /* fw-bold에 상응 */
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    border: 2px solid; /* 테두리 두께 */
+    padding: 0.5rem 1rem; /* px-4 py-2에 상응 */
+    transition: all 0.2s ease-in-out; /* 부드러운 전환 효과 */
+    background-color: transparent; /* 기본 배경 투명 */
+}
+
+/* 삭제 (빨강) 버튼 스타일 */
+.btn-custom-red {
+    color: #dc3545; /* Bootstrap Red */
+    border-color: #dc3545;
+}
+.btn-custom-red:hover {
+    background-color: rgba(220, 53, 69, 0.3); /* 빨강의 30% 투명도 */
+    border-color: #dc3545; /* 테두리 색상 유지 */
+}
+
+/* 등록/수정 (초록) 버튼 스타일 */
+.btn-custom-green {
+    color: #198754; /* Bootstrap Green */
+    border-color: #198754;
+}
+.btn-custom-green:hover {
+    background-color: rgba(25, 135, 84, 0.3); /* 초록의 30% 투명도 */
+    border-color: #198754; /* 테두리 색상 유지 */
+}
+
+/* 목록 (회색) 버튼 스타일 */
+.btn-custom-gray {
+    color: #6c757d; /* Bootstrap Gray */
+    border-color: #6c757d;
+}
+.btn-custom-gray:hover {
+    background-color: rgba(108, 117, 125, 0.3); /* 회색의 30% 투명도 */
+    border-color: #6c757d; /* 테두리 색상 유지 */
+}
+
+/* 버튼의 rounded-lg (Tailwind) 클래스가 이미 적용되고 있으므로, 여기에 추가적인 border-radius 스타일은 정의하지 않았습니다. */
+/* btn-custom-outline 클래스는 Bootstrap의 btn 클래스보다 우선하도록 구성되었습니다. */
