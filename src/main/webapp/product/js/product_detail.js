@@ -73,4 +73,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".review-text").forEach(p => {
+    const btn = p.closest(".review-item").querySelector(".toggle-btn");
+    if (!btn) return;
 
+    const lineHeight = parseFloat(getComputedStyle(p).lineHeight);
+    const maxHeight = lineHeight * 3;
+
+    // 3줄 이하라면 더보기 버튼 숨김
+    if (p.scrollHeight <= maxHeight + 2) {
+      btn.style.display = "none";
+    }
+
+    btn.addEventListener("click", () => {
+      const expanded = p.classList.toggle("expanded");
+      btn.textContent = expanded ? "접기 ▲" : "더보기 ▼";
+    });
+  });
+});

@@ -20,7 +20,9 @@ public class ProductDetail {
     private String sellerMobile;
     private Double sellerRating;     
     private Integer sellerRatingCount;
+    private String categoryName;
     private List<String> images = new ArrayList<>();
+    private List<Review> reviews;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -30,7 +32,10 @@ public class ProductDetail {
 
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
-
+    
+    public String getCategoryName() { return categoryName;}
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+    
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
@@ -66,6 +71,10 @@ public class ProductDetail {
 
     public Integer getSellerRatingCount() { return sellerRatingCount; }
     public void setSellerRatingCount(Integer sellerRatingCount) { this.sellerRatingCount = sellerRatingCount; }
+    
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
+    
+    public List<Review> getReviews() { return reviews; }
+    public void setReviews(List<Review> reviews) { this.reviews = reviews; }
 }

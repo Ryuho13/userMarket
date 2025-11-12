@@ -298,47 +298,47 @@ public class ProductDAO {
             Integer minPrice,
             Integer maxPrice) throws SQLException {
 
-StringBuilder sql = new StringBuilder("""
-SELECT COUNT(DISTINCT p.id) AS cnt
-FROM products p
-WHERE 1=1
-""");
-
-List<Object> params = new ArrayList<>();
-
-if (q != null && !q.isBlank()) {
-sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
-String like = "%" + escapeLike(q.trim()) + "%";
-params.add(like);
-params.add(like);
-}
-if (categoryId != null && categoryId > 0) {
-sql.append(" AND p.category_id = ? ");
-params.add(categoryId);
-}
-if (siggAreaId != null && siggAreaId > 0) {
-sql.append(" AND p.region_id = ? ");
-params.add(siggAreaId);
-}
-// 🔥 여기에도 가격 필터 추가
-if (minPrice != null) {
-sql.append(" AND p.sell_price >= ? ");
-params.add(minPrice);
-}
-if (maxPrice != null) {
-sql.append(" AND p.sell_price <= ? ");
-params.add(maxPrice);
-}
-
-try (Connection conn = DBUtil.getConnection();
-PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-bind(ps, params);
-try (ResultSet rs = ps.executeQuery()) {
-return rs.next() ? rs.getInt("cnt") : 0;
-}
-}
-}
+			StringBuilder sql = new StringBuilder("""
+			SELECT COUNT(DISTINCT p.id) AS cnt
+			FROM products p
+			WHERE 1=1
+			""");
+			
+			List<Object> params = new ArrayList<>();
+			
+			if (q != null && !q.isBlank()) {
+			sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+			String like = "%" + escapeLike(q.trim()) + "%";
+			params.add(like);
+			params.add(like);
+			}
+			if (categoryId != null && categoryId > 0) {
+			sql.append(" AND p.category_id = ? ");
+			params.add(categoryId);
+			}
+			if (siggAreaId != null && siggAreaId > 0) {
+			sql.append(" AND p.region_id = ? ");
+			params.add(siggAreaId);
+			}
+			// 🔥 여기에도 가격 필터 추가
+			if (minPrice != null) {
+			sql.append(" AND p.sell_price >= ? ");
+			params.add(minPrice);
+			}
+			if (maxPrice != null) {
+			sql.append(" AND p.sell_price <= ? ");
+			params.add(maxPrice);
+			}
+			
+			try (Connection conn = DBUtil.getConnection();
+			PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			
+			bind(ps, params);
+			try (ResultSet rs = ps.executeQuery()) {
+			return rs.next() ? rs.getInt("cnt") : 0;
+			}
+			}
+			}
 
 
     public int countFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice) throws Exception {

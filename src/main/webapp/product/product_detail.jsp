@@ -21,23 +21,29 @@
   <a href="${pageContext.request.contextPath}/product/list" class="btn btn-outline-secondary mb-4">← 목록으로</a>
 
   <div class="product-container d-flex gap-4 flex-wrap">
-
-    <div id="productCarousel" class="carousel slide col-12 col-md-5" data-bs-ride="carousel" data-bs-interval="2500">
-      <div class="carousel-inner">
-        <c:forEach var="img" items="${product.images}" varStatus="status">
-          <div class="carousel-item ${status.first ? 'active' : ''}">
-            <img src="${img}" class="d-block mx-auto" alt="상품 이미지">
-          </div>
-        </c:forEach>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-      </button>
-    </div>
-
+	  <div class="col-12 col-md-5">
+	  <p class="text-muted mt-0 mb-3 text-left">
+	      홈 &gt; ${product.categoryName}
+	    </p>
+	    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2500">
+	      <div class="carousel-inner">
+	        <c:forEach var="img" items="${product.images}" varStatus="status">
+	          <div class="carousel-item ${status.first ? 'active' : ''}">
+	            <img src="${img}" class="d-block w-100 rounded shadow-sm" alt="상품 이미지">
+	          </div>
+	        </c:forEach>
+	      </div>
+	      <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+	        <span class="carousel-control-prev-icon"></span>
+	      </button>
+	      <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+	        <span class="carousel-control-next-icon"></span>
+	      </button>
+	    </div>
+	
+	    
+	
+	  </div>
     <!-- 📦 상품 정보 -->
     <div class="product-info flex-grow-1">
       <div class="d-flex align-items-center justify-content-between">
@@ -74,42 +80,78 @@
           <c:otherwise>등록된 지역 없음</c:otherwise>
         </c:choose>
       </p>
-
-      <h4 class="text-danger fw-bold mb-3">${product.sellPrice}원</h4>
+	  <p class="text-danger fw-bold mb-3 fs-2"><fmt:formatNumber value="${product.sellPrice}" type="number"/>원</p>
       <p>${product.description}</p>
       <hr>
 
       <div class="seller-box mt-4">
         <h6 class="fw-bold mb-2">판매자 정보</h6>
         <p class="mb-2">
+          판매자: ${product.sellerName} <br>
 		  연락처: <strong>${product.sellerMobile}</strong>
 		</p>
 		
-		<div class="mt-4 border-t pt-4">
-		  <h4 class="text-lg font-semibold mb-2">판매자 평점</h4>
+		<div class="mt-4 border-top pt-4">
+		  <h4 class="mb-2">판매자 평점</h4>
 		  <c:choose>
 		    <c:when test="${product.sellerRating != null}">
-		      <p class="text-yellow-500 text-base">
-				⭐ <fmt:formatNumber value="${product.sellerRating}" pattern="0.0" /> / 5
-		        <span class="text-gray-500 text-sm">(${product.sellerRatingCount}명 참여)</span>
+		      <p class="mb-2">
+		        ⭐ <fmt:formatNumber value="${product.sellerRating}" pattern="0.0" /> / 5
+		        <span class="text-muted small">(${product.sellerRatingCount}명 참여)</span>
+		        <button class="btn btn-outline-success btn-sm fw-bold"
+		                data-bs-toggle="modal" data-bs-target="#reviewModal">리뷰 보기</button>
 		      </p>
-		    </c:when>
-		    <c:otherwise>
-		      <p class="text-gray-500 text-sm">아직 등록된 평점이 없습니다.</p>
-		    </c:otherwise>
-		  </c:choose>
-		</div>
-
 		
-		<!-- ⭐ 거래가 완료된 상품이고, 내가 구매자일 때만 평가 버튼 -->
-		<c:if test="${not empty sessionScope.loginUserId
-		             && sessionScope.loginUserId != product.sellerId
-		             && product.status == 'SOLD_OUT'}">
-		  <a href="${pageContext.request.contextPath}/rating/form?productId=${product.id}"
-		     class="btn btn-outline-success btn-sm mt-1">
-		    판매자 평가하기
-		  </a>
-		</c:if>
+						      <!-- 🟩 판매자 리뷰 모달 -->
+				<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+				  <div class="modal-dialog modal-dialog-centered modal-lg">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="reviewModalLabel">판매자 리뷰</h5>
+				        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+				      </div>
+				      <div class="modal-body">
+				        <c:choose>
+				          <c:when test="${not empty product.reviews}">
+				            <c:forEach var="review" items="${product.reviews}" varStatus="st">
+				              <div class="review-item">
+				                <div class="d-flex justify-content-between align-items-center mb-1">
+				                  <div class="d-flex align-items-center gap-2">
+				                    <strong>${review.buyerName}</strong>
+				                    <span class="text-warning">⭐ ${review.rating}</span>
+				                  </div>
+				                  <small class="text-muted">
+				                    <fmt:formatDate value="${review.createdAt}" pattern="yyyy.MM.dd HH:mm"/>
+				                  </small>
+				                </div>
+				
+				                <c:if test="${review.productId != null}">
+				                  <a href="${pageContext.request.contextPath}/product/detail?id=${review.productId}"
+				                     class="badge border bg-light text-dark text-decoration-none mb-2">
+				                    🧾 <c:out value="${review.productTitle}"/>
+				                  </a>
+				                </c:if>
+				
+				                <p id="review-${st.index}" class="review-text">
+				                  <c:out value="${review.comment}" />
+				                </p>
+				                <button type="button" class="toggle-btn" data-target="review-${st.index}">
+				                  더보기 ▼
+				                </button>
+				              </div>
+				            </c:forEach>
+				          </c:when>
+				          <c:otherwise>
+				            <p class="text-muted text-center mb-0">아직 리뷰가 없습니다.</p>
+				          </c:otherwise>
+				        </c:choose>
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
 
         <div class="d-flex gap-2 mt-3">
           <c:choose>
@@ -164,7 +206,7 @@
                 <div class="card-body">
                   <h6 class="card-title text-truncate mb-1">${item.title}</h6>
                   <small class="text-muted d-block mb-1">${item.siggName}</small>
-                  <p class="card-text text-danger fw-bold mb-0">${item.sellPrice}원</p>
+                   <p class="text-danger fw-bold mb-3 fs-6"><fmt:formatNumber value="${product.sellPrice}" type="number"/>원</p>
                 </div>
               </div>
             </a>
@@ -191,7 +233,7 @@
                 <div class="card-body">
                   <h6 class="card-title text-truncate mb-1">${item.title}</h6>
                   <small class="text-muted d-block mb-1">${item.siggName}</small>
-                  <p class="card-text text-danger fw-bold mb-0">${item.sellPrice}원</p>
+                  <p class="text-danger fw-bold mb-3 fs-6"><fmt:formatNumber value="${product.sellPrice}" type="number"/>원</p>
                 </div>
               </div>
             </a>
