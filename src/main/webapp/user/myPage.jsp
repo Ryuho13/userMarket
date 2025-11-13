@@ -67,7 +67,7 @@ font-family: 'Inter', sans-serif;
 <% request.setAttribute("now", System.currentTimeMillis()); %>
 
 
-<body class="flex flex-col min-h-screen bg-gray-50">
+<body class="flex flex-col min-h-screen bg-gray-50" data-context-path="${pageContext.request.contextPath}">
 	<%-- jsp:include는 그대로 유지 --%>
 	<jsp:include page="/header/header.jsp" />
 
@@ -414,7 +414,7 @@ font-family: 'Inter', sans-serif;
 	<%-- 푸터 포함 --%>
 	<script src="${pageContext.request.contextPath}/user/js/myPage.js"></script>
 	<jsp:include page="/footer/footer.jsp" />
-	<jsp:include page="../resources/alarm.jsp" />
+	<jsp:include page="/resources/alarm.jsp" />
 	<script
 		src="${pageContext.request.contextPath}/user/js/image-preview.js"></script>
 
