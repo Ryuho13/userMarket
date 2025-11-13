@@ -197,16 +197,16 @@ font-family: 'Inter', sans-serif;
 													<div
 														class="absolute bottom-1 right-1 px-2 py-0.5 text-xs font-semibold rounded-full
 															<c:choose>
-																<c:when test="${product.status eq 'SELLING'}">bg-green-500 text-white</c:when>
+																<c:when test="${product.status eq 'SALE'}">bg-green-400 text-white-900</c:when>
 																<c:when test="${product.status eq 'RESERVED'}">bg-yellow-500 text-gray-900</c:when>
 																<c:when test="${product.status eq 'SOLD'}">bg-gray-500 text-white</c:when>
 																<c:otherwise>bg-gray-300 text-gray-700</c:otherwise>
 															</c:choose>
 														">
 														<c:choose>
-															<c:when test="${product.status eq 'SELLING'}">판매중</c:when>
+															<c:when test="${product.status eq 'SALE'}">판매중</c:when>
 															<c:when test="${product.status eq 'RESERVED'}">예약중</c:when>
-															<c:when test="${product.status eq 'SOLD'}">거래완료</c:when>
+															<c:when test="${product.status eq 'SOLD'}">판매완료</c:when>
 															<c:otherwise>상태확인</c:otherwise>
 														</c:choose>
 													</div>

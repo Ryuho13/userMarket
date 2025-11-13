@@ -16,9 +16,9 @@
 
 <body class="py-5">
 <div class="container">
-
-  <a href="${pageContext.request.contextPath}/product/list" class="btn btn-outline-secondary mb-4">← 목록으로</a>
-
+					<button type="back" onclick="history.back()"
+					class="btn btn-outline-muted btn-sm2 mb-4">
+					←뒤로가기</button>
   <div class="product-container d-flex gap-4 flex-wrap">
     <div class="col-12 col-md-5">
       <p class="text-muted mt-0 mb-3 text-left">
