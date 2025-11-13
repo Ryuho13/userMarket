@@ -121,7 +121,6 @@ public class ProductInsertServlet extends HttpServlet {
                     part.write(file.getAbsolutePath());
 
                     saveImageRecord(conn, newProductId, loginUserId, fileName);
-                    System.out.println("✅ 이미지 저장 완료: " + file.getAbsolutePath());
                 }
             }
 
