@@ -134,7 +134,6 @@ public class ProductDeleteServlet extends HttpServlet {
         for (String filename : imageNames) {
             File file = new File(uploadPath, filename);
             if (file.exists() && file.delete()) {
-                System.out.println("🗑 파일 삭제됨: " + file.getAbsolutePath());
             }
         }
 

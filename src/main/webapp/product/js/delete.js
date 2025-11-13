@@ -34,3 +34,8 @@ document.addEventListener("click", function(e) {
       alert("서버 오류 발생");
     });
 });
+function confirmDelete() {
+    if (confirm("정말로 이 상품을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.")) {
+        document.getElementById('deleteForm').submit();
+    }
+}
