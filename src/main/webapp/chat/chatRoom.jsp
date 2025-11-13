@@ -8,9 +8,8 @@
 <meta charset="UTF-8">
 <title>실시간 채팅방</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/chatRoom.css">
-<script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </head>
-<body data-context-path="${pageContext.request.contextPath}" data-room-id="${room.id}">
+<body data-context-path="${pageContext.request.contextPath}" data-room-id="${room.id}" data-user-id="${sessionScope.loginUserId}">
 
 
 
@@ -31,10 +30,10 @@
             <div class="product-image">
                 <c:choose>
                     <c:when test="${not empty product.images}">
-                        <img src="${pageContext.request.contextPath}/upload/product_images/${product.images[0]}" alt="상품 이미지">
+                        <img src="${pageContext.request.contextPath}/upload/product_images/${product.images[0]}" alt="상품 이미지" class="chat-image" onclick="openImageModal(this.src)">
                     </c:when>
                     <c:otherwise>
-                        <img src="${pageContext.request.contextPath}/product/resources/images/noimage.jpg" alt="이미지 없음">
+                        <img src="${pageContext.request.contextPath}/product/resources/images/noimage.jpg" alt="이미지 없음" class="chat-image" onclick="openImageModal(this.src)">
                     </c:otherwise>
                 </c:choose>
             </div>
@@ -54,16 +53,13 @@
               <c:choose>
                 <c:when test="${msg.message.startsWith('IMG::')}">
                   <c:set var="imageUrl" value="${msg.message.substring(5)}" />
-                  <img src="${pageContext.request.contextPath}${imageUrl}" class="chat-image" alt="채팅 이미지" />
+                  <img src="${pageContext.request.contextPath}${imageUrl}" class="chat-image" alt="채팅 이미지" onclick="openImageModal(this.src)" />
                 </c:when>
                 <c:otherwise>
                   <span class="message-text">${msg.message}</span>
                 </c:otherwise>
               </c:choose>
-              <span class="time">
-                <%-- 날짜 포맷팅은 fmt 라이브러리 사용 --%>
-                <fmt:formatDate value="${msg.createdAt}" pattern="HH:mm" />
-              </span>
+              <span class="time"><fmt:formatDate value="${msg.createdAt}" pattern="HH:mm" /></span>
             </div>
           </div>
         </c:forEach>
@@ -87,5 +83,12 @@
 
 <jsp:include page="../resources/alarm.jsp" />
 
+<!-- 이미지 모달 -->
+<div id="imageModal" class="image-modal hidden">
+  <span class="close-button">&times;</span>
+  <img class="modal-content" id="modalImage">
+</div>
+
+<script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </body>
 </html>
