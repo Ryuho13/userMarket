@@ -172,6 +172,13 @@
 
         <!-- 버튼 영역 -->
         <div class="flex justify-between mt-6 items-center">
+          <c:if test="${not empty product.id}">
+            <button type="button"
+                    onclick="document.getElementById('deleteForm').submit();"
+                    class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
+              삭제하기
+            </button>
+          </c:if>
 
           <div class="flex gap-3">
             <button type="submit" class="btn btn-success px-4 py-2 rounded-lg">
@@ -186,13 +193,6 @@
           </div>
 
           <!-- 삭제하기 버튼 -->
-          <c:if test="${not empty product.id}">
-            <button type="button"
-                    onclick="document.getElementById('deleteForm').submit();"
-                    class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
-              삭제하기
-            </button>
-          </c:if>
 
         </div>
 
