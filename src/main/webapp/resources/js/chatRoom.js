@@ -143,6 +143,7 @@ function displayMessage(data) {
               chatBox.appendChild(chatRow);
               chatBox.scrollTop = chatBox.scrollHeight; // 텍스트 메시지는 즉시 스크롤
             }
+}
 function displaySystemMessage(message) {
   const chatBox = document.getElementById("chatBox");
   const systemMessageDiv = document.createElement("div");
