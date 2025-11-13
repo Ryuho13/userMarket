@@ -18,9 +18,7 @@
 </title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-	rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/product/css/product_form.css'/>">
 
 </head>
@@ -41,9 +39,10 @@
       <p class="text-sm opacity-80">당신의 물건을 다른 사람과 나눠보세요!</p>
     </div>
 
+    <!-- 폼 전체 영역 -->
     <div class="p-8">
 
-      <!-- 🔥 폼은 여기서 시작해서 맨 아래까지 단 하나만 존재 -->
+      <!-- 메인 폼 -->
       <form id="productForm" method="post" enctype="multipart/form-data"
             action="${pageContext.request.contextPath}/product/${empty product.id ? 'insert' : 'update'}"
             class="space-y-6">
@@ -124,90 +123,91 @@
         </div>
 
         <!-- 이미지 업로드 -->
-			<div>
-			  <label class="form-label fw-bold text-gray-700">이미지 업로드</label>
-			  <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
-			
-			  <div class="mt-3 border p-3 rounded-lg bg-gray-50">
-			    <p class="text-sm text-gray-600 mb-2">이미지 목록</p>
-			
-			    <!-- flex 컨테이너 -->
-			    <div class="flex flex-wrap gap-3">
-			
-			      <!-- 현재 이미지 -->
-			      <c:forEach var="img" items="${productImages}">
-			        <div class="relative inline-block current-image" id="img-${img}">
-			
-			          <c:choose>
-			            <c:when test="${fn:startsWith(img,'http')}">
-			              <c:set var="src" value="${img}" />
-			            </c:when>
-			            <c:otherwise>
-			              <c:set var="src" value="${ctx}/upload/product_images/${img}" />
-			            </c:otherwise>
-			          </c:choose>
-			
-			          <img src="${src}"
-			               style="width:128px;height:128px;object-fit:cover"
-			               class="rounded-lg shadow-md">
-			
-			          <!-- 삭제 버튼 -->
-			          <button type="button"
-			                  class="delete-image-btn"
-			                  data-img="${img}"
-			                  data-product="${product.id}"
-			                  style="
-			                    position:absolute;
-			                    top:-8px; right:-8px;
-			                    width:24px; height:24px;
-			                    background:#ff4d4d; color:white;
-			                    border:none; border-radius:50%;
-			                  ">✕</button>
-			
-			          <input type="hidden" name="oldImages" value="${img}">
-			        </div>
-			      </c:forEach>
-			
-			      <!-- 새로 업로드한 이미지 미리보기 -->
-			      <div id="previewContainer"></div>
-			
-			    </div>
-			  </div>
-			</div>
+        <div>
+          <label class="form-label fw-bold text-gray-700">이미지 업로드</label>
+          <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
 
+          <div class="mt-3 border p-3 rounded-lg bg-gray-50">
+            <p class="text-sm text-gray-600 mb-2">이미지 목록</p>
+
+            <div class="flex flex-wrap gap-3">
+
+              <c:forEach var="img" items="${productImages}">
+                <div class="relative inline-block current-image" id="img-${img}">
+                  
+                  <c:choose>
+                    <c:when test="${fn:startsWith(img,'http')}">
+                      <c:set var="src" value="${img}" />
+                    </c:when>
+                    <c:otherwise>
+                      <c:set var="src" value="${ctx}/upload/product_images/${img}" />
+                    </c:otherwise>
+                  </c:choose>
+
+                  <img src="${src}"
+                       style="width:128px;height:128px;object-fit:cover"
+                       class="rounded-lg shadow-md">
+
+                  <button type="button"
+                          class="delete-image-btn"
+                          data-img="${img}"
+                          data-product="${product.id}"
+                          style="
+                            position:absolute;
+                            top:-8px; right:-8px;
+                            width:24px; height:24px;
+                            background:#ff4d4d; color:white;
+                            border:none; border-radius:50%;
+                          ">✕</button>
+
+                  <input type="hidden" name="oldImages" value="${img}">
+                </div>
+              </c:forEach>
+
+              <div id="previewContainer"></div>
+
+            </div>
+          </div>
         </div>
 
-        <!-- 🔥 버튼 영역 -->
-        <div class="flex justify-between mt-6">
+        <!-- 버튼 영역 -->
+        <div class="flex justify-between mt-6 items-center">
+
           <div class="flex gap-3">
-            <button type="submit"
-                    class="btn btn-success px-4 py-2 rounded-lg">
+            <button type="submit" class="btn btn-success px-4 py-2 rounded-lg">
               <c:choose>
                 <c:when test="${empty product.id}">등록하기</c:when>
                 <c:otherwise>수정하기</c:otherwise>
               </c:choose>
             </button>
 
-            <a href="${pageContext.request.contextPath}/product/list"
-               class="btn btn-secondary px-4 py-2 rounded-lg">
-              목록으로
-            </a>
+            <a onclick="history.back()"
+               class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
           </div>
 
-      	</form>
-			<c:if test="${not empty product.id}">
-			  <form action="${ctx}/product/delete" method="post"
-			        onsubmit="return confirm('정말 삭제하시겠습니까?');">
-			
-			    <input type="hidden" name="id" value="${product.id}">
-			
-			    <button type="submit" class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
-			      삭제하기
-			    </button>
-			
-			  </form>
-			</c:if>
-		</div>
+          <!-- 삭제하기 버튼 -->
+          <c:if test="${not empty product.id}">
+            <button type="button"
+                    onclick="document.getElementById('deleteForm').submit();"
+                    class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
+              삭제하기
+            </button>
+          </c:if>
+
+        </div>
+
+      </form>
+
+      <!-- 삭제 폼 -->
+      <c:if test="${not empty product.id}">
+        <form id="deleteForm"
+              action="${ctx}/product/delete"
+              method="post"
+              style="display:none;">
+          <input type="hidden" name="id" value="${product.id}">
+        </form>
+      </c:if>
+
     </div>
   </div>
 
