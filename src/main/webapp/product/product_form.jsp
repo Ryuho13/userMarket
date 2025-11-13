@@ -1,10 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
   <c:choose>
     <c:when test="${empty product.id}">
       ${sessionScope.loginUser.name}님의 상품 등록
@@ -18,10 +20,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-	crossorigin="anonymous">
-<!-- Custom CSS file is included here -->
+	rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/product/css/product_form.css'/>">
 
 </head>
@@ -35,24 +34,22 @@
       <h1 class="text-2xl font-bold">
         ${sessionScope.loginUser.name}님의 
         <c:choose>
-          <c:when test="${empty product.id}">
-            상품 등록
-          </c:when>
-          <c:otherwise>
-            상품 수정
-          </c:otherwise>
+          <c:when test="${empty product.id}">상품 등록</c:when>
+          <c:otherwise>상품 수정</c:otherwise>
         </c:choose>
       </h1>
       <p class="text-sm opacity-80">당신의 물건을 다른 사람과 나눠보세요!</p>
     </div>
 
     <div class="p-8">
+
+      <!-- 🔥 폼은 여기서 시작해서 맨 아래까지 단 하나만 존재 -->
       <form id="productForm" method="post" enctype="multipart/form-data"
             action="${pageContext.request.contextPath}/product/${empty product.id ? 'insert' : 'update'}"
             class="space-y-6">
-		
-		  <input type="hidden" name="id" value="${product.id}">
-		
+
+        <input type="hidden" name="id" value="${product.id}">
+
         <!-- 상품명 -->
         <div>
           <label for="title" class="form-label fw-bold text-gray-700">상품명</label>
@@ -64,28 +61,25 @@
         <div>
           <label for="description" class="form-label fw-bold text-gray-700">설명</label>
           <textarea class="form-control" id="description" name="description"
-                    rows="5" placeholder="상품에 대한 설명을 입력하세요...">${product.description}</textarea>
+                    rows="5">${product.description}</textarea>
         </div>
 
-        <!-- 가격 -->
+        <!-- 가격 + 상태 -->
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="sellPrice" class="form-label fw-bold text-gray-700">가격 (원)</label>
-            <input type="number" class="form-control" id="sellPrice" name="sellPrice"
+            <label class="form-label fw-bold text-gray-700">가격 (원)</label>
+            <input type="number" class="form-control" name="sellPrice"
                    required value="${product.sellPrice}">
           </div>
 
-          <!-- 상태 -->
           <div class="col-md-6">
             <c:choose>
               <c:when test="${empty product.id}">
-                <!-- 등록 시 판매중 고정 -->
                 <input type="hidden" name="status" value="SALE">
               </c:when>
               <c:otherwise>
-                <!-- 수정 시만 상태 선택 -->
-                <label for="status" class="form-label fw-bold text-gray-700">상태</label>
-                <select class="form-select" id="status" name="status">
+                <label class="form-label fw-bold text-gray-700">상태</label>
+                <select class="form-select" name="status">
                   <option value="SALE" ${product.status == 'SALE' ? 'selected' : ''}>판매중</option>
                   <option value="RESERVED" ${product.status == 'RESERVED' ? 'selected' : ''}>예약중</option>
                   <option value="SOLD_OUT" ${product.status == 'SOLD_OUT' ? 'selected' : ''}>거래완료</option>
@@ -95,10 +89,10 @@
           </div>
         </div>
 
-        <!-- 지역 선택 -->
+        <!-- 지역 -->
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="sido" class="form-label fw-bold text-gray-700">시/도</label>
+            <label class="form-label fw-bold text-gray-700">시/도</label>
             <select id="sido" name="sidoId" class="form-select">
               <option value="">선택</option>
               <c:forEach var="sido" items="${sidoList}">
@@ -108,22 +102,20 @@
           </div>
 
           <div class="col-md-6">
-            <label for="sigg" class="form-label fw-bold text-gray-700">시/군/구</label>
+            <label class="form-label fw-bold text-gray-700">시/군/구</label>
             <select id="sigg" name="regionId" class="form-select">
               <option value="">선택</option>
-              <c:if test="${not empty siggList}">
-                <c:forEach var="sigg" items="${siggList}">
-                  <option value="${sigg.id}" ${sigg.id == product.regionId ? 'selected' : ''}>${sigg.name}</option>
-                </c:forEach>
-              </c:if>
+              <c:forEach var="sigg" items="${siggList}">
+                <option value="${sigg.id}" ${sigg.id == product.regionId ? 'selected' : ''}>${sigg.name}</option>
+              </c:forEach>
             </select>
           </div>
         </div>
 
         <!-- 카테고리 -->
         <div>
-          <label for="categoryId" class="form-label fw-bold text-gray-700">카테고리</label>
-          <select class="form-select" id="categoryId" name="categoryId" required>
+          <label class="form-label fw-bold text-gray-700">카테고리</label>
+          <select class="form-select" name="categoryId">
             <option value="">카테고리 선택</option>
             <c:forEach var="cat" items="${categoryList}">
               <option value="${cat.id}" ${product.categoryId == cat.id ? 'selected' : ''}>${cat.name}</option>
@@ -131,60 +123,100 @@
           </select>
         </div>
 
-            <!-- 이미지 업로드 -->
-    <div>
-      <label for="images" class="form-label fw-bold text-gray-700">이미지 업로드</label>
-      <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
+        <!-- 이미지 업로드 -->
+			<div>
+			  <label class="form-label fw-bold text-gray-700">이미지 업로드</label>
+			  <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
+			
+			  <div class="mt-3 border p-3 rounded-lg bg-gray-50">
+			    <p class="text-sm text-gray-600 mb-2">이미지 목록</p>
+			
+			    <!-- flex 컨테이너 -->
+			    <div class="flex flex-wrap gap-3">
+			
+			      <!-- 현재 이미지 -->
+			      <c:forEach var="img" items="${productImages}">
+			        <div class="relative inline-block current-image" id="img-${img}">
+			
+			          <c:choose>
+			            <c:when test="${fn:startsWith(img,'http')}">
+			              <c:set var="src" value="${img}" />
+			            </c:when>
+			            <c:otherwise>
+			              <c:set var="src" value="${ctx}/upload/product_images/${img}" />
+			            </c:otherwise>
+			          </c:choose>
+			
+			          <img src="${src}"
+			               style="width:128px;height:128px;object-fit:cover"
+			               class="rounded-lg shadow-md">
+			
+			          <!-- 삭제 버튼 -->
+			          <button type="button"
+			                  class="delete-image-btn"
+			                  data-img="${img}"
+			                  data-product="${product.id}"
+			                  style="
+			                    position:absolute;
+			                    top:-8px; right:-8px;
+			                    width:24px; height:24px;
+			                    background:#ff4d4d; color:white;
+			                    border:none; border-radius:50%;
+			                  ">✕</button>
+			
+			          <input type="hidden" name="oldImages" value="${img}">
+			        </div>
+			      </c:forEach>
+			
+			      <!-- 새로 업로드한 이미지 미리보기 -->
+			      <div id="previewContainer"></div>
+			
+			    </div>
+			  </div>
+			</div>
 
-      <!-- 현재 이미지 -->
-      <c:if test="${not empty product.imgSrc}">
-        <div class="mt-3 border p-3 rounded-lg bg-gray-50">
-          <p class="text-sm text-gray-600 mb-2">현재 이미지</p>
-          <img src="${product.imgSrc}" alt="product" class="rounded-lg shadow-md max-w-xs">
         </div>
-      </c:if>
 
-      <!-- 🔹 새 이미지 미리보기 -->
-      <div id="previewContainer" class="mt-3 flex flex-wrap gap-3"></div>
-    </div>
+        <!-- 🔥 버튼 영역 -->
+        <div class="flex justify-between mt-6">
+          <div class="flex gap-3">
+            <button type="submit"
+                    class="btn btn-success px-4 py-2 rounded-lg">
+              <c:choose>
+                <c:when test="${empty product.id}">등록하기</c:when>
+                <c:otherwise>수정하기</c:otherwise>
+              </c:choose>
+            </button>
 
-    <!-- 🔴 여기서 등록/수정 form을 닫아줌!! -->
-  </form>
+            <a href="${pageContext.request.contextPath}/product/list"
+               class="btn btn-secondary px-4 py-2 rounded-lg">
+              목록으로
+            </a>
+          </div>
 
-  <!-- 🔵 이제 여기부터는 등록/수정 폼 밖이므로, 삭제용 폼이 완전히 분리됨 -->
-  <c:if test="${not empty product.id}">
- 	<div class="flex justify-content-between">
-   </c:if>
-
-    <!-- 삭제 버튼: 상품이 있을 때만 -->
-    <c:if test="${not empty product.id}">
-      <form method="post"
-            action="${pageContext.request.contextPath}/product/delete"
-            onsubmit="return confirm('정말로 이 상품과 관련된 모든 데이터를 삭제하시겠습니까?');">
-        <input type="hidden" name="id" value="${product.id}">
-        <!-- APPLIED CUSTOM RED CLASS -->
-        <button type="submit" class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">삭제하기</button>
-      </form>
-    </c:if>
-
-    <!-- 수정 / 목록으로 -->
-    <div class="flex justify-end gap-3">
-      <button type="submit" form="productForm" class="btn-custom-outline btn-custom-green rounded-lg px-4 py-2">
-        <c:choose>
-          <c:when test="${empty product.id}">등록하기</c:when>
-          <c:otherwise>수정하기</c:otherwise>
-        </c:choose>
-      </button>
-
-      <a href="${pageContext.request.contextPath}/product/list" class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">목록으로</a>
+      	</form>
+			<c:if test="${not empty product.id}">
+			  <form action="${ctx}/product/delete" method="post"
+			        onsubmit="return confirm('정말 삭제하시겠습니까?');">
+			
+			    <input type="hidden" name="id" value="${product.id}">
+			
+			    <button type="submit" class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
+			      삭제하기
+			    </button>
+			
+			  </form>
+			</c:if>
+		</div>
     </div>
   </div>
 
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>
-<script src="${pageContext.request.contextPath}/product/js/area-select.js"></script>
-<script src="${pageContext.request.contextPath}/product/js/image-preview.js"></script>
+<script src="${ctx}/product/js/area-select.js"></script>
+<script src="${ctx}/product/js/image-preview.js"></script>
+<script src="${ctx}/product/js/image-delete.js"></script>
 
 </body>
 </html>
