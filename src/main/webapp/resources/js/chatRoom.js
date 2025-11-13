@@ -177,14 +177,3 @@ document.addEventListener("DOMContentLoaded", () => {
         closeButton.addEventListener("click", closeImageModal);
     }
 });
-// JSP 환경에서는 버튼 크기가 로드 후 결정되므로, JS로 spacer 너비를 설정합니다.
-window.onload = function() {
-    const backButton = document.querySelector('.btn-outline-muted');
-    const spacer = document.querySelector('.spacer');
-    // 버튼의 실제 계산된 너비를 spacer에 적용하여 완벽한 중앙 정렬을 보장합니다.
-    spacer.style.width = backButton.offsetWidth + 'px';
-
-    // Font Awesome 아이콘으로 변경 (JSP 파일에는 Font Awesome이 link 태그로 추가되어 있으므로 적용)
-    const backButtonText = document.querySelector('.btn-outline-muted');
-    backButtonText.innerHTML = '<i class="fas fa-arrow-left"></i> 뒤로가기';
-};

@@ -8,7 +8,6 @@
 <meta charset="UTF-8">
 <title>실시간 채팅방</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/chatRoom.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body data-context-path="${pageContext.request.contextPath}" data-room-id="${room.id}" data-user-id="${sessionScope.loginUserId}">
 
@@ -19,18 +18,13 @@
 </c:if>
 
 <c:if test="${not empty room}">
-  <!-- 🔴 chat-element-width 클래스 추가 -->
-  <div class="chat-header chat-element-width">
-      <!-- 🔴 mb-4 (마진) 클래스 제거 -->
-      <button type="back" onclick="history.back()" class="btn btn-outline-muted btn-sm2">
-          <i class="fas fa-arrow-left"></i> 뒤로가기
-      </button>
+  <div class="chat-header">
+      <button onclick="history.back()" class="back-button">&lt;</button>
       <h2>${otherUserNickname}</h2>
       <div class="spacer"></div>
   </div>
 
-  <!-- 🔴 chat-element-width 클래스 추가 -->
-  <div id="chatBox" class="chat-element-width">
+  <div id="chatBox">
     <c:if test="${not empty product}">
         <div class="product-info-bar">
             <div class="product-image">
@@ -76,10 +70,8 @@
     </c:choose>
   </div>
   
-  <!-- 🔴 chat-element-width 클래스 추가 -->
-  <div class="input-area chat-element-width">
-    <!-- '+' 대신 아이콘 사용 (선택 사항) -->
-    <label for="imageUpload" class="upload-btn"><i class="fas fa-image"></i></label>
+  <div class="input-area">
+    <label for="imageUpload" class="upload-btn">+</label>
     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
     <textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
     <button id="sendBtn">보내기</button>
@@ -97,20 +89,6 @@
   <img class="modal-content" id="modalImage">
 </div>
 
-<!-- 🔴 스크립트 추가 (버튼 크기 측정 및 spacer에 적용) -->
-<script>
-    // JSP 환경에서는 버튼 크기가 로드 후 결정되므로, JS로 spacer 너비를 설정합니다.
-    window.onload = function() {
-        const backButton = document.querySelector('.btn-outline-muted');
-        const spacer = document.querySelector('.spacer');
-        // 버튼의 실제 계산된 너비를 spacer에 적용하여 완벽한 중앙 정렬을 보장합니다.
-        spacer.style.width = backButton.offsetWidth + 'px';
-
-        // Font Awesome 아이콘으로 변경 (JSP 파일에는 Font Awesome이 link 태그로 추가되어 있으므로 적용)
-        const backButtonText = document.querySelector('.btn-outline-muted');
-        backButtonText.innerHTML = '<i class="fas fa-arrow-left"></i> 뒤로가기';
-    };
-</script>
 <script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </body>
 </html>
