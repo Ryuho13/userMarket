@@ -1,3 +1,5 @@
+let notificationSound; // Declare globally
+
 document.addEventListener("DOMContentLoaded", function() {
     // JSP에서 설정한 전역 변수에서 사용자 ID를 가져옵니다.
     // 이 변수가 없거나 비어있으면 (비로그인 상태) 아무 작업도 하지 않습니다.
@@ -6,9 +8,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
     }
 
+    const contextPath = document.body.getAttribute('data-context-path') || '';
+    notificationSound = new Audio(`${contextPath}/resources/sounds/notification.mp3`);
+    notificationSound.load(); // Preload the sound
+
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsHost = window.location.host;
-    const contextPath = document.body.getAttribute('data-context-path') || ''; // Get context path from body attribute
     const wsUrl = `${wsProtocol}//${wsHost}${contextPath}/notifications/${currentUserId}`;
 
     const currentChatRoomId = document.body.getAttribute('data-room-id'); // 현재 채팅방 ID 가져오기
@@ -60,6 +65,9 @@ document.addEventListener("DOMContentLoaded", function() {
  * @param {number} roomId - 채팅방 ID
  */
 function showToast(sender, message, roomId) {
+    // 알림 소리 재생
+    notificationSound.play().catch(e => console.error("알림 소리 재생 실패:", e));
+
     // 토스트 컨테이너 생성
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
