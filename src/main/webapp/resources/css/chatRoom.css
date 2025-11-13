@@ -52,6 +52,7 @@ h2 {
 .bubble {
   position: relative;
   min-width: 30px; /* 최소 너비 */
+  max-width: 60%;  /* 최대 너비 */
   padding: 10px 12px 25px; /* 시간 표시를 위해 하단 패딩 추가 */
   border-radius: 14px;
   word-break: break-word;
@@ -59,6 +60,7 @@ h2 {
 }
 
 .my-message .bubble {
+	max-width: 60%; 
   background: #d1f8d3;
   border-top-right-radius: 6px;
 }
