@@ -174,7 +174,7 @@
         <div class="flex justify-between mt-6 items-center">
           <c:if test="${not empty product.id}">
             <button type="button"
-                    onclick="document.getElementById('deleteForm').submit();"
+                    onclick="confirmDelete()"
                     class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
               삭제하기
             </button>
@@ -191,8 +191,6 @@
             <a onclick="history.back()"
                class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
           </div>
-
-          <!-- 삭제하기 버튼 -->
 
         </div>
 
@@ -216,7 +214,7 @@
 </script>
 <script src="${ctx}/product/js/area-select.js"></script>
 <script src="${ctx}/product/js/image-preview.js"></script>
-<script src="${ctx}/product/js/image-delete.js"></script>
+<script src="${ctx}/product/js/delete.js"></script>
 
 </body>
 </html>
