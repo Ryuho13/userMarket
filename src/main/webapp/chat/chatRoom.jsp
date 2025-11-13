@@ -6,7 +6,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>실시간 채팅방</title>
+<title>${otherUserNickname}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/chatRoom.css">
 </head>
 <body data-context-path="${pageContext.request.contextPath}" data-room-id="${room.id}" data-user-id="${sessionScope.loginUserId}">
@@ -18,13 +20,11 @@
 </c:if>
 
 <c:if test="${not empty room}">
-  <div class="chat-header">
-      <button onclick="history.back()" class="back-button">&lt;</button>
-      <h2>${otherUserNickname}</h2>
-      <div class="spacer"></div>
-  </div>
-
-  <div id="chatBox">
+<div class="chat-header">
+            <a href="javascript:history.back()" class="btn btn-outline-muted btn-sm2 ">← 뒤로가기</a>
+            <h2>${otherUserNickname}</h2>
+            <div class="spacer"></div>
+        </div>  <div id="chatBox">
     <c:if test="${not empty product}">
         <div class="product-info-bar">
             <div class="product-image">
@@ -71,7 +71,7 @@
   </div>
   
   <div class="input-area">
-    <label for="imageUpload" class="upload-btn">+</label>
+    <label for="imageUpload" class="upload-btn"><i class="bi bi-image"></i></label>
     <input type="file" id="imageUpload" accept="image/*" style="display: none;">
     <textarea id="msg" placeholder="메시지를 입력하세요 (Shift+Enter 줄바꿈)"></textarea>
     <button id="sendBtn">보내기</button>
@@ -89,6 +89,7 @@
   <img class="modal-content" id="modalImage">
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/chatRoom.js"></script>
 </body>
 </html>
