@@ -176,7 +176,7 @@
         </c:choose>
       </button>
 
-      <a href="${pageContext.request.contextPath}/product/list" class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">목록으로</a>
+      <a onclick="history.back()" class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
     </div>
   </div>
 
