@@ -37,6 +37,7 @@ public class ProductUpdateServlet extends HttpServlet {
 
         try (Connection conn = DBUtil.getConnection()) {
 
+            // 1) 상품 정보 조회
             String sql = """
                 SELECT id, title, description, sell_price, category_id,
                        status, seller_id, sido_id, region_id
@@ -69,9 +70,31 @@ public class ProductUpdateServlet extends HttpServlet {
                 return;
             }
 
+            // ✔ 2) 상품 이미지 조회
+            List<String> productImages = new ArrayList<>();
+
+            String imgSql = """
+                SELECT i.name
+                  FROM images i
+                  JOIN product_images pi ON i.id = pi.image_id
+                 WHERE pi.product_id = ?
+            """;
+
+            try (PreparedStatement ps = conn.prepareStatement(imgSql)) {
+                ps.setInt(1, productId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        productImages.add(rs.getString("name"));
+                    }
+                }
+            }
+
+            req.setAttribute("productImages", productImages);
+
+            // 3) 지역, 카테고리 조회
             List<Map<String, Object>> sidoList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                        "SELECT id, name FROM sido_areas ORDER BY name");
+                    "SELECT id, name FROM sido_areas ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> map = new HashMap<>();
@@ -84,7 +107,7 @@ public class ProductUpdateServlet extends HttpServlet {
 
             List<Map<String, Object>> siggList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                        "SELECT id, name FROM sigg_areas ORDER BY name");
+                    "SELECT id, name FROM sigg_areas ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> map = new HashMap<>();
@@ -97,7 +120,7 @@ public class ProductUpdateServlet extends HttpServlet {
 
             List<Map<String, Object>> categoryList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
-                        "SELECT id, name FROM categories ORDER BY name");
+                    "SELECT id, name FROM categories ORDER BY name");
                  ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Map<String, Object> map = new HashMap<>();
@@ -108,6 +131,7 @@ public class ProductUpdateServlet extends HttpServlet {
             }
             req.setAttribute("categoryList", categoryList);
 
+            // 4) JSP로 전달
             req.setAttribute("product", product);
             req.getRequestDispatcher("/product/product_form.jsp")
                .forward(req, resp);
@@ -117,165 +141,95 @@ public class ProductUpdateServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/product/list");
         }
     }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         req.setCharacterEncoding("UTF-8");
 
-        HttpSession session = req.getSession(false);
-        if (session == null) {
-            resp.sendRedirect(req.getContextPath() + "/user/login");
-            return;
-        }
-
-        Integer loginUserId = (Integer) session.getAttribute("loginUserId");
-        if (loginUserId == null) {
-            resp.sendRedirect(req.getContextPath() + "/user/login");
-            return;
-        }
-
-        int productId = parseInt(req.getParameter("id"), 0);
-        if (productId <= 0) {
-            throw new ServletException("상품 ID가 유효하지 않습니다.");
-        }
-
+        int productId = Integer.parseInt(req.getParameter("id"));
         String title = req.getParameter("title");
         String description = req.getParameter("description");
-        int sellPrice = parseInt(req.getParameter("sellPrice"), 0);
-        int categoryId = parseInt(req.getParameter("categoryId"), 0);
+        int sellPrice = Integer.parseInt(req.getParameter("sellPrice"));
+        int categoryId = Integer.parseInt(req.getParameter("categoryId"));
         String status = req.getParameter("status");
-        int sidoId = parseInt(req.getParameter("sidoId"), 0);
-        int regionId = parseInt(req.getParameter("regionId"), 0);
-
-        String uploadPath = "D:/upload/product_images";
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+        int sidoId = Integer.parseInt(req.getParameter("sidoId"));
+        int regionId = Integer.parseInt(req.getParameter("regionId"));
 
         try (Connection conn = DBUtil.getConnection()) {
-            conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM products WHERE id = ?")) {
-                ps.setInt(1, productId);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
-                        throw new ServletException("존재하지 않는 상품입니다. id=" + productId);
-                    }
-                }
-            }
+        	// 0) uploaderId (항상 seller_id 사용)
+        	int uploaderId = 0;
+
+        	String sSql = "SELECT seller_id FROM products WHERE id=?";
+        	try (PreparedStatement ps = conn.prepareStatement(sSql)) {
+        	    ps.setInt(1, productId);
+        	    ResultSet rs = ps.executeQuery();
+        	    if (rs.next()) {
+        	        uploaderId = rs.getInt("seller_id");
+        	    }
+        	}
 
             String sql = """
                 UPDATE products
-                   SET title = ?, category_id = ?, sell_price = ?, description = ?,
-                       status = ?, sido_id = ?, region_id = ?
-                 WHERE id = ? AND seller_id = ?
+                   SET title=?, description=?, sell_price=?, category_id=?,
+                       status=?, sido_id=?, region_id=?
+                 WHERE id=?
             """;
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, title);
-                ps.setInt(2, categoryId);
+                ps.setString(2, description);
                 ps.setInt(3, sellPrice);
-                ps.setString(4, description);
+                ps.setInt(4, categoryId);
                 ps.setString(5, status);
-                if (sidoId > 0) ps.setInt(6, sidoId); else ps.setNull(6, Types.INTEGER);
-                if (regionId > 0) ps.setInt(7, regionId); else ps.setNull(7, Types.INTEGER);
+                ps.setInt(6, sidoId);
+                ps.setInt(7, regionId);
                 ps.setInt(8, productId);
-                ps.setInt(9, loginUserId);
                 ps.executeUpdate();
             }
 
-            deleteOldImages(conn, productId, uploadPath);
+            Collection<Part> parts = req.getParts();
 
-            for (Part part : req.getParts()) {
-                if ("images".equals(part.getName()) && part.getSize() > 0) {
-                    String submittedFileName = part.getSubmittedFileName();
-                    String fileName = UUID.randomUUID() + "_" + submittedFileName;
+            for (Part part : parts) {
+                if (part.getName().equals("images") && part.getSize() > 0) {
 
-                    File saveFile = new File(uploadDir, fileName);
-                    part.write(saveFile.getAbsolutePath());
+                    String fileName = UUID.randomUUID() + "_" + part.getSubmittedFileName();
+                    String uploadPath = "D:/upload/product_images/" + fileName;
 
-                    saveImageRecord(conn, productId, loginUserId, fileName);
-                }
-            }
+                    part.write(uploadPath);
 
-            conn.commit();
+                    // images 테이블 저장
+                    int imageId = 0;
+                    String imgSql = "INSERT INTO images (name, uploader_id) VALUES (?, ?)";
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ServletException("상품 수정 중 오류 발생", e);
-        }
+                    try (PreparedStatement ps = conn.prepareStatement(imgSql, Statement.RETURN_GENERATED_KEYS)) {
+                        ps.setString(1, fileName);
+                        ps.setInt(2, uploaderId);
+                        ps.executeUpdate();
 
-        resp.sendRedirect(req.getContextPath() + "/product/detail?id=" + productId);
-    }
+                        ResultSet rs = ps.getGeneratedKeys();
+                        if (rs.next()) imageId = rs.getInt(1);
+                    }
 
-    private int parseInt(String val, int defaultVal) {
-        try {
-            return val != null && !val.isEmpty() ? Integer.parseInt(val) : defaultVal;
-        } catch (NumberFormatException e) {
-            return defaultVal;
-        }
-    }
-
-    private void deleteOldImages(Connection conn, int productId, String uploadPath) throws SQLException {
-        String selectImgSql = """
-            SELECT i.name
-              FROM images i
-              JOIN product_images pi ON i.id = pi.image_id
-             WHERE pi.product_id = ?
-        """;
-
-        List<String> oldFiles = new ArrayList<>();
-        try (PreparedStatement ps = conn.prepareStatement(selectImgSql)) {
-            ps.setInt(1, productId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    oldFiles.add(rs.getString("name"));
-                }
-            }
-        }
-
-        for (String fileName : oldFiles) {
-            File f = new File(uploadPath, fileName);
-            if (f.exists() && f.delete()) {
-            } else {
-            }
-        }
-
-        try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM product_images WHERE product_id = ?")) {
-            ps.setInt(1, productId);
-            ps.executeUpdate();
-        }
-
-        try (PreparedStatement ps = conn.prepareStatement(
-                "DELETE FROM images WHERE id NOT IN (SELECT image_id FROM product_images)")) {
-            ps.executeUpdate();
-        }
-    }
-
-    private void saveImageRecord(Connection conn, int productId, int uploaderId, String imgSrc)
-            throws SQLException {
-
-        String insertImg = "INSERT INTO images (uploader_id, name) VALUES (?, ?)";
-        String insertMap = "INSERT INTO product_images (product_id, image_id) VALUES (?, ?)";
-
-        try (PreparedStatement ps1 = conn.prepareStatement(insertImg, Statement.RETURN_GENERATED_KEYS)) {
-            ps1.setInt(1, uploaderId);
-            ps1.setString(2, imgSrc);
-            ps1.executeUpdate();
-
-            try (ResultSet rs = ps1.getGeneratedKeys()) {
-                if (rs.next()) {
-                    int imgId = rs.getInt(1);
-                    try (PreparedStatement ps2 = conn.prepareStatement(insertMap)) {
-                        ps2.setInt(1, productId);
-                        ps2.setInt(2, imgId);
-                        ps2.executeUpdate();
+                    // product_images 매핑 저장
+                    try (PreparedStatement ps = conn.prepareStatement(
+                            "INSERT INTO product_images(product_id, image_id) VALUES (?, ?)")) {
+                        ps.setInt(1, productId);
+                        ps.setInt(2, imageId);
+                        ps.executeUpdate();
                     }
                 }
             }
+
+            resp.sendRedirect(req.getContextPath() + "/product/detail?id=" + productId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.sendRedirect(req.getContextPath() + "/product/update?id=" + productId + "&error=1");
         }
     }
+
+
+
 }
