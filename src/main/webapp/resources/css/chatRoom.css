@@ -105,12 +105,12 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 15px;
+  padding: 0 12px;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 32px;
   color: #555;
   transition: background-color 0.2s;
 }
@@ -173,6 +173,7 @@ h2 {
 
 /* ===== 상단 고정 상품 정보 UI ===== */
 .product-info-bar {
+		border-radius: 8px;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -238,30 +239,22 @@ h2 {
     max-width: 800px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 양 끝 정렬 */
+    /* justify-content: space-between; /* 양 끝 정렬 */
 }
 
 .chat-header h2 {
-    flex: 1;
-    text-align: center; /* 중앙 정렬 */
-    margin: 10px;
+    flex: 1; /* Take up available space */
+    text-align: center; /* Center text within its space */
+    margin: 10px 0; /* Reset margin */
     font-size: 33px;
 }
 
-.back-button {
-		margin-top: 11px;
-    background: none;
-    border: none;
-    font-size: 33px;
-    font-weight: bold;
-    color: #333;
-    cursor: pointer;
-    padding: 0 8px;
-    line-height: 1;
-}
+
 
 .spacer {
-    width: 40px; /* 버튼과 균형 맞추기용 (버튼 너비 정도로 설정) */
+    width: 125px; /* Adjust as needed to balance the back button */
+    /* The back button has padding: 0.5rem 1.25rem; and font-size: 1.05rem; */
+    /* A width of around 100px might be a good starting point */
 }
 
 /* 시스템 메시지 스타일 */
@@ -279,8 +272,8 @@ h2 {
   z-index: 1000;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  width: 75%;
+  height: 75%;
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.9);
   align-items: center;
@@ -315,5 +308,41 @@ h2 {
   color: #bbb;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Custom styles copied from product_detail.css for consistency */
+:root {
+  --color-bg: #F4F1EB;         
+  --color-primary: #E46F34;   
+  --color-primary-dark: #C85B27;
+  --color-text-main: #1F2933;  
+  --color-text-muted: #7A6A60; 
+
+  --radius-card: 16px;
+  --shadow-card: 0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+.btn {
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-outline-muted {
+  color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.btn-outline-muted:hover,
+.btn-outline-muted:focus {
+  color: #fff;
+  background-color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+.btn-sm2 {
+  border-radius: 8px; 
+  font-size: 1.05rem; 
+  padding: 0.5rem 1.25rem; 
+  line-height: 1.5; 
 }
 
