@@ -100,31 +100,50 @@ function displayMessage(data) {
   const bubble = document.createElement("div");
   bubble.classList.add("bubble");
 
-  if (data.message.startsWith("IMG::")) {
-    const imageUrl = document.body.dataset.contextPath + data.message.substring(5);
-    const imgElement = document.createElement("img");
-    imgElement.src = imageUrl;
-    imgElement.classList.add("chat-image");
-    imgElement.alt = "채팅 이미지";
-    imgElement.onclick = () => openImageModal(imageUrl);
-    bubble.appendChild(imgElement);
-  } else {
-    const messageText = document.createElement("span");
-    messageText.classList.add("message-text");
-    messageText.textContent = data.message;
-    bubble.appendChild(messageText);
-  }
-
-  const time = document.createElement("span");
-  time.classList.add("time");
-  time.textContent = formatTime(data.createdAt);
-  bubble.appendChild(time);
-
-  chatRow.appendChild(bubble);
-  chatBox.appendChild(chatRow);
-  chatBox.scrollTop = chatBox.scrollHeight;
+      if (data.message.startsWith("IMG::")) {
+          const imageUrl = document.body.dataset.contextPath + data.message.substring(5);
+          const imgElement = document.createElement("img");
+          imgElement.src = imageUrl;
+          imgElement.classList.add("chat-image");
+          imgElement.alt = "채팅 이미지";
+          imgElement.onclick = () => openImageModal(imageUrl);
+          
+          // 이미지 로드 후 스크롤 조정
+          imgElement.onload = () => {
+              // 이미지 로드 후 약간의 지연을 주어 레이아웃 재계산 시간을 확보
+              setTimeout(() => {
+                  chatBox.scrollTop = chatBox.scrollHeight;
+              }, 50); // 50ms 지연
+          };
+          
+          // 이미지 로드 실패 시에도 스크롤 (예외 처리)
+          imgElement.onerror = () => {
+              console.error("이미지 로드 실패:", imageUrl);
+              setTimeout(() => {
+                  chatBox.scrollTop = chatBox.scrollHeight;
+              }, 50);
+          };
+  
+          bubble.appendChild(imgElement);
+          chatRow.appendChild(bubble);
+          chatBox.appendChild(chatRow);
+          // 이미지 메시지의 경우 초기 스크롤은 생략하고 로드 후 스크롤에 의존
+      } else {
+          const messageText = document.createElement("span");
+          messageText.classList.add("message-text");
+          messageText.textContent = data.message;
+          bubble.appendChild(messageText);
+  
+          const time = document.createElement("span");
+          time.classList.add("time");
+          time.textContent = formatTime(data.createdAt);
+          bubble.appendChild(time);
+  
+          chatRow.appendChild(bubble);
+              chatBox.appendChild(chatRow);
+              chatBox.scrollTop = chatBox.scrollHeight; // 텍스트 메시지는 즉시 스크롤
+            }
 }
-
 function displaySystemMessage(message) {
   const chatBox = document.getElementById("chatBox");
   const systemMessageDiv = document.createElement("div");
