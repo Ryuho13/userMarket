@@ -8,6 +8,7 @@
 <head>
 <meta charset="UTF-8">
 <title>${product.title}</title>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/product/css/product_detail.css'/>">
@@ -28,7 +29,11 @@
         <div class="carousel-inner">
           <c:forEach var="img" items="${product.images}" varStatus="status">
             <div class="carousel-item ${status.first ? 'active' : ''}">
-              <img src="${img}" class="d-block w-100 rounded shadow-sm" alt="상품 이미지">
+              <img src="${img}" 
+              		class="d-block w-100 rounded shadow-sm" 
+              		alt="상품 이미지"
+                    onerror="this.src='${ctx}/product/resources/images/noimage.jpg'">
+              
             </div>
           </c:forEach>
         </div>
