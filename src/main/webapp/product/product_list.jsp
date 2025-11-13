@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="<c:url value='/product/css/product_list.css'/>">
 </head>
 
-<body class="bg-light">
+<body class="bg-light" data-context-path="${pageContext.request.contextPath}">
 
 	<jsp:include page="/header/header.jsp" />
 <!-- 🔧 페이징 시 검색/필터 파라미터 유지용 쿼리스트링 생성 -->
@@ -403,5 +403,6 @@
 </script>
 
 <jsp:include page="/footer/footer.jsp" />
+<jsp:include page="/resources/alarm.jsp" />
 </body>
 </html>

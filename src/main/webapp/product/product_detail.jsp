@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
-<body class="py-5">
+<body class="py-5" data-context-path="${pageContext.request.contextPath}">
 <div class="container">
 
   <a href="${pageContext.request.contextPath}/product/list" class="btn btn-outline-secondary mb-4">← 목록으로</a>
@@ -247,6 +247,6 @@
 <script src="<c:url value='/product/js/product_detail.js'/>"></script>
 <script src="<c:url value='/product/js/wish_list.js'/>"></script>
 <script>window.contextPath = '${pageContext.request.contextPath}';</script>
-<jsp:include page="../resources/alarm.jsp" />
+<jsp:include page="/resources/alarm.jsp" />
 </body>
 </html>
