@@ -3,12 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const siggSelect = document.getElementById("sigg");
   const siggContainer = document.getElementById("siggContainer");
 
-  // ✅ 지역 필터 처리
   if (sidoSelect) {
     sidoSelect.addEventListener("change", async function () {
       const sidoId = this.value;
 
-      // product-form.jsp (드롭다운 방식)
       if (siggSelect) {
         siggSelect.innerHTML = "<option>로딩 중...</option>";
 
@@ -35,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // product-list.jsp (라디오 방식)
       if (siggContainer) {
         siggContainer.innerHTML = "<p class='text-secondary small'>로딩 중...</p>";
 
@@ -69,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
           siggContainer.innerHTML = "";
           siggContainer.appendChild(radioList);
 
-          // 🔹 추가: 시군구 선택 시 자동 필터 적용
           const filterForm = document.querySelector(".product_filter form");
           document.querySelectorAll(".sigg-radio").forEach(radio => {
             radio.addEventListener("change", () => {
@@ -96,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ✅ 가격 필터 처리
   const priceButtons = document.querySelectorAll(".price-btn");
   const minInput = document.getElementById("minPrice");
   const maxInput = document.getElementById("maxPrice");

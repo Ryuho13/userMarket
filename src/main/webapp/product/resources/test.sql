@@ -154,7 +154,7 @@ CREATE TABLE product_images (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==========================================
--- 💖 관심 목록
+-- 💖 찜 목록
 -- ==========================================
 
 CREATE TABLE wish_lists (
@@ -537,7 +537,7 @@ INSERT INTO seller_ratings (seller_id, buyer_id, product_id, rating, comment) VA
 
 
 -- ==========================================
--- 💖 관심 목록 (각 회원 10개씩)
+-- 💖 찜 목록 (각 회원 10개씩)
 -- ==========================================
 INSERT INTO wish_lists (register_id, product_id) VALUES
 (1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),

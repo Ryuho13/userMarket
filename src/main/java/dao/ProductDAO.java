@@ -7,9 +7,6 @@ import java.util.List;
 
 public class ProductDAO {
 
-    /* -------------------------
-     * 공통 유틸
-     * ------------------------- */
     private static String normalizeDisplayImg(String imgName) {
         if (imgName == null || imgName.isEmpty()) {
             return "/product/resources/images/noimage.jpg";
@@ -31,9 +28,6 @@ public class ProductDAO {
         }
     }
 
-    /* -------------------------
-     * 단건/연관 조회
-     * ------------------------- */
     public Product getProductById(int id) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -140,11 +134,6 @@ public class ProductDAO {
         return list;
     }
 
-    /* -------------------------
-     * 목록 검색 + 정렬 (호환용/신규 모두)
-     * ------------------------- */
-
-    /** 기존 시그니처(호환용) → onlyAvailable=false 기본값 */
     public List<Product> searchProducts(String q,
                                         Integer categoryId,
                                         Integer siggAreaId,
@@ -156,7 +145,6 @@ public class ProductDAO {
         return searchProducts(q, categoryId, siggAreaId, minPrice, maxPrice, offset, size, sort, false);
     }
 
-    /** 신규: 거래 가능만 필터 지원 */
     public List<Product> searchProducts(String q,
                                         Integer categoryId,
                                         Integer siggAreaId,
@@ -203,12 +191,10 @@ public class ProductDAO {
             sql.append(" AND p.sell_price <= ? ");
             params.add(maxPrice);
         }
-        // ✅ 거래 가능만: 판매완료 제외
         if (onlyAvailable) {
             sql.append(" AND p.status <> 'SOLD_OUT' ");
         }
 
-        // 정렬
         switch (sort) {
             case "view"      -> sql.append(" ORDER BY p.view_count DESC ");
             case "name"      -> sql.append(" ORDER BY p.title ASC ");
@@ -245,7 +231,6 @@ public class ProductDAO {
         }
     }
 
-    /* (기존) 필터 + 정렬 – 그대로 유지 */
     public List<Product> getFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice,
                                              int offset, int size, String sort) throws Exception {
 
@@ -317,11 +302,6 @@ public class ProductDAO {
         }
     }
 
-    /* -------------------------
-     * 카운트 (호환용/신규 모두)
-     * ------------------------- */
-
-    /** 기존 시그니처(호환용) → onlyAvailable=false 기본값 */
     public int countSearchProducts(String q,
                                    Integer categoryId,
                                    Integer siggAreaId,
@@ -329,8 +309,7 @@ public class ProductDAO {
                                    Integer maxPrice) throws SQLException {
         return countSearchProducts(q, categoryId, siggAreaId, minPrice, maxPrice, false);
     }
-
-    /** 신규: 거래 가능만 카운트 지원 */
+    
     public int countSearchProducts(String q,
                                    Integer categoryId,
                                    Integer siggAreaId,
@@ -368,7 +347,6 @@ public class ProductDAO {
             sql.append(" AND p.sell_price <= ? ");
             params.add(maxPrice);
         }
-        // ✅ 거래 가능만
         if (onlyAvailable) {
             sql.append(" AND p.status <> 'SOLD_OUT' ");
         }
@@ -418,10 +396,6 @@ public class ProductDAO {
             }
         }
     }
-
-    /* -------------------------
-     * 기타 목록
-     * ------------------------- */
 
     public List<Product> getWishedProductsByUserId(int userId) throws SQLException {
         String sql = """

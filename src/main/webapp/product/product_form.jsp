@@ -20,14 +20,10 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/product/css/product_form.css'/>">
-
 </head>
 
 <body class="bg-gray-50 min-h-screen py-10">
-
   <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-    
-    <!-- 헤더 -->
     <div class="bg-green-500 text-white text-center py-6">
       <h1 class="text-2xl font-bold">
         ${sessionScope.loginUser.name}님의 
@@ -39,31 +35,25 @@
       <p class="text-sm opacity-80">당신의 물건을 다른 사람과 나눠보세요!</p>
     </div>
 
-    <!-- 폼 전체 영역 -->
     <div class="p-8">
-
-      <!-- 메인 폼 -->
       <form id="productForm" method="post" enctype="multipart/form-data"
             action="${pageContext.request.contextPath}/product/${empty product.id ? 'insert' : 'update'}"
             class="space-y-6">
 
         <input type="hidden" name="id" value="${product.id}">
 
-        <!-- 상품명 -->
         <div>
           <label for="title" class="form-label fw-bold text-gray-700">상품명</label>
           <input type="text" class="form-control" id="title" name="title"
                  required value="${product.title}">
         </div>
 
-        <!-- 설명 -->
         <div>
           <label for="description" class="form-label fw-bold text-gray-700">설명</label>
           <textarea class="form-control" id="description" name="description"
                     rows="5">${product.description}</textarea>
         </div>
 
-        <!-- 가격 + 상태 -->
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label fw-bold text-gray-700">가격 (원)</label>
@@ -88,7 +78,6 @@
           </div>
         </div>
 
-        <!-- 지역 -->
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label fw-bold text-gray-700">시/도</label>
@@ -111,7 +100,6 @@
           </div>
         </div>
 
-        <!-- 카테고리 -->
         <div>
           <label class="form-label fw-bold text-gray-700">카테고리</label>
           <select class="form-select" name="categoryId">
@@ -122,7 +110,6 @@
           </select>
         </div>
 
-        <!-- 이미지 업로드 -->
         <div>
           <label class="form-label fw-bold text-gray-700">이미지 업로드</label>
           <input class="form-control" type="file" id="images" name="images" accept="image/*" multiple>
@@ -131,10 +118,8 @@
             <p class="text-sm text-gray-600 mb-2">이미지 목록</p>
 
             <div class="flex flex-wrap gap-3">
-
               <c:forEach var="img" items="${productImages}">
                 <div class="relative inline-block current-image" id="img-${img}">
-                  
                   <c:choose>
                     <c:when test="${fn:startsWith(img,'http')}">
                       <c:set var="src" value="${img}" />
@@ -165,12 +150,10 @@
               </c:forEach>
 
               <div id="previewContainer"></div>
-
             </div>
           </div>
         </div>
 
-        <!-- 버튼 영역 -->
         <div class="flex justify-between mt-6 items-center">
           <c:if test="${not empty product.id}">
             <button type="button"
@@ -188,15 +171,11 @@
               </c:choose>
             </button>
 
-            <a onclick="history.back()"
-               class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
+            <a onclick="history.back()" class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
           </div>
-
         </div>
-
       </form>
 
-      <!-- 삭제 폼 -->
       <c:if test="${not empty product.id}">
         <form id="deleteForm"
               action="${ctx}/product/delete"
@@ -215,6 +194,5 @@
 <script src="${ctx}/product/js/area-select.js"></script>
 <script src="${ctx}/product/js/image-preview.js"></script>
 <script src="${ctx}/product/js/delete.js"></script>
-
 </body>
 </html>

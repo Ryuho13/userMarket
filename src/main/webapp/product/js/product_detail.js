@@ -1,23 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 🔹 부드러운 토글 애니메이션 적용 함수
   const toggleItems = (selector, button) => {
     const items = document.querySelectorAll(selector);
     const isHidden = [...items].every(el => el.classList.contains("d-none"));
 
     if (isHidden) {
-      // ▶ 펼치기 (fade-in)
       items.forEach((el, i) => {
         el.classList.remove("d-none");
         el.style.opacity = 0;
         setTimeout(() => {
           el.style.transition = "opacity 0.4s ease";
           el.style.opacity = 1;
-        }, i * 100); // 순차적으로 나타나게
+        }, i * 100);
       });
       button.textContent = "줄이기 ▲";
     } else {
-      // ▶ 접기 (fade-out)
-      items.forEach((el, i) => {
+      items.forEach(el => {
         el.style.transition = "opacity 0.3s ease";
         el.style.opacity = 0;
         setTimeout(() => {
@@ -32,18 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // 카테고리 상품
   const toggleCategory = document.getElementById("toggleCategory");
   if (toggleCategory) {
     toggleCategory.addEventListener("click", () => toggleItems(".extra-category", toggleCategory));
   }
 
-  // 판매자 상품
   const toggleSeller = document.getElementById("toggleSeller");
   if (toggleSeller) {
     toggleSeller.addEventListener("click", () => toggleItems(".extra-seller", toggleSeller));
   }
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("btnWish");
   if (!btn) return;
@@ -58,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const res = await fetch(`${contextPath}/product/wishlist`, {
       method: "POST",
-      body: formData,
+      body: formData
     });
 
     if (res.ok) {
@@ -73,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".review-text").forEach(p => {
     const btn = p.closest(".review-item").querySelector(".toggle-btn");
@@ -81,14 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const lineHeight = parseFloat(getComputedStyle(p).lineHeight);
     const maxHeight = lineHeight * 3;
 
-    // 3줄 이하 → 클램프 해제 + 버튼 숨김
     if (p.scrollHeight <= maxHeight + 2) {
       p.classList.add("no-clamp");
       btn.style.display = "none";
       return;
     }
 
-    // 긴 리뷰만 토글 가능
     btn.addEventListener("click", () => {
       const expanded = p.classList.toggle("expanded");
       if (expanded) {
