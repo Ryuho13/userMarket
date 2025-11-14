@@ -8,7 +8,6 @@ import java.util.List;
 
 public class ProductDetailDAO {
 
-    /** ✅ 조회수 증가 */
     public void increaseViewCount(int productId) throws SQLException {
         String sql = "UPDATE products SET view_count = view_count + 1 WHERE id = ?";
         try (Connection conn = DBUtil.getConnection();
@@ -18,20 +17,17 @@ public class ProductDetailDAO {
         }
     }
 
-    /** ✅ 조회수 증가 + 상세조회 (트랜잭션 처리) */
     public ProductDetail incrementAndFindById(int productId) throws SQLException {
         try (Connection conn = DBUtil.getConnection()) {
             boolean old = conn.getAutoCommit();
             conn.setAutoCommit(false);
             try {
-                // 조회수 증가
                 try (PreparedStatement ps = conn.prepareStatement(
                         "UPDATE products SET view_count = view_count + 1 WHERE id = ?")) {
                     ps.setInt(1, productId);
                     ps.executeUpdate();
                 }
 
-                // 상품 + 판매자 + 카테고리 + 평점 + 리뷰 로딩
                 ProductDetail pd = findById(conn, productId);
 
                 conn.commit();
@@ -44,7 +40,6 @@ public class ProductDetailDAO {
         }
     }
 
-    /** ✅ 상품 상세 조회 */
     public ProductDetail findById(int productId) throws SQLException {
         try (Connection conn = DBUtil.getConnection()) {
             return findById(conn, productId);
@@ -88,14 +83,10 @@ public class ProductDetailDAO {
                 pd.setSellerName(rs.getString("seller_name"));
                 pd.setSellerMobile(rs.getString("seller_mobile"));
                 pd.setCategoryName(rs.getString("category_name"));
-
-                // ✅ 이미지 리스트
                 pd.setImages(loadProductImages(conn, productId));
 
-                // ✅ 판매자 평점 평균/개수
                 loadSellerRating(conn, pd);
 
-                // ✅ 판매자 리뷰 리스트 추가
                 pd.setReviews(loadSellerReviews(conn, pd.getSellerId()));
 
                 return pd;
@@ -103,7 +94,6 @@ public class ProductDetailDAO {
         }
     }
 
-    /** ✅ 상품 이미지 로딩 */
     private List<String> loadProductImages(Connection conn, int productId) throws SQLException {
         List<String> images = new ArrayList<>();
         String sql = """
@@ -124,7 +114,6 @@ public class ProductDetailDAO {
         return images;
     }
 
-    /** ✅ 판매자 평점 정보 로딩 */
     private void loadSellerRating(Connection conn, ProductDetail pd) throws SQLException {
         String sql = """
             SELECT AVG(rating) AS avg_rating,
@@ -151,7 +140,6 @@ public class ProductDetailDAO {
         }
     }
 
-    /** ✅ 판매자 리뷰 리스트 로딩 */
     private List<Review> loadSellerReviews(Connection conn, int sellerId) throws SQLException {
         List<Review> reviews = new ArrayList<>();
 
@@ -178,8 +166,6 @@ public class ProductDetailDAO {
                     review.setComment(rs.getString("comment"));
                     review.setCreatedAt(rs.getTimestamp("created_at"));
                     review.setBuyerName(rs.getString("buyer_name"));
-
-                    // ✅ 어떤 상품에 대한 리뷰인지 세팅
                     int pid = rs.getInt("product_id");
                     review.setProductId(rs.wasNull() ? null : pid);  
                     review.setProductTitle(rs.getString("product_title"));
@@ -193,7 +179,6 @@ public class ProductDetailDAO {
     }
 
 
-    /** ✅ 찜 여부 확인 */
     public boolean isWished(int userId, int productId) throws SQLException {
         String sql = "SELECT 1 FROM wish_lists WHERE register_id = ? AND product_id = ?";
         try (Connection conn = DBUtil.getConnection();

@@ -75,7 +75,6 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
-            // 🛒 상품 등록 (지역 포함)
             String sql = """
                 INSERT INTO products (
                     seller_id, category_id, title, status,
@@ -92,7 +91,6 @@ public class ProductInsertServlet extends HttpServlet {
                 ps.setInt(5, sellPrice);
                 ps.setString(6, description);
 
-                // 📍 지역 정보 저장
                 if (sidoAreaIdStr != null && !sidoAreaIdStr.isEmpty()) {
                     ps.setInt(7, Integer.parseInt(sidoAreaIdStr));
                 } else {
@@ -113,7 +111,6 @@ public class ProductInsertServlet extends HttpServlet {
                 }
             }
 
-            // 🖼️ 이미지 저장
             for (Part part : req.getParts()) {
                 if (part.getName().equals("images") && part.getSize() > 0) {
                     String fileName = UUID.randomUUID() + "_" + part.getSubmittedFileName();
@@ -134,7 +131,6 @@ public class ProductInsertServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/product/list");
     }
 
-    // 🖼️ 이미지 DB 기록 메서드
     private void saveImageRecord(Connection conn, int productId, int uploaderId, String imgSrc) throws SQLException {
         String insertImg = "INSERT INTO images (uploader_id, name) VALUES (?, ?)";
         String insertMap = "INSERT INTO product_images (product_id, image_id) VALUES (?, ?)";

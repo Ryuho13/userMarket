@@ -30,7 +30,6 @@ public class ProductImageDeleteServlet extends HttpServlet {
 
         try (Connection conn = DBUtil.getConnection()) {
 
-            // 1) 해당 이미지 ID 조회
             String sql = """
                 SELECT i.id
                 FROM images i
@@ -55,7 +54,6 @@ public class ProductImageDeleteServlet extends HttpServlet {
                 return;
             }
 
-            // 2) product_images 삭제
             try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM product_images WHERE product_id = ? AND image_id = ?"
             )) {
@@ -64,7 +62,6 @@ public class ProductImageDeleteServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            // 3) images 테이블 삭제
             try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM images WHERE id = ?"
             )) {
@@ -72,7 +69,6 @@ public class ProductImageDeleteServlet extends HttpServlet {
                 ps.executeUpdate();
             }
 
-            // 4) 실제 파일 삭제
             File f = new File("D:/upload/product_images", imgName);
             if (f.exists()) f.delete();
 

@@ -57,12 +57,10 @@ public class ProductDetailServlet extends HttpServlet {
         	    return;
         	}
 
-        	/* 🔥 이미지 리스트 비어있으면 noimage 추가 */
         	if (pd.getImages() == null || pd.getImages().isEmpty()) {
         	    pd.getImages().add(req.getContextPath() + "/product/resources/images/noimage.jpg");
         	}
 
-        	/* 🔥 기존 이미지 경로 변환 */
         	for (int i = 0; i < pd.getImages().size(); i++) {
         	    String img = pd.getImages().get(i);
 

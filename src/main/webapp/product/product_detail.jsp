@@ -17,26 +17,24 @@
 
 <body class="py-5" data-context-path="${pageContext.request.contextPath}">
 <div class="container">
-					<button type="back" onclick="history.back()"
-					class="btn btn-outline-muted btn-sm2 mb-4">
-					←뒤로가기</button>
+  <button type="back" onclick="history.back()" class="btn btn-outline-muted btn-sm2 mb-4">←뒤로가기</button>
+
   <div class="product-container d-flex gap-4 flex-wrap">
     <div class="col-12 col-md-5">
-      <p class="text-muted mt-0 mb-3 text-left">
-        홈 &gt; ${product.categoryName}
-      </p>
+      <p class="text-muted mt-0 mb-3 text-left">홈 &gt; ${product.categoryName}</p>
+
       <div id="productCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2500">
         <div class="carousel-inner">
           <c:forEach var="img" items="${product.images}" varStatus="status">
             <div class="carousel-item ${status.first ? 'active' : ''}">
               <img src="${img}" 
-              		class="d-block w-100 rounded shadow-sm" 
-              		alt="상품 이미지"
-                    onerror="this.src='${ctx}/product/resources/images/noimage.jpg'">
-              
+                   class="d-block w-100 rounded shadow-sm" 
+                   alt="상품 이미지"
+                   onerror="this.src='${ctx}/product/resources/images/noimage.jpg'">
             </div>
           </c:forEach>
         </div>
+
         <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
           <span class="carousel-control-prev-icon"></span>
         </button>
@@ -46,7 +44,6 @@
       </div>
     </div>
 
-    <!-- 📦 상품 정보 -->
     <div class="product-info flex-grow-1">
       <div class="d-flex align-items-center justify-content-between">
         <h3 class="fw-bold mb-0">
@@ -80,12 +77,16 @@
         </c:choose>
       </p>
 
-      <p class="text-danger fw-bold mb-3 fs-2"><fmt:formatNumber value="${product.sellPrice}" type="number"/>원</p>
+      <p class="text-danger fw-bold mb-3 fs-2">
+        <fmt:formatNumber value="${product.sellPrice}" type="number"/>원
+      </p>
+
       <p>${product.description}</p>
       <hr>
 
       <div class="seller-box mt-4">
         <h6 class="fw-bold mb-2">판매자 정보</h6>
+
         <p class="mb-2">
           판매자: ${product.sellerName}<br>
           연락처: <strong>${product.sellerMobile}</strong>
@@ -93,6 +94,7 @@
 
         <div class="mt-4 border-top pt-4">
           <h4 class="mb-2">판매자 평점</h4>
+
           <c:choose>
             <c:when test="${product.sellerRating != null}">
               <p class="mb-2">
@@ -107,8 +109,9 @@
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="reviewModalLabel">판매자 리뷰</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
+
                     <div class="modal-body">
                       <c:choose>
                         <c:when test="${not empty product.reviews}">
@@ -131,16 +134,23 @@
                                 </a>
                               </c:if>
 
-                              <p id="review-${st.index}" class="review-text"><c:out value="${review.comment}" /></p>
-                              <button type="button" class="toggle-btn" data-target="review-${st.index}">더보기 ▼</button>
+                              <p id="review-${st.index}" class="review-text">
+                                <c:out value="${review.comment}" />
+                              </p>
+
+                              <button type="button" class="toggle-btn" data-target="review-${st.index}">
+                                더보기 ▼
+                              </button>
                             </div>
                           </c:forEach>
                         </c:when>
+
                         <c:otherwise>
                           <p class="text-muted text-center mb-0">아직 리뷰가 없습니다.</p>
                         </c:otherwise>
                       </c:choose>
                     </div>
+
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                     </div>
@@ -148,6 +158,7 @@
                 </div>
               </div>
             </c:when>
+
             <c:otherwise>
               <p class="text-muted small mb-0">아직 등록된 평점이 없습니다.</p>
             </c:otherwise>
@@ -156,41 +167,55 @@
 
         <div class="d-flex gap-2 mt-3">
           <c:choose>
+
             <c:when test="${not empty sessionScope.loginUserId}">
+
               <c:if test="${sessionScope.loginUserId == product.sellerId}">
-                <button class="btn btn-secondary btn-action" disabled><i class="bi bi-chat-left-dots"></i> 내 상품입니다</button>
-                <button class="btn btn-outline-secondary btn-action" disabled><i class="bi bi-heart"></i> 찜 불가</button>
+                <button class="btn btn-secondary btn-action" disabled>
+                  <i class="bi bi-chat-left-dots"></i> 내 상품입니다
+                </button>
+                <button class="btn btn-outline-secondary btn-action" disabled>
+                  <i class="bi bi-heart"></i> 찜 불가
+                </button>
               </c:if>
 
               <c:if test="${sessionScope.loginUserId != product.sellerId}">
                 <a href="${pageContext.request.contextPath}/chatRoom?productId=${product.id}&buyerId=${sessionScope.loginUserId}"
-                   class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">채팅하기</a>
-                <button 
-				  id="wishBtn"
-				  class="btn btn-outline-secondary btn-action
-				         ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}"
-				  data-product-id="${product.id}"
-				  data-wish="${isWished}"
-				  ${product.status eq 'SOLD_OUT' ? 'disabled="disabled"' : ''}>
-				  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
-				</button>
+                   class="btn btn-primary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}">
+                  채팅하기
+                </a>
 
+                <button 
+                  id="wishBtn"
+                  class="btn btn-outline-secondary btn-action ${product.status eq 'SOLD_OUT' ? 'disabled' : ''}"
+                  data-product-id="${product.id}"
+                  data-wish="${isWished}"
+                  ${product.status eq 'SOLD_OUT' ? 'disabled="disabled"' : ''}>
+                  <i class="bi ${isWished ? 'bi-heart-fill text-danger' : 'bi-heart'}"></i> 찜
+                </button>
               </c:if>
+
             </c:when>
+
             <c:otherwise>
               <a href="${pageContext.request.contextPath}/user/login?redirect=${pageContext.request.requestURI}?id=${product.id}"
-                 class="btn btn-outline-primary btn-action">로그인 후 채팅하기</a>
+                 class="btn btn-outline-primary btn-action">
+                로그인 후 채팅하기
+              </a>
             </c:otherwise>
+
           </c:choose>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 비슷한 카테고리 -->
   <c:if test="${not empty sameCategory}">
     <div class="section-box">
-      <h5 class="section-title"><i class="bi bi-box-seam"></i> 비슷한 카테고리의 상품</h5>
+      <h5 class="section-title">
+        <i class="bi bi-box-seam"></i> 비슷한 카테고리의 상품
+      </h5>
+
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="categoryProducts">
         <c:forEach var="item" items="${sameCategory}" varStatus="status">
           <div class="col product-item ${status.index >= 4 ? 'd-none extra-category' : ''}">
@@ -209,6 +234,7 @@
           </div>
         </c:forEach>
       </div>
+
       <c:if test="${fn:length(sameCategory) > 4}">
         <div class="text-center mt-3">
           <button id="toggleCategory" class="btn btn-outline-secondary btn-sm">더보기 ▼</button>
@@ -217,10 +243,12 @@
     </div>
   </c:if>
 
-  <!-- 이 판매자의 다른 상품 -->
   <c:if test="${not empty sameSeller}">
     <div class="section-box">
-      <h5 class="section-title"><i class="bi bi-person"></i> 이 판매자의 다른 상품</h5>
+      <h5 class="section-title">
+        <i class="bi bi-person"></i> 이 판매자의 다른 상품
+      </h5>
+
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="sellerProducts">
         <c:forEach var="item" items="${sameSeller}" varStatus="status">
           <div class="col product-item ${status.index >= 4 ? 'd-none extra-seller' : ''}">
@@ -239,6 +267,7 @@
           </div>
         </c:forEach>
       </div>
+
       <c:if test="${fn:length(sameSeller) > 4}">
         <div class="text-center mt-3">
           <button id="toggleSeller" class="btn btn-outline-secondary btn-sm">더보기 ▼</button>
