@@ -1,101 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const toggleItems = (selector, button) => {
-    const items = document.querySelectorAll(selector);
-    const isHidden = [...items].every(el => el.classList.contains("d-none"));
+  const contextPath = document.body.dataset.contextPath;
 
-    if (isHidden) {
-      items.forEach((el, i) => {
-        el.classList.remove("d-none");
-        el.style.opacity = 0;
-        setTimeout(() => {
-          el.style.transition = "opacity 0.4s ease";
-          el.style.opacity = 1;
-        }, i * 100);
-      });
-      button.textContent = "줄이기 ▲";
-    } else {
-      items.forEach(el => {
-        el.style.transition = "opacity 0.3s ease";
-        el.style.opacity = 0;
-        setTimeout(() => {
-          el.classList.add("d-none");
-        }, 300);
-      });
-      button.textContent = "더보기 ▼";
-      window.scrollTo({
-        top: button.parentElement.offsetTop - 200,
-        behavior: "smooth"
-      });
-    }
-  };
+  const sidoSelect = document.getElementById("sido");
+  const siggContainer = document.getElementById("siggContainer");
 
-  const toggleCategory = document.getElementById("toggleCategory");
-  if (toggleCategory) {
-    toggleCategory.addEventListener("click", () =>
-      toggleItems(".extra-category", toggleCategory)
-    );
-  }
+  if (!sidoSelect || !siggContainer) return;
 
-  const toggleSeller = document.getElementById("toggleSeller");
-  if (toggleSeller) {
-    toggleSeller.addEventListener("click", () =>
-      toggleItems(".extra-seller", toggleSeller)
-    );
-  }
-
-  const btnWish = document.getElementById("btnWish");
-  if (btnWish) {
-    btnWish.addEventListener("click", async () => {
-      const productId = btnWish.dataset.productId;
-      const isWish = btnWish.dataset.wish === "true";
-
-      const formData = new URLSearchParams();
-      formData.append("productId", productId);
-      formData.append("isWish", isWish);
-
-      const res = await fetch(`${contextPath}/product/wishlist`, {
-        method: "POST",
-        body: formData
-      });
-
-      if (res.ok) {
-        btnWish.dataset.wish = (!isWish).toString();
-        btnWish.classList.toggle("btn-danger", !isWish);
-        btnWish.classList.toggle("btn-outline-secondary", isWish);
-        btnWish.innerHTML = !isWish
-          ? '<i class="bi bi-heart-fill"></i> 찜 취소'
-          : '<i class="bi bi-heart"></i> 찜';
-      } else if (res.status === 401) {
-        window.location.href =
-          `${contextPath}/user/login?redirect=/product/detail?id=${productId}`;
-      }
-    });
-  }
-
-  document.querySelectorAll(".review-text").forEach(p => {
-    const btn = p.closest(".review-item").querySelector(".toggle-btn");
-    if (!btn) return;
-
-    const lineHeight = parseFloat(getComputedStyle(p).lineHeight);
-    const maxHeight = lineHeight * 3;
-
-    if (p.scrollHeight <= maxHeight + 2) {
-      p.classList.add("no-clamp");
-      btn.style.display = "none";
+  async function loadSigg(sidoId) {
+    if (!sidoId) {
+      siggContainer.innerHTML = `<p class="text-secondary small">시/군/구를 선택해주세요.</p>`;
       return;
     }
 
-    btn.addEventListener("click", () => {
-      const expanded = p.classList.toggle("expanded");
-      if (expanded) {
-        p.classList.add("no-clamp");
-        btn.textContent = "접기 ▲";
-      } else {
-        p.classList.remove("no-clamp");
-        btn.textContent = "더보기 ▼";
-      }
+    const res = await fetch(`${contextPath}/product/sigg?sidoId=${sidoId}`);
+    if (!res.ok) {
+      siggContainer.innerHTML = `<p class="text-secondary small">정보를 불러오지 못했습니다.</p>`;
+      return;
+    }
+
+    const list = await res.json();
+
+    if (!list.length) {
+      siggContainer.innerHTML = `<p class="text-secondary small">등록된 구/군이 없습니다.</p>`;
+      return;
+    }
+
+    let html = "";
+    list.forEach(sigg => {
+      html += `
+      <div class="form-check mb-1">
+        <input class="form-check-input"
+               type="radio"
+               name="sigg_area"
+               id="sigg_${sigg.id}"
+               value="${sigg.id}"
+               ${serverParams.siggArea == sigg.id ? 'checked' : ''}>
+        <label class="form-check-label" for="sigg_${sigg.id}">
+          ${sigg.name}
+        </label>
+      </div>
+      `;
     });
+
+    siggContainer.innerHTML = html;
+  }
+
+  if (serverParams.sidoId) {
+    loadSigg(serverParams.sidoId);
+  }
+
+  sidoSelect.addEventListener("change", function () {
+    loadSigg(this.value);
   });
 
 });

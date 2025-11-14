@@ -72,6 +72,8 @@
 
 <div class="main_container container d-flex gap-4">
 
+<button type="button" id="filterToggleBtn" class="filter-toggle-btn">필터 보기 ▼</button>
+
 <aside class="product_filter p-3 rounded shadow-sm">
   <form method="get" action="${ctx}/product">
     <h5 class="fw-bold mb-3">필터</h5>
@@ -233,7 +235,7 @@
   <c:param name="sort" value="name" />
   <c:if test="${not empty q}"><c:param name="q" value="${q}" /></c:if>
   <c:if test="${not empty category}"><c:param name="category" value="${category}" /></c:if>
-  <c:if test="${not not empty sigg_area}"><c:param name="sigg_area" value="${sigg_area}" /></c:if>
+  <c:if test="${not empty sigg_area}"><c:param name="sigg_area" value="${sigg_area}" /></c:if>
   <c:if test="${not empty minPrice}"><c:param name="minPrice" value="${minPrice}" /></c:if>
   <c:if test="${not empty maxPrice}"><c:param name="maxPrice" value="${maxPrice}" /></c:if>
   <c:if test="${param.onlyAvailable == '1'}"><c:param name="onlyAvailable" value="1"/></c:if>
@@ -342,6 +344,7 @@
 <script>const contextPath = "${pageContext.request.contextPath}";</script>
 <script src="${pageContext.request.contextPath}/product/js/image-preview.js"></script>
 <script src="${pageContext.request.contextPath}/product/js/product_filter.js"></script>
+<script src="${pageContext.request.contextPath}/product/js/product_list.js"></script>
 
 <script>
 window.contextPath = "${pageContext.request.contextPath}";
