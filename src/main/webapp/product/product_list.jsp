@@ -12,7 +12,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="<c:url value='/product/css/product_list.css'/>">
 </head>
 
@@ -72,7 +72,10 @@
 
 <div class="main_container container d-flex gap-4">
 
-<button type="button" id="filterToggleBtn" class="filter-toggle-btn">필터 보기 ▼</button>
+<div class="filter-toggle-btn-container mb-2">
+  <button type="button" id="filterToggleBtn" class="filter-toggle-btn">필터 보기 ▼</button>
+</div>
+
 
 <aside class="product_filter p-3 rounded shadow-sm">
   <form method="get" action="${ctx}/product">
@@ -193,10 +196,10 @@
     <div class="price_filter mt-4">
       <h6 class="fw-bold mb-3">가격</h6>
       <div class="d-flex flex-wrap gap-2 mb-3">
-        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="0">나눔</button>
         <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="10000">1만 이하</button>
         <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="50000">5만 이하</button>
         <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="100000">10만 이하</button>
+        <button type="button" class="price-btn btn btn-outline-secondary btn-sm" data-value="200000">20만 이하</button>
       </div>
       <div class="d-flex align-items-center gap-2 mb-2">
         <input type="number" id="minPrice" name="minPrice" class="form-control form-control-sm text-end" placeholder="0" min="0" step="1000" style="max-width: 100px;" value="<c:out value='${param.minPrice}'/>">
@@ -344,7 +347,6 @@
 <script>const contextPath = "${pageContext.request.contextPath}";</script>
 <script src="${pageContext.request.contextPath}/product/js/image-preview.js"></script>
 <script src="${pageContext.request.contextPath}/product/js/product_filter.js"></script>
-<script src="${pageContext.request.contextPath}/product/js/product_list.js"></script>
 
 <script>
 window.contextPath = "${pageContext.request.contextPath}";
