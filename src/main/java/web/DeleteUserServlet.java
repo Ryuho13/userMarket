@@ -32,7 +32,7 @@ public class DeleteUserServlet extends HttpServlet {
 
             if (success) {
                 // 탈퇴 완료되면 홈으로 이동
-                resp.sendRedirect(req.getContextPath() + "/index.jsp");
+                resp.sendRedirect(req.getContextPath() + "/product/list");
             } else {
                 resp.sendError(500, "회원 삭제 실패: DB 반영 안 됨");
             }

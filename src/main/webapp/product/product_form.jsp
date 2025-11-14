@@ -168,7 +168,6 @@
               <div class="w-0"></div> 
             </c:otherwise>
           </c:choose>
-
           <div class="flex gap-3">
             <button type="submit" class="btn btn-success px-4 py-2 rounded-lg">
               <c:choose>
@@ -176,15 +175,11 @@
                 <c:otherwise>수정하기</c:otherwise>
               </c:choose>
             </button>
-
             <a onclick="history.back()"
                class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
           </div>
-
         </div>
-
       </form>
-
       <!-- 삭제 폼 -->
       <c:if test="${not empty product.id}">
         <form id="deleteForm"
@@ -194,10 +189,8 @@
           <input type="hidden" name="id" value="${product.id}">
         </form>
       </c:if>
-
     </div>
   </div>
-
 <script>
   const contextPath = "${pageContext.request.contextPath}";
 </script>
