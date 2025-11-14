@@ -172,13 +172,19 @@
 
         <!-- 버튼 영역 -->
         <div class="flex justify-between mt-6 items-center">
-          <c:if test="${not empty product.id}">
-            <button type="button"
-                    onclick="confirmDelete()"
-                    class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
-              삭제하기
-            </button>
-          </c:if>
+          
+          <c:choose>
+            <c:when test="${not empty product.id}">
+              <button type="button"
+                      onclick="confirmDelete()"
+                      class="btn-custom-outline btn-custom-red rounded-lg px-4 py-2">
+                삭제하기
+              </button>
+            </c:when>
+            <c:otherwise>
+              <div class="w-0"></div> 
+            </c:otherwise>
+          </c:choose>
 
           <div class="flex gap-3">
             <button type="submit" class="btn btn-success px-4 py-2 rounded-lg">
@@ -191,23 +197,7 @@
             <a onclick="history.back()"
                class="btn-custom-outline btn-custom-gray rounded-lg px-4 py-2">뒤로가기</a>
           </div>
-
         </div>
-
-      </form>
-
-      <!-- 삭제 폼 -->
-      <c:if test="${not empty product.id}">
-        <form id="deleteForm"
-              action="${ctx}/product/delete"
-              method="post"
-              style="display:none;">
-          <input type="hidden" name="id" value="${product.id}">
-        </form>
-      </c:if>
-
-    </div>
-  </div>
 
 <script>
   const contextPath = "${pageContext.request.contextPath}";
