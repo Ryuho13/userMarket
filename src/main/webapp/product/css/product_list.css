@@ -141,7 +141,7 @@ min-width: 0;
 }
 
 .product_items::before {
-content: \"상품 목록\";
+content: "상품 목록";
 display: block;
 font-size: 0.9rem;
 font-weight: 600;
@@ -175,9 +175,11 @@ overflow: hidden;
 background-color: #F7F3EF;
 }
 
+/* 🔥 수정된 부분 — 이미지 깨짐 방지 */
 .product_img {
 width: 100%;
-height: 210px;
+aspect-ratio: 1 / 1;
+height: auto;
 object-fit: cover;
 transition: transform 0.18s ease;
 }
@@ -242,7 +244,9 @@ border: 1px solid #e5e7eb;
 }
 
 .pagination {
-margin: 1.8rem 55 0px 0;
+max-width: fit-content;
+margin-left: auto;
+margin-right: auto;
 padding: 0.25rem 0.3rem;
 border-radius: 999px;
 background-color: #ffffff;
@@ -290,9 +294,9 @@ font-size: 0.8rem;
 }
 
 @media (max-width: 576px) {
-.pagination .page-item:first-child,
-.pagination .page-item:last-child {
-display: none;
+nav .pagination .page-item:first-child,
+nav .pagination .page-item:last-child {
+display: none !important;
 }
 }
 
