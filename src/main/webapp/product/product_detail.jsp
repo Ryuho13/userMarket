@@ -15,9 +15,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 
-<body class="py-5" data-context-path="${pageContext.request.contextPath}">
+<body class="" data-context-path="${pageContext.request.contextPath}">
+<jsp:include page="/header/header.jsp" />
 <div class="container">
-  <button type="back" onclick="history.back()" class="btn btn-outline-muted btn-sm2 mb-4">←뒤로가기</button>
+  <button type="back" onclick="history.back()" class="btn btn-outline-muted btn-sm2 mt-4 mb-4">←뒤로가기</button>
 
   <div class="product-container d-flex gap-4 flex-wrap">
     <div class="col-12 col-md-5">
