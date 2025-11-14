@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import dao.DBUtil;
 import dao.ProductDAO;
@@ -38,7 +39,6 @@ public class ProductDetailServlet extends HttpServlet {
 
         final int id;
         try {
-        	
             id = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id format");
@@ -51,38 +51,46 @@ public class ProductDetailServlet extends HttpServlet {
         }
 
         try {
-        	ProductDetail pd = detailDao.incrementAndFindById(id);
-        	if (pd == null) {
-        	    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
-        	    return;
-        	}
+            ProductDetail pd = detailDao.incrementAndFindById(id);
 
-        	if (pd.getImages() == null || pd.getImages().isEmpty()) {
-        	    pd.getImages().add(req.getContextPath() + "/product/resources/images/noimage.jpg");
-        	}
+            if (pd == null) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
+                return;
+            }
 
-        	for (int i = 0; i < pd.getImages().size(); i++) {
-        	    String img = pd.getImages().get(i);
+            if (pd.getImages() == null || pd.getImages().isEmpty()) {
+                pd.getImages().add(req.getContextPath() + "/product/resources/images/noimage.jpg");
+            }
 
-        	    if (img != null && !img.isBlank()) {
-        	        if (!img.startsWith("http")) {
-        	            pd.getImages().set(i,
-        	                    req.getContextPath() + "/upload/product_images/" + img);
-        	        }
-        	    } else {
-        	        pd.getImages().set(i,
-        	                req.getContextPath() + "/product/resources/images/noimage.jpg");
-        	    }
-        	}
+            for (int i = 0; i < pd.getImages().size(); i++) {
+                String img = pd.getImages().get(i);
 
+                if (img != null && !img.isBlank()) {
+                    if (!img.startsWith("http")) {
+                        pd.getImages().set(i,
+                                req.getContextPath() + "/upload/product_images/" + img);
+                    }
+                } else {
+                    pd.getImages().set(i,
+                            req.getContextPath() + "/product/resources/images/noimage.jpg");
+                }
+            }
 
-     
+            // 원본 리스트
             List<Product> sameCategory =
                     productDao.getProductsByCategory(pd.getCategoryId(), pd.getId());
             List<Product> sameSeller =
                     productDao.getProductsBySeller(pd.getSellerId(), pd.getId());
 
-         
+            // 여기서 SOLD_OUT 필터링
+            List<Product> filteredCategory = sameCategory.stream()
+                    .filter(p -> !"SOLD_OUT".equals(p.getStatus()))
+                    .collect(Collectors.toList());
+
+            List<Product> filteredSeller = sameSeller.stream()
+                    .filter(p -> !"SOLD_OUT".equals(p.getStatus()))
+                    .collect(Collectors.toList());
+
             HttpSession session = req.getSession(false);
             Integer loginUserId = (session != null)
                     ? (Integer) session.getAttribute("loginUserId")
@@ -93,20 +101,18 @@ public class ProductDetailServlet extends HttpServlet {
                 isWished = checkWish(loginUserId, pd.getId());
             }
 
-            
             req.setAttribute("product", pd);
-            req.setAttribute("sameCategory", sameCategory);
-            req.setAttribute("sameSeller", sameSeller);
-            req.setAttribute("isWished", isWished);   
+            req.setAttribute("filteredCategory", filteredCategory);
+            req.setAttribute("filteredSeller", filteredSeller);
+            req.setAttribute("isWished", isWished);
 
             req.getRequestDispatcher("/product/product_detail.jsp")
-               .forward(req, resp);
+                    .forward(req, resp);
 
         } catch (Exception e) {
             throw new ServletException("상품 상세 조회 중 오류 발생", e);
         }
     }
-
 
     private boolean checkWish(int userId, int productId) {
         String sql = "SELECT 1 FROM wish_lists WHERE register_id = ? AND product_id = ?";
@@ -114,15 +120,15 @@ public class ProductDetailServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, userId);    
-            ps.setInt(2, productId);  
+            ps.setInt(1, userId);
+            ps.setInt(2, productId);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();      
+                return rs.next();
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;          
+            return false;
         }
     }
 }
