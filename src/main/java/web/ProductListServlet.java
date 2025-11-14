@@ -24,7 +24,7 @@ public class ProductListServlet extends HttpServlet {
         if (page < 1) page = 1;
         int offset = (page - 1) * size;
 
-        String q            = trimToNull(req.getParameter("q"));
+        String q             = trimToNull(req.getParameter("q"));
         String categoryParam = trimToNull(req.getParameter("category"));
         String siggParam     = trimToNull(req.getParameter("sigg_area"));
         String sidoParam     = trimToNull(req.getParameter("sidoId"));
@@ -34,6 +34,9 @@ public class ProductListServlet extends HttpServlet {
 
         Integer minPrice = parseIntOrNull(req.getParameter("minPrice"));
         Integer maxPrice = parseIntOrNull(req.getParameter("maxPrice"));
+
+        // ✅ 거래 가능만 보기
+        boolean onlyAvailable = parseBooleanLoose(req.getParameter("onlyAvailable")); // "1","true","on" 지원
 
         // 정렬 기본값
         String sort = req.getParameter("sort");
@@ -49,16 +52,14 @@ public class ProductListServlet extends HttpServlet {
             List<SiggArea> siggList     = areaDAO.getAllSiggAreas();
             List<Category> categoryList = categoryDAO.getAllCategories();
 
-            // 🔥 검색 + 필터 전부 한 번에 처리 (분기 X)
-            List<Product> products;
-            int totalCount;
-
-            totalCount = productDAO.countSearchProducts(
-                    q, categoryId, siggAreaId, minPrice, maxPrice
+            // 🔥 검색 + 필터(거래 가능만) 전부 한 번에 처리
+            int totalCount = productDAO.countSearchProducts(
+                    q, categoryId, siggAreaId, minPrice, maxPrice, onlyAvailable
             );
-            products = productDAO.searchProducts(
+
+            List<Product> products = productDAO.searchProducts(
                     q, categoryId, siggAreaId, minPrice, maxPrice,
-                    offset, size, sort
+                    offset, size, sort, onlyAvailable
             );
 
             int totalPages = (int) Math.ceil(totalCount / (double) size);
@@ -86,7 +87,7 @@ public class ProductListServlet extends HttpServlet {
             req.setAttribute("userSiggs", siggList);
             req.setAttribute("categories", categoryList);
 
-            // 필터 파라미터 유지
+            // 필터 파라미터 유지 + 거래 가능만
             req.setAttribute("q", q);
             req.setAttribute("category", categoryParam);
             req.setAttribute("sigg_area", siggParam);
@@ -94,6 +95,7 @@ public class ProductListServlet extends HttpServlet {
             req.setAttribute("minPrice", minPrice);
             req.setAttribute("maxPrice", maxPrice);
             req.setAttribute("sort", sort);
+            req.setAttribute("onlyAvailable", onlyAvailable); // ✅ JSP 체크박스 상태 유지용
 
             req.getRequestDispatcher("/product/product_list.jsp").forward(req, resp);
 
@@ -103,6 +105,7 @@ public class ProductListServlet extends HttpServlet {
         }
     }
 
+    /* ----------------- helpers ----------------- */
 
     private static String trimToNull(String s) {
         if (s == null) return null;
@@ -125,5 +128,12 @@ public class ProductListServlet extends HttpServlet {
         } catch (Exception e) {
             return def;
         }
+    }
+
+    // "1","true","on","y" 등을 true로 인식
+    private static boolean parseBooleanLoose(String s) {
+        if (s == null) return false;
+        String v = s.trim().toLowerCase();
+        return v.equals("1") || v.equals("true") || v.equals("on") || v.equals("y") || v.equals("yes");
     }
 }

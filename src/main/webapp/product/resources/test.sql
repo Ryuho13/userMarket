@@ -154,7 +154,7 @@ CREATE TABLE product_images (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==========================================
--- 💖 찜 목록
+-- 💖 관심 목록
 -- ==========================================
 
 CREATE TABLE wish_lists (
@@ -163,7 +163,6 @@ CREATE TABLE wish_lists (
   product_id  INT NOT NULL,
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-  -- ✅ 같은 유저가 같은 상품 여러 번 찜 못하게
   UNIQUE KEY uq_wish_user_product (register_id, product_id),
 
   FOREIGN KEY (register_id) REFERENCES user(id)
@@ -538,7 +537,7 @@ INSERT INTO seller_ratings (seller_id, buyer_id, product_id, rating, comment) VA
 
 
 -- ==========================================
--- 💖 찜 목록 (각 회원 10개씩)
+-- 💖 관심 목록 (각 회원 10개씩)
 -- ==========================================
 INSERT INTO wish_lists (register_id, product_id) VALUES
 (1,11),(1,12),(1,13),(1,14),(1,15),(1,16),(1,17),(1,18),(1,19),(1,20),
@@ -576,3 +575,4 @@ select * from sigg_areas;
 select * from categories;
 SELECT * FROM activity_areas;
 SELECT * FROM wish_lists;
+SELECT * FROM seller_ratings;

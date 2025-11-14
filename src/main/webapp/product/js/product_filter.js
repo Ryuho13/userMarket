@@ -157,3 +157,7 @@ document.addEventListener("click", (e) => {
     filterForm.submit();
   }
 });
+
+document.getElementById('onlyAvailable')?.addEventListener('change', function(){
+  this.form.submit();
+});

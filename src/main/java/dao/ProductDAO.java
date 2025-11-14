@@ -7,6 +7,9 @@ import java.util.List;
 
 public class ProductDAO {
 
+    /* -------------------------
+     * 공통 유틸
+     * ------------------------- */
     private static String normalizeDisplayImg(String imgName) {
         if (imgName == null || imgName.isEmpty()) {
             return "/product/resources/images/noimage.jpg";
@@ -28,7 +31,9 @@ public class ProductDAO {
         }
     }
 
-    /** ✅ 단일 상품 조회 */
+    /* -------------------------
+     * 단건/연관 조회
+     * ------------------------- */
     public Product getProductById(int id) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -62,6 +67,7 @@ public class ProductDAO {
         }
         return null;
     }
+
     public List<Product> getProductsByCategory(int categoryId, int excludeId) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -97,6 +103,7 @@ public class ProductDAO {
         }
         return list;
     }
+
     public List<Product> getProductsBySeller(int sellerId, int excludeId) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
@@ -133,115 +140,60 @@ public class ProductDAO {
         return list;
     }
 
-    /** ✅ 검색 + 정렬 */
+    /* -------------------------
+     * 목록 검색 + 정렬 (호환용/신규 모두)
+     * ------------------------- */
+
+    /** 기존 시그니처(호환용) → onlyAvailable=false 기본값 */
     public List<Product> searchProducts(String q,
-            Integer categoryId,
-            Integer siggAreaId,
-            Integer minPrice,
-            Integer maxPrice,
-            int offset,
-            int size,
-            String sort) throws SQLException {
+                                        Integer categoryId,
+                                        Integer siggAreaId,
+                                        Integer minPrice,
+                                        Integer maxPrice,
+                                        int offset,
+                                        int size,
+                                        String sort) throws SQLException {
+        return searchProducts(q, categoryId, siggAreaId, minPrice, maxPrice, offset, size, sort, false);
+    }
 
-    	StringBuilder sql = new StringBuilder("""
-    			SELECT p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
-    			p.view_count, COALESCE(sa.name, '지역정보없음') AS sigg_name,
-    			(SELECT i.name FROM product_images pi
-    			JOIN images i ON pi.image_id = i.id
-    			WHERE pi.product_id = p.id
-    			ORDER BY pi.image_id LIMIT 1) AS img_name
-    			FROM products p
-    			LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-    			WHERE 1=1
-    			""");
-
-    	List<Object> params = new ArrayList<>();
-
-    	if (q != null && !q.isBlank()) {
-    		sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
-    		String like = "%" + escapeLike(q.trim()) + "%";
-    		params.add(like);
-    		params.add(like);
-    	}
-    	if (categoryId != null && categoryId > 0) {
-    		sql.append(" AND p.category_id = ? ");
-    		params.add(categoryId);
-    	}
-    	if (siggAreaId != null && siggAreaId > 0) {
-    		sql.append(" AND p.region_id = ? ");
-    		params.add(siggAreaId);
-    	}
-    	if (minPrice != null) {
-    		sql.append(" AND p.sell_price >= ? ");
-    		params.add(minPrice);
-    	}
-    	if (maxPrice != null) {
-    		sql.append(" AND p.sell_price <= ? ");
-    		params.add(maxPrice);
-    	}
-
-    	// 정렬
-    	switch (sort) {
-    	case "view":      sql.append(" ORDER BY p.view_count DESC ");  break;
-    	case "name":      sql.append(" ORDER BY p.title ASC ");        break;
-    	case "priceLow":  sql.append(" ORDER BY p.sell_price ASC ");   break;
-    	case "priceHigh": sql.append(" ORDER BY p.sell_price DESC ");  break;
-    	default:          sql.append(" ORDER BY p.created_at DESC ");
-    	}
-
-    	sql.append(" LIMIT ? OFFSET ? ");
-    	params.add(size);
-    	params.add(offset);
-
-    	try (Connection conn = DBUtil.getConnection();
-    			PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-    		bind(ps, params);
-    		List<Product> list = new ArrayList<>();
-
-    		try (ResultSet rs = ps.executeQuery()) {
-    			while (rs.next()) {
-    				String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-    				list.add(new Product(
-    						rs.getInt("product_id"),
-    						rs.getString("product_name"),
-    						rs.getInt("sell_price"),
-    						rs.getString("sigg_name"),
-    						displayImg,
-    						rs.getInt("view_count"),
-    						rs.getString("status")
-    						));
-    			}
-    		}
-    		return list;
-}
-}
-
-
-    /** ✅ 필터 + 정렬 */
-    public List<Product> getFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice,
-                                             int offset, int size, String sort) throws Exception {
+    /** 신규: 거래 가능만 필터 지원 */
+    public List<Product> searchProducts(String q,
+                                        Integer categoryId,
+                                        Integer siggAreaId,
+                                        Integer minPrice,
+                                        Integer maxPrice,
+                                        int offset,
+                                        int size,
+                                        String sort,
+                                        boolean onlyAvailable) throws SQLException {
 
         StringBuilder sql = new StringBuilder("""
-            SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
-                   p.view_count, COALESCE(sa.name, '지역정보없음') AS sigg_name, MIN(i.name) AS img_name
-              FROM products p
-              LEFT JOIN product_images pi ON p.id = pi.product_id
-              LEFT JOIN images i ON pi.image_id = i.id
-              LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-              LEFT JOIN categories c ON p.category_id = c.id
-             WHERE 1=1
+            SELECT p.id AS product_id, p.title AS product_name, p.status, p.sell_price,
+                   p.view_count, COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                   (SELECT i.name FROM product_images pi
+                      JOIN images i ON pi.image_id = i.id
+                     WHERE pi.product_id = p.id
+                     ORDER BY pi.image_id LIMIT 1) AS img_name
+            FROM products p
+            LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+            WHERE 1=1
         """);
 
         List<Object> params = new ArrayList<>();
 
-        if (category != null && !category.isEmpty()) {
-            sql.append(" AND c.name = ? ");
-            params.add(category);
+        if (q != null && !q.isBlank()) {
+            sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+            String like = "%" + escapeLike(q.trim()) + "%";
+            params.add(like);
+            params.add(like);
         }
-        if (region != null && !region.isEmpty()) {
-            sql.append(" AND sa.name = ? ");
-            params.add(region);
+        if (categoryId != null && categoryId > 0) {
+            sql.append(" AND p.category_id = ? ");
+            params.add(categoryId);
+        }
+        if (siggAreaId != null && siggAreaId > 0) {
+            sql.append(" AND p.region_id = ? ");
+            params.add(siggAreaId);
         }
         if (minPrice != null) {
             sql.append(" AND p.sell_price >= ? ");
@@ -251,16 +203,18 @@ public class ProductDAO {
             sql.append(" AND p.sell_price <= ? ");
             params.add(maxPrice);
         }
+        // ✅ 거래 가능만: 판매완료 제외
+        if (onlyAvailable) {
+            sql.append(" AND p.status <> 'SOLD_OUT' ");
+        }
 
-        sql.append(" GROUP BY p.id, p.title, p.sell_price, p.status, sa.name ");
-
-        // ✅ 정렬
+        // 정렬
         switch (sort) {
-            case "view": sql.append(" ORDER BY p.view_count DESC "); break;
-            case "name": sql.append(" ORDER BY p.title ASC "); break;
-            case "priceLow": sql.append(" ORDER BY p.sell_price ASC "); break;
-            case "priceHigh": sql.append(" ORDER BY p.sell_price DESC "); break;
-            default: sql.append(" ORDER BY p.created_at DESC ");
+            case "view"      -> sql.append(" ORDER BY p.view_count DESC ");
+            case "name"      -> sql.append(" ORDER BY p.title ASC ");
+            case "priceLow"  -> sql.append(" ORDER BY p.sell_price ASC ");
+            case "priceHigh" -> sql.append(" ORDER BY p.sell_price DESC ");
+            default          -> sql.append(" ORDER BY p.created_at DESC ");
         }
 
         sql.append(" LIMIT ? OFFSET ? ");
@@ -291,63 +245,150 @@ public class ProductDAO {
         }
     }
 
-    /** ✅ 검색/필터용 카운트 */
+    /* (기존) 필터 + 정렬 – 그대로 유지 */
+    public List<Product> getFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice,
+                                             int offset, int size, String sort) throws Exception {
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
+                   p.view_count, COALESCE(sa.name, '지역정보없음') AS sigg_name, MIN(i.name) AS img_name
+            FROM products p
+            LEFT JOIN product_images pi ON p.id = pi.product_id
+            LEFT JOIN images i ON pi.image_id = i.id
+            LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE 1=1
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (category != null && !category.isEmpty()) {
+            sql.append(" AND c.name = ? ");
+            params.add(category);
+        }
+        if (region != null && !region.isEmpty()) {
+            sql.append(" AND sa.name = ? ");
+            params.add(region);
+        }
+        if (minPrice != null) {
+            sql.append(" AND p.sell_price >= ? ");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND p.sell_price <= ? ");
+            params.add(maxPrice);
+        }
+
+        sql.append(" GROUP BY p.id, p.title, p.sell_price, p.status, sa.name ");
+
+        switch (sort) {
+            case "view"      -> sql.append(" ORDER BY p.view_count DESC ");
+            case "name"      -> sql.append(" ORDER BY p.title ASC ");
+            case "priceLow"  -> sql.append(" ORDER BY p.sell_price ASC ");
+            case "priceHigh" -> sql.append(" ORDER BY p.sell_price DESC ");
+            default          -> sql.append(" ORDER BY p.created_at DESC ");
+        }
+
+        sql.append(" LIMIT ? OFFSET ? ");
+        params.add(size);
+        params.add(offset);
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            bind(ps, params);
+            List<Product> list = new ArrayList<>();
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getInt("view_count"),
+                            rs.getString("status")
+                    ));
+                }
+            }
+            return list;
+        }
+    }
+
+    /* -------------------------
+     * 카운트 (호환용/신규 모두)
+     * ------------------------- */
+
+    /** 기존 시그니처(호환용) → onlyAvailable=false 기본값 */
     public int countSearchProducts(String q,
-            Integer categoryId,
-            Integer siggAreaId,
-            Integer minPrice,
-            Integer maxPrice) throws SQLException {
+                                   Integer categoryId,
+                                   Integer siggAreaId,
+                                   Integer minPrice,
+                                   Integer maxPrice) throws SQLException {
+        return countSearchProducts(q, categoryId, siggAreaId, minPrice, maxPrice, false);
+    }
 
-			StringBuilder sql = new StringBuilder("""
-			SELECT COUNT(DISTINCT p.id) AS cnt
-			FROM products p
-			WHERE 1=1
-			""");
-			
-			List<Object> params = new ArrayList<>();
-			
-			if (q != null && !q.isBlank()) {
-			sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
-			String like = "%" + escapeLike(q.trim()) + "%";
-			params.add(like);
-			params.add(like);
-			}
-			if (categoryId != null && categoryId > 0) {
-			sql.append(" AND p.category_id = ? ");
-			params.add(categoryId);
-			}
-			if (siggAreaId != null && siggAreaId > 0) {
-			sql.append(" AND p.region_id = ? ");
-			params.add(siggAreaId);
-			}
-			// 🔥 여기에도 가격 필터 추가
-			if (minPrice != null) {
-			sql.append(" AND p.sell_price >= ? ");
-			params.add(minPrice);
-			}
-			if (maxPrice != null) {
-			sql.append(" AND p.sell_price <= ? ");
-			params.add(maxPrice);
-			}
-			
-			try (Connection conn = DBUtil.getConnection();
-			PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-			
-			bind(ps, params);
-			try (ResultSet rs = ps.executeQuery()) {
-			return rs.next() ? rs.getInt("cnt") : 0;
-			}
-			}
-			}
+    /** 신규: 거래 가능만 카운트 지원 */
+    public int countSearchProducts(String q,
+                                   Integer categoryId,
+                                   Integer siggAreaId,
+                                   Integer minPrice,
+                                   Integer maxPrice,
+                                   boolean onlyAvailable) throws SQLException {
 
+        StringBuilder sql = new StringBuilder("""
+            SELECT COUNT(DISTINCT p.id) AS cnt
+            FROM products p
+            WHERE 1=1
+        """);
+
+        List<Object> params = new ArrayList<>();
+
+        if (q != null && !q.isBlank()) {
+            sql.append(" AND (p.title LIKE ? ESCAPE '\\\\' OR p.description LIKE ? ESCAPE '\\\\') ");
+            String like = "%" + escapeLike(q.trim()) + "%";
+            params.add(like);
+            params.add(like);
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append(" AND p.category_id = ? ");
+            params.add(categoryId);
+        }
+        if (siggAreaId != null && siggAreaId > 0) {
+            sql.append(" AND p.region_id = ? ");
+            params.add(siggAreaId);
+        }
+        if (minPrice != null) {
+            sql.append(" AND p.sell_price >= ? ");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND p.sell_price <= ? ");
+            params.add(maxPrice);
+        }
+        // ✅ 거래 가능만
+        if (onlyAvailable) {
+            sql.append(" AND p.status <> 'SOLD_OUT' ");
+        }
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            bind(ps, params);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("cnt") : 0;
+            }
+        }
+    }
 
     public int countFilteredProducts(String category, String region, Integer minPrice, Integer maxPrice) throws Exception {
         StringBuilder sql = new StringBuilder("""
             SELECT COUNT(DISTINCT p.id) AS cnt
-              FROM products p
-              LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-              LEFT JOIN categories c ON p.category_id = c.id
-             WHERE 1=1
+            FROM products p
+            LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE 1=1
         """);
 
         List<Object> params = new ArrayList<>();
@@ -371,7 +412,6 @@ public class ProductDAO {
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
             bind(ps, params);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt("cnt") : 0;
@@ -379,76 +419,69 @@ public class ProductDAO {
         }
     }
 
+    /* -------------------------
+     * 기타 목록
+     * ------------------------- */
 
-	/**
-	 * ✅ 특정 사용자가 찜한 상품 목록 조회
-	 * @param userId 찜 목록을 조회할 사용자 ID
-	 * @return 찜한 상품들의 List<Product>
-	 */
-	public List<Product> getWishedProductsByUserId(int userId) throws SQLException {
-	    // 찜 목록(wish_lists)과 상품 정보(products, sigg_areas, images)를 JOIN하여 조회
-	    String sql = """
-	        SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
-	               COALESCE(sa.name, '지역정보없음') AS sigg_name,
-	               (SELECT i.name FROM product_images pi
-	                JOIN images i ON pi.image_id = i.id
-	                WHERE pi.product_id = p.id
-	                ORDER BY pi.image_id LIMIT 1) AS img_name,
-	               p.view_count
-	        FROM wish_lists wl
-	        JOIN products p ON wl.product_id = p.id
-	        LEFT JOIN sigg_areas sa ON p.region_id = sa.id
-	        WHERE wl.register_id = ?
-	        ORDER BY wl.id DESC
-	    """;
-	
-	    List<Product> list = new ArrayList<>();
-	    
-	    // DBUtil.getConnection()은 제공된 파일을 통해 사용 가능
-	    try (Connection conn = DBUtil.getConnection();
-	         PreparedStatement ps = conn.prepareStatement(sql)) {
-	         
-	        ps.setInt(1, userId);
-	        
-	        try (ResultSet rs = ps.executeQuery()) {
-	            while (rs.next()) {
-	                // 이미지 경로 정규화 (ProductDAO 내의 normalizeDisplayImg 메서드 사용)
-	                String displayImg = normalizeDisplayImg(rs.getString("img_name"));
-	                
-	                list.add(new Product(
-	                        rs.getInt("product_id"),
-	                        rs.getString("product_name"),
-	                        rs.getInt("sell_price"),
-	                        rs.getString("sigg_name"),
-	                        displayImg,
-	                        rs.getInt("view_count"),
-	                        rs.getString("status")
-	                ));
-	            }
-	        }
-	    }
-	    return list;
-	}
-	
-	/** ✅ 특정 판매자의 모든 상품 목록 조회 (마이페이지용) */
+    public List<Product> getWishedProductsByUserId(int userId) throws SQLException {
+        String sql = """
+            SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
+                   COALESCE(sa.name, '지역정보없음') AS sigg_name,
+                   (SELECT i.name FROM product_images pi
+                      JOIN images i ON pi.image_id = i.id
+                     WHERE pi.product_id = p.id
+                     ORDER BY pi.image_id LIMIT 1) AS img_name,
+                   p.view_count
+            FROM wish_lists wl
+            JOIN products p ON wl.product_id = p.id
+            LEFT JOIN sigg_areas sa ON p.region_id = sa.id
+            WHERE wl.register_id = ?
+            ORDER BY wl.id DESC
+        """;
+
+        List<Product> list = new ArrayList<>();
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String displayImg = normalizeDisplayImg(rs.getString("img_name"));
+                    list.add(new Product(
+                            rs.getInt("product_id"),
+                            rs.getString("product_name"),
+                            rs.getInt("sell_price"),
+                            rs.getString("sigg_name"),
+                            displayImg,
+                            rs.getInt("view_count"),
+                            rs.getString("status")
+                    ));
+                }
+            }
+        }
+        return list;
+    }
+
     public List<Product> getProductsBySellerId(int sellerId) throws SQLException {
         String sql = """
             SELECT p.id AS product_id, p.title AS product_name, p.sell_price, p.status,
-                   p.view_count, p.created_at, 
+                   p.view_count, p.created_at,
                    COALESCE(sa.name, '지역정보없음') AS sigg_name,
                    (SELECT i.name FROM product_images pi
-                    JOIN images i ON pi.image_id = i.id
-                    WHERE pi.product_id = p.id
-                    ORDER BY pi.image_id LIMIT 1) AS img_name
+                      JOIN images i ON pi.image_id = i.id
+                     WHERE pi.product_id = p.id
+                     ORDER BY pi.image_id LIMIT 1) AS img_name
             FROM products p
             LEFT JOIN sigg_areas sa ON p.region_id = sa.id
             WHERE p.seller_id = ?
             GROUP BY p.id, p.title, p.sell_price, p.status, p.view_count, p.created_at, sa.name
-            ORDER BY p.created_at DESC -- 최신 등록순으로 정렬
+            ORDER BY p.created_at DESC
         """;
 
         List<Product> list = new ArrayList<>();
-        
+
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, sellerId);
@@ -461,7 +494,7 @@ public class ProductDAO {
                             rs.getInt("sell_price"),
                             rs.getString("sigg_name"),
                             displayImg,
-                            rs.getInt("view_count"), 
+                            rs.getInt("view_count"),
                             rs.getString("status")
                     ));
                 }
