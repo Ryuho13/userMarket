@@ -37,7 +37,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
         try (Connection conn = DBUtil.getConnection()) {
 
-            // 1) 상품 정보 조회
             String sql = """
                 SELECT id, title, description, sell_price, category_id,
                        status, seller_id, sido_id, region_id
@@ -70,7 +69,6 @@ public class ProductUpdateServlet extends HttpServlet {
                 return;
             }
 
-            // ✔ 2) 상품 이미지 조회
             List<String> productImages = new ArrayList<>();
 
             String imgSql = """
@@ -91,7 +89,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
             req.setAttribute("productImages", productImages);
 
-            // 3) 지역, 카테고리 조회
             List<Map<String, Object>> sidoList = new ArrayList<>();
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT id, name FROM sido_areas ORDER BY name");
@@ -131,7 +128,6 @@ public class ProductUpdateServlet extends HttpServlet {
             }
             req.setAttribute("categoryList", categoryList);
 
-            // 4) JSP로 전달
             req.setAttribute("product", product);
             req.getRequestDispatcher("/product/product_form.jsp")
                .forward(req, resp);
@@ -158,7 +154,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
         try (Connection conn = DBUtil.getConnection()) {
 
-        	// 0) uploaderId (항상 seller_id 사용)
         	int uploaderId = 0;
 
         	String sSql = "SELECT seller_id FROM products WHERE id=?";
@@ -199,7 +194,6 @@ public class ProductUpdateServlet extends HttpServlet {
 
                     part.write(uploadPath);
 
-                    // images 테이블 저장
                     int imageId = 0;
                     String imgSql = "INSERT INTO images (name, uploader_id) VALUES (?, ?)";
 
@@ -212,7 +206,6 @@ public class ProductUpdateServlet extends HttpServlet {
                         if (rs.next()) imageId = rs.getInt(1);
                     }
 
-                    // product_images 매핑 저장
                     try (PreparedStatement ps = conn.prepareStatement(
                             "INSERT INTO product_images(product_id, image_id) VALUES (?, ?)")) {
                         ps.setInt(1, productId);

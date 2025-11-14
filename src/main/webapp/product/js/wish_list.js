@@ -14,12 +14,10 @@ if (btn) {
       if (!res.ok) return;
 
       const data = await res.json();
-      const wished = data.isWished; // true / false
+      const wished = data.isWished;
 
-      // data-wish 업데이트
       this.dataset.wish = wished;
 
-      // 아이콘/스타일 업데이트
       const icon = this.querySelector("i");
       if (wished) {
         icon.classList.remove("bi-heart");

@@ -4,18 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!imageInput || !previewContainer) return;
 
-  let selectedFiles = []; // 실제 업로드할 파일 목록 저장용
+  let selectedFiles = [];
 
   imageInput.addEventListener('change', (event) => {
     const files = Array.from(event.target.files);
-
-    // 새로 선택한 파일들을 추가
     selectedFiles = selectedFiles.concat(files);
-
     renderPreview();
   });
 
-  // 미리보기 + X버튼을 렌더링하는 함수
   function renderPreview() {
     previewContainer.innerHTML = "";
 
@@ -34,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
         img.style.height = "128px";
         img.style.objectFit = "cover";
 
-        // X 버튼
         const removeBtn = document.createElement("button");
         removeBtn.innerHTML = "✕";
         removeBtn.style.cssText = `
@@ -51,30 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         removeBtn.addEventListener("click", () => {
-          // 실제 배열에서 제거
           selectedFiles.splice(index, 1);
-
-          // input 파일 목록도 다시 구성해야 함
           updateInputFiles();
-
-          // 다시 렌더링
           renderPreview();
         });
 
         wrapper.appendChild(img);
         wrapper.appendChild(removeBtn);
-
         previewContainer.appendChild(wrapper);
       };
 
       reader.readAsDataURL(file);
     });
 
-    // 실제 input에도 리스트 반영
     updateInputFiles();
   }
 
-  // input.files를 selectedFiles로 다시 세팅
   function updateInputFiles() {
     const dataTransfer = new DataTransfer();
     selectedFiles.forEach(file => dataTransfer.items.add(file));

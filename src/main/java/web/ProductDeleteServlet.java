@@ -20,7 +20,6 @@ public class ProductDeleteServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
-        /* 📌 로그인 체크 */
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("loginUserId") == null) {
             resp.sendRedirect(req.getContextPath() + "/user/login");
@@ -28,7 +27,6 @@ public class ProductDeleteServlet extends HttpServlet {
         }
         int userId = (Integer) session.getAttribute("loginUserId");
 
-        /* 📌 productId 파라미터 Null / 형식 오류 방지 */
         String idStr = req.getParameter("id");
         if (idStr == null || idStr.isEmpty()) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "상품 ID가 전달되지 않았습니다.");
@@ -48,17 +46,14 @@ public class ProductDeleteServlet extends HttpServlet {
         try (Connection conn = DBUtil.getConnection()) {
             conn.setAutoCommit(false);
 
-            /* 📌 삭제 권한 확인 */
             if (!ownsProduct(conn, productId, userId)) {
                 conn.rollback();
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "삭제 권한이 없습니다.");
                 return;
             }
 
-            /* 📌 연관 데이터 삭제 */
             deleteAllRelatedData(conn, productId, uploadPath);
 
-            /* 📌 상품 삭제 */
             try (PreparedStatement ps = conn.prepareStatement(
                     "DELETE FROM products WHERE id = ?")) {
                 ps.setInt(1, productId);
@@ -75,7 +70,6 @@ public class ProductDeleteServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/product/list");
     }
 
-    /* ✔ 본인 상품인지 검증 */
     private boolean ownsProduct(Connection conn, int productId, int userId) throws SQLException {
         String sql = "SELECT id FROM products WHERE id = ? AND seller_id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -87,33 +81,27 @@ public class ProductDeleteServlet extends HttpServlet {
         }
     }
 
-    /* ✔ 모든 연관 데이터 삭제 */
     private void deleteAllRelatedData(Connection conn, int productId, String uploadPath) throws SQLException {
 
-        /* 🗨 채팅방 삭제 (CASCADE로 메시지도 함께 삭제됨) */
         try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM chat_room WHERE product_id = ?")) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         }
 
-        /* 💖 찜 목록 삭제 */
         try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM wish_lists WHERE product_id = ?")) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         }
 
-        /* 🖼 이미지 삭제 */
         deleteProductImages(conn, productId, uploadPath);
     }
 
-    /* ✔ 이미지 파일 + DB 매핑 삭제 */
     private void deleteProductImages(Connection conn, int productId, String uploadPath) throws SQLException {
 
         List<String> imageNames = new ArrayList<>();
 
-        /* 파일명 조회 */
         String sql = """
             SELECT i.name
             FROM images i
@@ -130,21 +118,18 @@ public class ProductDeleteServlet extends HttpServlet {
             }
         }
 
-        /* 서버에서 실제 파일 삭제 */
         for (String filename : imageNames) {
             File file = new File(uploadPath, filename);
             if (file.exists() && file.delete()) {
             }
         }
 
-        /* 매핑 테이블 삭제 */
         try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM product_images WHERE product_id = ?")) {
             ps.setInt(1, productId);
             ps.executeUpdate();
         }
 
-        /* 고아 이미지 정리 (product_images에 없는 이미지 제거) */
         try (PreparedStatement ps = conn.prepareStatement(
                 "DELETE FROM images WHERE id NOT IN (SELECT image_id FROM product_images)")) {
             ps.executeUpdate();

@@ -12,15 +12,33 @@
 body {
   background-color: var(--color-bg);
   color: var(--color-text-main);
-  /* Inter 폰트 적용 */
   font-family: 'Inter', sans-serif;
 }
+.review-text.no-clamp {
+  -webkit-line-clamp: unset;
+  max-height: none;
+  overflow: visible;
+}
 
-/* ------------------------------------------- */
-/* Primary 버튼 스타일 */
-/* ------------------------------------------- */
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.review-item {
+  margin-bottom: 1.5rem;
+}
 .btn {
-    /* Bootstrap 기본 스타일 복구 (버튼에 transition 추가) */
     transition: all 0.15s ease-in-out;
 }
 .btn-primary {
@@ -48,11 +66,7 @@ body {
   border-color: var(--color-primary);
 }
 
-/* ------------------------------------------- */
-/* 🆕 새로운 스타일: btn-outline-muted (원하는 색상 #7A6A60 적용) */
-/* ------------------------------------------- */
 .btn-outline-muted {
-  /* 기본 색상: --color-text-muted (#7A6A60) */
   color: var(--color-text-muted);
   border-color: var(--color-text-muted);
   font-weight: 600;
@@ -60,17 +74,12 @@ body {
 
 .btn-outline-muted:hover,
 .btn-outline-muted:focus {
-  /* hover 시 배경색: --color-text-muted (#7A6A60) */
   color: #fff;
   background-color: var(--color-text-muted);
   border-color: var(--color-text-muted);
 }
 
-/* ------------------------------------------- */
-/* 📏 크기 및 형태 조정: btn-sm2 (1.3배 확대 + 사각형 유지) */
-/* ------------------------------------------- */
 .btn-sm2 {
-  /* 타원 대신 사각형(8px) 모서리 유지 */
   border-radius: 8px; 
   /* 1.3배 확대 */
   font-size: 1.05rem; 
@@ -79,10 +88,6 @@ body {
   line-height: 1.5; 
 }
 
-
-/* ------------------------------------------- */
-/* 상품 상세 페이지 레이아웃 및 기타 스타일 */
-/* ------------------------------------------- */
 .btn-action {
   min-width: 110px;
 }
@@ -141,16 +146,20 @@ body {
   overflow: hidden;
   position: relative;
   line-height: 1.45rem;
-  color: var(--color-text-main);
   transition: all 0.25s ease;
   word-break: break-word;
   font-size: 0.92rem;
 }
-/* 주황색 강제 스타일 제거 */
+
+.review-text.expanded {
+  -webkit-line-clamp: unset;
+  max-height: none;
+  overflow: visible;
+}
+
 .section-box .btn.btn-outline-secondary.btn-sm2 {
   border-radius: 999px;
   font-size: 0.82rem;
-  /* background-color: E46F34; -- 제거됨 */
 }
 
 .card-img, .card-img-bottom, .card-img-top {

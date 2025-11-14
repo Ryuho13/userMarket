@@ -78,7 +78,6 @@ public class ProductCompleteServlet extends HttpServlet {
             throw new ServletException("거래 완료 처리 중 오류가 발생했습니다.", e);
         }
 
-        // 다시 마이페이지 채팅 탭으로
         resp.sendRedirect(req.getContextPath() + "/user/myPage?tab=chats");
     }
 }
