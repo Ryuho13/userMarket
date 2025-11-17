@@ -106,7 +106,6 @@ public class UpdateMyPageServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
 		HttpSession session = req.getSession(false);
 		if (session == null || session.getAttribute("loginUser") == null) {
 			resp.sendRedirect(req.getContextPath() + "/user/login.jsp");
@@ -116,7 +115,20 @@ public class UpdateMyPageServlet extends HttpServlet {
 		User loginUser = (User) session.getAttribute("loginUser");
 		int userId = loginUser.getId();
 
-		// 업로드/삭제 경로 준비 (저장 때와 동일한 로직)
+		// 현재 DB에 저장된 프로필 정보 먼저 가져오기
+		UserProfile currentProfile = null;
+		String profileImgFileName = null; // 최종적으로 DB에 넣을 값
+
+		try {
+			currentProfile = userDAO.findProfileByUserId(userId);
+			if (currentProfile != null) {
+				profileImgFileName = currentProfile.getProfileImg(); // 기존 값
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		// 업로드/삭제 경로 준비
 		final String webUploadDir = "/profile_images";
 		String diskSavePath = getServletContext().getRealPath(webUploadDir);
 		if (diskSavePath == null) {
@@ -128,9 +140,8 @@ public class UpdateMyPageServlet extends HttpServlet {
 			saveDir.mkdirs();
 
 		// 0) 삭제 요청 체크
-		String removeProfile = req.getParameter("removeProfile"); // "Y"면 삭제
+		String removeProfile = req.getParameter("removeProfile");
 		if ("Y".equalsIgnoreCase(removeProfile)) {
-			// jpg / png 둘 다 시도 삭제
 			File jpg = new File(saveDir, "user_" + userId + ".jpg");
 			File png = new File(saveDir, "user_" + userId + ".png");
 			if (jpg.exists()) {
@@ -148,6 +159,8 @@ public class UpdateMyPageServlet extends HttpServlet {
 				}
 			}
 			System.out.println("[PROFILE] removed: " + jpg.getAbsolutePath() + " / " + png.getAbsolutePath());
+
+			profileImgFileName = null;
 		}
 
 		// 1) 파일 업로드 (삭제 체크했더라도 새 파일을 올리면 새 파일이 최종 적용)
@@ -163,13 +176,14 @@ public class UpdateMyPageServlet extends HttpServlet {
 
 			String contentType = filePart.getContentType();
 			String ext = ".jpg";
-			if ("image/png".equalsIgnoreCase(contentType))
+			if ("image/png".equalsIgnoreCase(contentType)) {
 				ext = ".png";
+			}
 
+			// DB에 저장할 파일명
 			String fixedFileName = "user_" + userId + ext;
 
 			try {
-				// 저장 전에 반대 확장자 파일은 정리(혼선 방지)
 				File oldJpg = new File(saveDir, "user_" + userId + ".jpg");
 				File oldPng = new File(saveDir, "user_" + userId + ".png");
 				if (oldJpg.exists() && !".jpg".equalsIgnoreCase(ext))
@@ -179,6 +193,9 @@ public class UpdateMyPageServlet extends HttpServlet {
 
 				filePart.write(new File(saveDir, fixedFileName).getAbsolutePath());
 				System.out.println("[UPLOAD] saved => " + new File(saveDir, fixedFileName).getAbsolutePath());
+				
+				profileImgFileName = fixedFileName;
+
 			} catch (IOException e) {
 				e.printStackTrace();
 				req.setAttribute("error", "프로필 이미지 저장 중 오류가 발생했습니다.");
@@ -252,11 +269,7 @@ public class UpdateMyPageServlet extends HttpServlet {
 
 		// ------------------- DB 업데이트 -------------------
 		try {
-			// DB에는 이미지 경로를 저장하지 않음 (방법 A)
-			userDAO.updateUserAndInfo(userId, name, phn, em, newPwNullable, nickname, addrDetail, null, // profileImgPath
-																										// 생략 (DB 저장 안
-																										// 함)
-					regionIdNullable);
+			userDAO.updateUserAndInfo(userId, name, phn, em, newPwNullable, nickname, addrDetail, profileImgFileName, regionIdNullable);
 
 			// 세션 값 갱신
 			loginUser.setName(name);
